@@ -34,7 +34,7 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["."]
-omit = ["tests/*", "scripts/*", "web/*"]
+omit = ["tests/*", "scripts/*"]
 
 [tool.coverage.report]
 show_missing = false
