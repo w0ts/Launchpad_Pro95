@@ -1,0 +1,72 @@
+name: Tests
+
+on:
+  # Every branch; tag pushes run these checks through release.yml instead.
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+  # release.yml runs the same tests and lint before it publishes a release.
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      # Settings in pyproject.toml. Same pinned versions locally: uvx ruff@0.17.6 / uvx black@26.10.1.
+      - name: Ruff
+        run: uvx ruff@0.17.6 check --output-format=github .
+
+      - name: Black
+        run: uvx black@26.10.1 --check --diff .
+
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11 (Live 11+ runs Python 3.11)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test tools
+        run: python -m pip install future pytest pytest-cov pytest-timeout
+
+      # Ableton's _Framework is not in this repository: fetch it (decompiled, pinned
+      # commit of the w0ts fork, see the script). Cached until the script changes.
+      - name: Cache the framework
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ableton-framework
+          key: ableton-framework-${{ hashFiles('scripts/fetch_framework.sh') }}
+
+      - name: Fetch the framework
+        run: scripts/fetch_framework.sh "$RUNNER_TEMP/ableton-framework"
+
+      - name: Run the tests
+        env:
+          ABLETON_FRAMEWORK_DIR: ${{ runner.temp }}/ableton-framework
+        run: python -m pytest --cov --cov-report=term --cov-report=xml -ra
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+          if-no-files-found: ignore

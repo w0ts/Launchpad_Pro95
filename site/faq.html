@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launchpad Pro95 · FAQ</title>
+<meta name="description" content="Launchpad Pro95: an Ableton Live control surface script for the Novation Launchpad Pro, with an instrument mode, scales, two step sequencers and a device controller.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23171716'/%3E%3Cg fill='%23f0a33a'%3E%3Crect x='5' y='5' width='6' height='6' rx='1'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1'/%3E%3Crect x='13' y='13' width='6' height='6' rx='1'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1'/%3E%3C/g%3E%3Cg fill='%23f0a33a' opacity='.4'%3E%3Crect x='13' y='5' width='6' height='6' rx='1'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://w0ts.github.io/site-style/common.css">
+<style>
+:root { --accent: #f0a33a; --accent-text-l: #8f5a0e; --accent-text-d: #f0a33a; }
+</style>
+<script src="https://w0ts.github.io/site-style/switcher.js" defer></script>
+</head>
+<body>
+<main>
+  <header class="site">
+    <div class="titlebar"><h1><a href="https://w0ts.github.io/">w0ts</a> / Launchpad Pro95</h1></div>
+    <nav class="site" aria-label="Launchpad Pro95 pages"><a href="./">About</a><a href="install.html">Install</a><a href="manual.html">Manual</a><a href="faq.html" aria-current="page">FAQ</a><a href="https://github.com/w0ts/Launchpad_Pro95" aria-label="Launchpad Pro95 on GitHub" title="Launchpad Pro95 on GitHub"><svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a></nav>
+  </header>
+
+  <section id="faq">
+    <h2>F.A.Q.</h2>
+    <dl class="terms">
+      <dt id="faq-1">1. Which Launchpads are supported?</dt>
+      <dd>The Launchpad Pro. For all the other Launchpads, see <a href="https://w0ts.github.io/Launchpad95/">Launchpad95</a>.</dd>
+
+      <dt id="faq-2">2. Which Ableton Live versions are supported?</dt>
+      <dd>Live 11 or later, on macOS or Windows, any edition (Intro, Standard, Suite). For Live 9.5 and Live 10, use the <a href="https://github.com/w0ts/Launchpad_Pro95/releases/tag/legacy-live9-10">archived release</a>. Ableton changes Live's Python API from time to time without notice, so Launchpad Pro95 may stop working after a Live update: then download the <a href="https://github.com/w0ts/Launchpad_Pro95/releases/latest">latest release</a>.</dd>
+
+      <dt id="faq-3">3. Where should I put the script?</dt>
+      <dd>In the <b>Remote Scripts</b> folder of your Ableton User Library (see <a href="install.html">Install</a>; Settings → Library shows where the User Library is). Inside Remote Scripts you should have a folder called <code>Launchpad_Pro95</code>, and inside it a bunch of <code>.py</code> files (Live compiles them into a <code>__pycache__</code> folder when it starts). The screenshot in <a href="install.html">Install</a> shows how it looks.</dd>
+
+      <dt id="faq-4">4. I installed everything, but the Launchpad does not light up when I select Launchpad_Pro95 in the settings. What is wrong?</dt>
+      <dd>It is hard to guess; something in the install went wrong. Try again from scratch: download the latest release, unzip, install, restart Live. Things to check:
+        <ul>
+          <li>that you installed it in the right place (<a href="#faq-3">question 3</a>);</li>
+          <li>the folder name, and its full path (<a href="#faq-3">question 3</a> again);</li>
+          <li>the Input and Output of the control surface: the Launchpad Pro's Live port (<a href="install.html">Install</a>);</li>
+          <li>how many versions of Live you have installed, and which one you are running: it must be Live 11 or later.</li>
+        </ul></dd>
+
+      <dt id="faq-5">5. I installed everything, but Launchpad_Pro95 does not appear in the Control Surface list. What is wrong?</dt>
+      <dd>See <a href="#faq-4">question 4</a>.</dd>
+
+      <dt id="faq-6">6. Note feedback does not work in the instrument mode.</dt>
+      <dd>Make sure Track is on for the Launchpad Pro's input and output in Live's MIDI Ports list.</dd>
+    </dl>
+  </section>
+
+  <section id="known-issues">
+    <h2>Known issues</h2>
+    <ul>
+      <li>In Live 9 (the archived release), moving notes in the clip editor while the step sequencer is open duplicates notes.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

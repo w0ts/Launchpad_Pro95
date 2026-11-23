@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launchpad Pro95 · Manual</title>
+<meta name="description" content="Launchpad Pro95: an Ableton Live control surface script for the Novation Launchpad Pro, with an instrument mode, scales, two step sequencers and a device controller.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23171716'/%3E%3Cg fill='%23f0a33a'%3E%3Crect x='5' y='5' width='6' height='6' rx='1'/%3E%3Crect x='21' y='5' width='6' height='6' rx='1'/%3E%3Crect x='13' y='13' width='6' height='6' rx='1'/%3E%3Crect x='5' y='21' width='6' height='6' rx='1'/%3E%3Crect x='21' y='21' width='6' height='6' rx='1'/%3E%3C/g%3E%3Cg fill='%23f0a33a' opacity='.4'%3E%3Crect x='13' y='5' width='6' height='6' rx='1'/%3E%3Crect x='5' y='13' width='6' height='6' rx='1'/%3E%3Crect x='21' y='13' width='6' height='6' rx='1'/%3E%3Crect x='13' y='21' width='6' height='6' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://w0ts.github.io/site-style/common.css">
+<style>
+:root { --accent: #f0a33a; --accent-text-l: #8f5a0e; --accent-text-d: #f0a33a; }
+/* Launchpad renders: the original manual's CSS, verbatim */
+
+		table.launchpad{border:2px solid grey; background-color:#444; padding:25px; border-collapse:separate; border-spacing:7px 7px; border-radius:10px; page-break-inside:avoid }
+		
+		table.launchpad tr td.pad, table.launchpad tr td.round {
+			font-size: 10pt; 
+			color:#CCC;background-color:#888;background:radial-gradient(ellipse at center, #888 12%,#777 99%);
+			vertical-align:top; vertical-align:middle; text-align:center;
+			border:1px solid #333; 
+			width:60px;
+			height:60px; 
+		}	
+		table.launchpad tr td.pad	{border-radius:5px;}
+		table.launchpad tr td.round	{border-radius:60px;}
+		
+		table.launchpad tr td.amber		{color:#666; background: #ffA544; background:radial-gradient(ellipse at center, #ffA544 12%,#aa7744 99%);}
+		table.launchpad tr td.blue		{color:#666; background: #00aa00; background:radial-gradient(ellipse at center, #7777ff 12%,#7777aa 99%);}
+		table.launchpad tr td.light_blue{color:#666; background: #00aa00; background:radial-gradient(ellipse at center, #aaaaff 12%,#aaaadd 99%);}
+		table.launchpad tr td.green		{color:#666; background: #00aa00; background:radial-gradient(ellipse at center, #77cc33 12%,#669933 99%);}
+		table.launchpad tr td.orange	{color:#666; background: #ffA544; background:radial-gradient(ellipse at center, #ffC504 12%,#aa7744 99%);}
+		table.launchpad tr td.purple	{color:#666; background: #00aa00; background:radial-gradient(ellipse at center, #ff99ff 12%,#aa99aa 99%);}
+		table.launchpad tr td.red		{color:#666; background: #ff4444; background:radial-gradient(ellipse at center, #ff4444 12%,#bb3333 99%);}
+		table.launchpad tr td.yellow	{color:#666; background: #00aa00; background:radial-gradient(ellipse at center, #ffff00 12%,#aaaa00 99%);}
+		
+		
+		table.launchpad tr td div.note {
+			padding:2px; text-align:left; color:#CCC; position:absolute;
+			width:140px; height:45px; font-size:12px;
+			margin-left:65px; margin-top:-14px;
+			border:1px solid #666; background-color:rgba(127,127,127,0.5); border-radius:5px;
+		}
+		table.launchpad tr td div.topNote {
+			padding:2px; text-align:left; color:#CCC; 
+			float:top; position:absolute; width:50px; font-size:12px;
+			margin-left:0px; margin-top:-85px; height:60px;
+			border:1px solid #666; background-color:rgba(127,127,127,0.5); border-radius:5px;
+		}
+
+
+/* undo the w0ts common.css table rules (and bring back the old site's table rules) so the renders
+   look as on the original page: same sizes (content-box, 750 px wide), font, centring, no row hover */
+table.launchpad, table.launchpad * { box-sizing: content-box; font-family: Arial, Helvetica, sans-serif; }
+table.launchpad { box-sizing: border-box; width: 750px; /* the old page's 750 px column, which the table filled */ margin-left: 0; margin-right: 0; /* left-aligned with the text */ font-size: 16px; line-height: normal; font-variant-numeric: normal; }
+table.launchpad td { padding: 1px; border-bottom: 0; text-align: left; vertical-align: bottom; }
+table.launchpad tbody tr:hover td:not(.pad):not(.round) { background: none; }
+section:has(> table.launchpad) { overflow: visible; }
+/* the side notes were half-transparent grey over the old page's #666 background: keep that colour on any background */
+table.launchpad tr td div.note, table.launchpad tr td div.topNote { background-color: #737373; }
+
+/* the manual's table of contents (the original page's floating one, in the w0ts colours): a column on the right
+   that stays in view while the manual scrolls, with its own scroll bar; the text keeps its own column, so no render or
+   side note sits under it. Below the width where both fit side by side, it is a plain block at the top. */
+.manual { display: grid; grid-template-columns: minmax(0, 1fr) var(--toc-w); gap: 0 var(--toc-gap); align-items: start; }
+.manual { --toc-w: 190px; --toc-gap: 16px; --toc-top: 16px; }
+.manual > .text { grid-column: 1; grid-row: 1; min-width: 0; }
+.manual > .text > section { display: flow-root; }
+.manual > .text > section > :is(p, ul, ol, dl, blockquote) { max-width: 820px; }
+#toc { grid-column: 2; grid-row: 1; position: sticky; top: var(--toc-top); max-height: calc(100vh - 2 * var(--toc-top)); overflow-y: auto;
+  font-size: 0.8em; border: 1px solid var(--line); border-radius: var(--r-ctl);
+  margin: 0; padding: 5px 8px; background: linear-gradient(to right, var(--off), var(--panel)); }
+#toc ul { padding-left: 15px; margin: 0; }
+#toc p { margin: 6px 0; }
+#toc .hidden { display: none; }
+#toc a { text-decoration: none; }
+#toc a:hover { text-decoration: underline; }
+/* a render with its side notes is about 880 px wide: below 1132 px of window the two columns no longer fit */
+@media (max-width: 1131px) {
+  .manual { display: block; }
+  #toc { position: static; max-height: none; margin: 0 0 12px; }
+}
+</style>
+<style media="print">
+   div.note {color:black; background-color:#ddd;}
+   div.noteTop {color:black; background-color:#ddd;}
+   p { margin: 0.2em 0 }
+   body {
+     font: 10pt Georgia, "Times New Roman", Times, serif;
+     background-color: white;
+     color: black;
+   }
+   ul {list-style: dash;}
+   blockquote, ul {margin: 0;}
+   table.launchpad {page-break-inside: avoid; zoom: 0.9;}
+   section {page-break-before: always;}
+   li,dd{color:black;}
+</style>
+<script src="https://w0ts.github.io/site-style/switcher.js" defer></script>
+</head>
+<body>
+<main>
+  <header class="site">
+    <div class="titlebar"><h1><a href="https://w0ts.github.io/">w0ts</a> / Launchpad Pro95</h1></div>
+    <nav class="site" aria-label="Launchpad Pro95 pages"><a href="./">About</a><a href="install.html">Install</a><a href="manual.html" aria-current="page">Manual</a><a href="faq.html">FAQ</a><a href="https://github.com/w0ts/Launchpad_Pro95" aria-label="Launchpad Pro95 on GitHub" title="Launchpad Pro95 on GitHub"><svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a></nav>
+  </header>
+  <div class="manual">
+  <p id="toc"></p>
+  <div class="text">
+
+  <section id="manual">
+    <h2>User manual</h2>
+    <p>Two modes are added on top of the existing modes: the <b>drum step sequencer</b> and the <b>melodic step sequencer</b>, to edit MIDI clips. They are sub modes of the User mode.</p>
+    <p>The <b>Device mode</b> has been vastly improved: you lose the parameter smoothing, but gain loads of other features. The <b>Note mode</b> has also been greatly improved.</p>
+  </section>
+
+  <section id="note-mode">
+    <h2>Note mode</h2>
+    <p>The top up/down navigation buttons navigate scenes, while the left/right buttons navigate tracks.</p>
+    <p>The matrix of buttons acts as a MIDI keyboard, with a drum rack layout and melodic layouts. Melodic layouts let you select the root note, the mode (major, minor, etc.) and the octave you play in.</p>
+	<table class="launchpad">
+		<tr class="top">
+			<td></td>
+			<td class="round blue">Scene+</td>
+			<td class="round blue">Scene-</td>
+			<td class="round blue">Track-</td>
+			<td class="round blue">Track+</td>
+			<td class="round green">Session</td>
+			<td class="round blue">Note</td>
+			<td class="round purple">Device</td>
+			<td class="round orange">Step</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td class="round green">Shift</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue">&nbsp;</td>
+			<td class="pad blue">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="round blue"><div class="note">enter scale edition mode</div>Scale</td>
+		</tr>
+		<tr>
+			<td class="round green">Click</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="round blue">Octave+</td>
+		</tr>
+		<tr>
+			<td class="round green">Undo</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="round blue">Octave-</td>
+		</tr>
+		<tr>
+			<td class="round green">Delete</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="round"></td>
+		</tr>
+		<tr>
+			<td class="round green">Quant.</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="round orange">Solo</td>
+		</tr>
+		<tr>
+			<td class="round green">Dupl.</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="round red">Mute</td>
+		</tr>
+		<tr>
+			<td class="round green">Double</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="round blue"><div class="note">stop selected clip</div>Stop</td>
+		</tr>
+			<tr>
+			<td class="round red">Rec</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad blue ">&nbsp;</td>
+			<td class="pad purple">&nbsp;</td>
+			<td class="round blue"><div class="note">start selected clip</div>Start</td>
+		</tr>
+		<tr class="bottom">
+			<td></td>
+			<td class="round red">Arm</td>
+			<td class="round light_blue">Select</td>
+			<td class="round yellow">Mute</td>
+			<td class="round blue">Solo</td>
+			<td class="round green">Volume</td>
+			<td class="round orange">Pan</td>
+			<td class="round light_blue">Sends</td>
+			<td class="round red">Stop</td>
+			<td></td>
+		</tr>
+	</table>
+  </section>
+
+  <section id="scale-mode">
+    <h2>Scale edition mode</h2>
+    <p>To enter scale edition mode, press the 1st scene button from Instrument mode.</p>
+    <ul>
+      <li>The top red buttons select the layout (drum rack, chromatic, diatonic).</li>
+      <li>The 2nd and 3rd rows select the root note.</li>
+      <li>The 4th red row selects the octave.</li>
+      <li>The bottom rows select the mode.</li>
+    </ul>
+    <p>You can select the orientation of the layout (vertical or horizontal).</p>
+    <p>The 2nd top left button selects the interval among 3rd, 4th and 6th for the diatonic layout. 4th is the default, as on Push; 3rd is very practical to play chords vertically.</p>
+    <p>The 3rd top left button (amber) lets you fix the first (bottom left) note to the scale root or leave it on a C.</p>
+	<table class="launchpad">
+		<tr class="top">
+			<td></td>
+			<td class="round blue">Scene+</td>
+			<td class="round blue">Scene-</td>
+			<td class="round blue">Track-</td>
+			<td class="round blue">Track+</td>
+			<td class="round green">Session</td>
+			<td class="round blue">Note</td>
+			<td class="round purple">Device</td>
+			<td class="round orange">Step</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td class="round green">Shift</td>
+			<td class="pad red" title="orientation">orient.</td>
+			<td class="pad"></td>
+			<td class="pad red">chromatic guitar</td>
+			<td class="pad red">diatonic sequent</td>
+			<td class="pad red">diatonic 3rd</td>
+			<td class="pad red">diatonic 4th</td>
+			<td class="pad red">chromatic</td>
+			<td class="pad red">drumrack</td>
+			<td class="round blue"><div class="note">enter scale edition mode</div>Scale</td>
+		</tr>
+		<tr>
+			<td class="round green">Click</td>
+			<td class="pad green">C#</td>
+			<td class="pad green">D#</td>
+			<td class="pad blue">relative scale</td>
+			<td class="pad green">F#</td>
+			<td class="pad green">G#</td>
+			<td class="pad green">A#</td>
+			<td class="pad blue">5th left</td>
+			<td class="pad red">quick scale mode</td>
+			<td class="round blue">Octave+</td>
+		</tr>
+		<tr>
+			<td class="round green">Undo</td>
+			<td class="pad green">C</td>
+			<td class="pad green">D</td>
+			<td class="pad green">E</td>
+			<td class="pad green">F</td>
+			<td class="pad green">G</td>
+			<td class="pad green">A</td>
+			<td class="pad green">B</td>
+			<td class="pad blue">5th right</td>
+			<td class="round blue">Octave-</td>
+		</tr>
+		<tr>
+			<td class="round green">Delete</td>
+			<td class="pad red" title="octave -2">-2</td>
+			<td class="pad red" title="octave -1">-1</td>
+			<td class="pad red" title="octave 0">0</td>
+			<td class="pad red" title="octave 1">1</td>
+			<td class="pad red" title="octave 2">2</td>
+			<td class="pad red" title="octave 3">3</td>
+			<td class="pad red" title="octave 4">4</td>
+			<td class="pad red" title="octave 5">5</td>
+			<td class="round"></td>
+		</tr>
+		<tr>
+			<td class="round green">Quant.</td>
+			<td class="pad blue">Major</td>
+			<td class="pad blue">Minor</td>
+			<td class="pad blue">Dorian</td>
+			<td class="pad blue" title="Mixolydian">Mixolyd.</td>
+			<td class="pad blue">Lydian</td>
+			<td class="pad blue">Phrygian</td>
+			<td class="pad blue">Locrian</td>
+			<td class="pad blue" title="Diminished">Diminish.</td>
+			<td class="round orange">Solo</td>
+		</tr>
+		<tr>
+			<td class="round green">Dupl.</td>
+			<td class="pad blue">Whole-half</td>
+			<td class="pad blue">Whole Tone</td>
+			<td class="pad blue">Minor Blues</td>
+			<td class="pad blue" title="Minor Pentatonic">Minor Penta.</td>
+			<td class="pad blue" title="Major Pentatonic">Major Penta.</td>
+			<td class="pad blue">Harmonic Minor</td>
+			<td class="pad blue">Melodic Minor</td>
+			<td class="pad blue">Super Locrian</td>
+			<td class="round red">Mute</td>
+			
+		</tr>
+		<tr>
+			<td class="round green">Double</td>
+			<td class="pad blue">Bhairav</td>
+			<td class="pad blue" title="Hungarian Minor">Hunga. Minor</td>
+			<td class="pad blue">Minor Gypsy</td>
+			<td class="pad blue">Hirojoshi</td>
+			<td class="pad blue">In-Sen</td>
+			<td class="pad blue">Iwato</td>
+			<td class="pad blue">Kumoi</td>
+			<td class="pad blue">Pelog</td>
+			<td class="round blue"><div class="note">stop selected clip</div>Stop</td>
+		</tr>
+		<tr>
+			<td class="round red">Rec</td>
+			<td class="pad blue">spanish</td>
+			<td class="pad blue">IonEol</td>
+			<td class="pad "></td>
+			<td class="pad "></td>
+			<td class="pad "></td>
+			<td class="pad "></td>
+			<td class="pad "></td>
+			<td class="pad "></td>
+			<td class="round blue"><div class="note">start selected clip</div>Start</td>
+		</tr>
+		<tr class="bottom">
+			<td></td>
+			<td class="round red">Arm</td>
+			<td class="round light_blue">Select</td>
+			<td class="round yellow">Mute</td>
+			<td class="round blue">Solo</td>
+			<td class="round green">Volume</td>
+			<td class="round orange">Pan</td>
+			<td class="round light_blue">Sends</td>
+			<td class="round red">Stop</td>
+			<td></td>
+		</tr>
+	</table>
+  </section>
+
+<!-- Quick scale modes: these two renders were commented out in the original manual.
+	<section>
+	<h4>quick scale modes</h4>
+	<h5>root note</h5>
+	<table class="launchpad">
+		<tr>
+			<td class="pad amber">C#</td>
+			<td class="pad amber">D#</td>
+			<td class="pad red">relative scale</td>
+			<td class="pad amber">F#</td>
+			<td class="pad amber">G#</td>
+			<td class="pad amber">A#</td>
+			<td class="pad red">5th left</td>
+			<td class="pad red">scale / mode toggle</td>
+		</tr>
+		<tr>
+			<td class="pad amber">C</td>
+			<td class="pad amber">D</td>
+			<td class="pad amber">E</td>
+			<td class="pad amber">F</td>
+			<td class="pad amber">G</td>
+			<td class="pad amber">A</td>
+			<td class="pad amber">B</td>
+			<td class="pad red">5th right</td>
+		</tr>
+	</table>
+	<h5>quick scale modes: modus</h5>
+	<table class="launchpad">
+		<tr>
+			<td class="pad amber">Major</td>
+			<td class="pad amber">Minor</td>
+			<td class="pad amber">Dorian</td>
+			<td class="pad amber" title="Mixolydian">Mixolyd.</td>
+			<td class="pad amber">Lydian</td>
+			<td class="pad amber">Phrygian</td>
+			<td class="pad amber">Locrian</td>
+			<td class="pad red">scale / mode toggle</td>
+		</tr>
+		<tr>
+			<td class="pad amber" title="Diminished">Diminish.</td>
+			<td class="pad amber">Minor Blues</td>
+			<td class="pad amber">Harmonic Minor</td>
+			<td class="pad amber">Melodic Minor</td>
+			<td class="pad amber">Super Locrian</td>
+			<td class="pad amber" title="Hungarian Minor">Hunga. Minor</td>
+			<td class="pad amber">Minor Gypsy</td>
+			<td class="pad amber">Spanish</td>
+		</tr>
+	</table>
+	</section>
+-->
+  <section id="device-mode">
+    <h2>Device Controller mode</h2>
+    <h3>Navigation</h3>
+    <p>Navigate among tracks and devices with the top left navigation buttons.</p>
+    <h3>Editing parameters</h3>
+    <p>You can edit eight parameters of the selected device on the selected track at once, one parameter per column. Navigate the banks of parameters with scene buttons 2 and 3. Depending on the type of parameter, the Launchpad displays it in different ways.</p>
+    <dl class="terms">
+      <dt>On/off parameters</dt>
+      <dd>Colour code red. Only one button is used to change the parameter.</dd>
+      <dt>Parameters with a list of values</dt>
+      <dd>Colour code amber, for example a synth's wave form selector (square, sine, triangle). If the parameter has less than 8 values, they are directly accessible one by one. If it has more, you scroll through the values: the closer the button to the centre, the more precise; the closer to the top or bottom of the Launchpad, the bigger the change at each press.</dd>
+      <dt>Parameters with continuous values</dt>
+      <dd>Colour code green, for parameters like volume or panning. By default the Launchpad displays the parameter like a volume slider in the mixer mode. In the precision slider mode (scene button 4), the sliders work like the parameters with a list of values.</dd>
+    </dl>
+    <h3>Locking to devices</h3>
+    <p>You can save up to 4 devices on the 4 bottom scene buttons. When no device is saved there, the button is pink. To save a device, select it, then press one of the 4 last scene buttons for more than half a second: the button turns red, your device is saved. Recall it at any time with a short press on the scene button. To forget it, long press the button again.</p>
+	<table class="launchpad">
+			<tr class="top">
+				<td></td>
+				<td class="round purple">Device+</td>
+				<td class="round purple">Device-</td>
+				<td class="round purple">Track-</td>
+				<td class="round purple">Track+</td>
+				<td class="round green">Session</td>
+				<td class="round blue">Note</td>
+				<td class="round purple">Device</td>
+				<td class="round orange">Step</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="round green">Shift</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round purple">On/Off</td>
+			</tr>
+			<tr>
+				<td class="round green">Click</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round blue">Bank+</td>
+			</tr>
+			<tr>
+				<td class="round green">Undo</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round blue">Bank-</td>
+			</tr>
+			<tr>
+				<td class="round green">Delete</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round blue">Precision</td>
+			</tr>
+			<tr>
+				<td class="round green">Quant.</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="round purple">Lock1</td>
+			</tr>
+			<tr>
+				<td class="round green">Dupl.</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="round purple">Lock2</td>
+			</tr>
+			<tr>
+				<td class="round green">Double</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="round purple">Lock3</td>
+			</tr>
+				<tr>
+				<td class="round red">Rec</td>
+				<td class="pad purple">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="pad purple ">&nbsp;</td>
+				<td class="round purple">Lock4</td>
+			</tr>
+			<tr class="bottom">
+				<td></td>
+				<td class="round red">Arm</td>
+				<td class="round light_blue">Select</td>
+				<td class="round yellow">Mute</td>
+				<td class="round blue">Solo</td>
+				<td class="round green">Volume</td>
+				<td class="round orange">Pan</td>
+				<td class="round light_blue">Sends</td>
+				<td class="round red">Stop</td>
+				<td></td>
+			</tr>
+		</table>
+  </section>
+
+  <section id="drum-seq">
+    <h2>Drum step sequencer</h2>
+    <p>This sequencer has two layouts, detailed below: drum rack and multinote. (The second step sequencer, the melodic one, is detailed further down.)</p>
+    <p>Press the User button to cycle through its sub modes: the drum step sequencer is active when the User button is mint, the melodic step sequencer when it is orange, and the plain User mode when it is dark blue.</p>
+    <p>A playback indicator scrolls through the grid in amber to show the playing position of the clip while it plays. It is only an overlay: it does not change what the buttons do.</p>
+    <p>The colour codes:</p>
+    <ul>
+      <li>Normal notes are green, their intensity depending on their velocity.</li>
+      <li>Muted notes are white.</li>
+      <li>Notes being played flash in red.</li>
+      <li>Notes being played outside the displayed block of the clip also flash in red.</li>
+    </ul>
+    <p>Some other information is displayed in orange:</p>
+    <ul>
+      <li>Note markers show which row is which note: the root note of the scale is marked by three orange buttons lit on the left, the other notes of the scale by one orange button on the left-most column.</li>
+      <li>While you scroll left and right along the clip, a vertical bar shows where you are in the clip.</li>
+    </ul>
+    <p class="msg"><b>Since the Live 11 version</b>Entering a step sequencer no longer changes the clip: its loop stays as it is, and the sequencer keeps the quantization you chose last time.</p>
+  </section>
+
+  <section id="drumrack">
+    <h2>Drum rack layout</h2>
+    <p>The bottom left area selects the note being edited in the note editor at the top.</p>
+    <p>The bottom right area selects the part of the clip that is displayed (single press) and edited (double press, or one button after the other).</p>
+    <p>Some buttons have combined functions:</p>
+    <ul>
+      <li><b>Lock</b> (last scene button):
+        <ul>
+          <li>long press to switch between clip lock and "play clip on locked track" mode;</li>
+          <li>yellow: track lock mode, the step sequencer is locked to the current track and follows the clip playing on it;</li>
+          <li>red: the step sequencer is locked to the current clip.</li>
+        </ul></li>
+      <li><b>Mute</b> (7th scene button):
+        <ul>
+          <li>hold mute and press a note to mute it;</li>
+          <li>hold mute and press a note in the bottom left quadrant to mute it;</li>
+          <li>hold mute and select a loop range in the loop selector to delete it.</li>
+        </ul></li>
+      <li><b>Velocity</b>:
+        <ul>
+          <li>hold velocity and press a note to change its velocity;</li>
+          <li>hold velocity and press a note in the note selector to hear a preview of the sound;</li>
+          <li>hold velocity and select a loop range in the loop selector to extend the original clip content to the newly selected length.</li>
+        </ul></li>
+    </ul>
+	<table class="launchpad">
+			<tr class="top">
+				<td></td>
+				<td class="round orange">Device+</td>
+				<td class="round orange">Device-</td>
+				<td class="round orange">Track-</td>
+				<td class="round orange">Track+</td>
+				<td class="round green">Session</td>
+				<td class="round blue">Note</td>
+				<td class="round purple">Device</td>
+				<td class="round orange">Step</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="round green">Shift</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">Scale</td>
+			</tr>
+			<tr>
+				<td class="round green">Click</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">octave+</td>
+			</tr>
+			<tr>
+				<td class="round green">Undo</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">Octave-</td>
+			</tr>
+			<tr>
+				<td class="round green">Delete</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round green">Quant</td>
+			</tr>
+			<tr>
+				<td class="round green">Quant.</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad purple">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="round green">Velocity</td>
+			</tr>
+			<tr>
+				<td class="round green">Dupl.</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">mode</td>
+			</tr>
+			<tr>
+				<td class="round green">Double</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round red">mute</td>
+			</tr>
+				<tr>
+				<td class="round red">Rec</td>
+				<td class="pad amber">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round purple">Lock</td>
+			</tr>
+			<tr class="bottom">
+				<td></td>
+				<td class="round red">Arm</td>
+				<td class="round light_blue">Select</td>
+				<td class="round yellow">Mute</td>
+				<td class="round blue">Solo</td>
+				<td class="round green">Volume</td>
+				<td class="round orange">Pan</td>
+				<td class="round light_blue">Sends</td>
+				<td class="round red">Stop</td>
+				<td></td>
+			</tr>
+		</table>
+  </section>
+
+  <section id="multinote">
+    <h2>Multinote layout</h2>
+    <p>This layout of the drum step sequencer uses the grid as an 8 × 8 matrix, one MIDI note per row. It follows the selected scale.</p>
+	<table class="launchpad">
+			<tr class="top">
+				<td></td>
+				<td class="round orange">Device+</td>
+				<td class="round orange">Device-</td>
+				<td class="round orange">Track-</td>
+				<td class="round orange">Track+</td>
+				<td class="round green">Session</td>
+				<td class="round blue">Note</td>
+				<td class="round purple">Device</td>
+				<td class="round orange">Step</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="round green">Shift</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">Scale</td>
+			</tr>
+			<tr>
+				<td class="round green">Click</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">octave+</td>
+			</tr>
+			<tr>
+				<td class="round green">Undo</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">Octave-</td>
+			</tr>
+			<tr>
+				<td class="round green">Delete</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round green">Quant</td>
+			</tr>
+			<tr>
+				<td class="round green">Quant.</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad">&nbsp;</td>
+				<td class="pad">&nbsp;</td>
+				<td class="pad">&nbsp;</td>
+				<td class="pad">&nbsp;</td>
+				<td class="round green">Velocity</td>
+			</tr>
+			<tr>
+				<td class="round green">Dupl.</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad green ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">mode</td>
+			</tr>
+			<tr>
+				<td class="round green">Double</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad gren ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round red">mute</td>
+			</tr>
+				<tr>
+				<td class="round red">Rec</td>
+				<td class="pad amber">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue ">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round purple">Lock</td>
+			</tr>
+			<tr class="bottom">
+				<td></td>
+				<td class="round red">Arm</td>
+				<td class="round light_blue">Select</td>
+				<td class="round yellow">Mute</td>
+				<td class="round blue">Solo</td>
+				<td class="round green">Volume</td>
+				<td class="round orange">Pan</td>
+				<td class="round light_blue">Sends</td>
+				<td class="round red">Stop</td>
+				<td></td>
+			</tr>
+		</table>
+  </section>
+
+  <section id="melodic-seq">
+    <h2>Melodic step sequencer</h2>
+    <p>To activate this mode, press the User button until it turns orange.</p>
+    <p>This mode behaves more like a hardware step sequencer. It uses the grid as a 7 × 8 matrix to edit note pitch, velocity, length and octave, one function per page. Of course the note pitches follow the selected scale.</p>
+    <p>The last row of the matrix is a page selector and works like the loop selector of the drum step sequencer.</p>
+    <p>Double press the pitch button to toggle between monophonic and polyphonic modes.</p>
+    <p class="msg"><b>Since the Live 11 version</b>The melodic step sequencer only rewrites the notes it shows. Muted notes, notes outside the scale rows or octaves it displays, and notes before the clip start stay in the clip untouched.</p>
+	<table class="launchpad">
+			<tr class="top">
+				<td></td>
+				<td class="round orange">Device+</td>
+				<td class="round orange">Device-</td>
+				<td class="round orange">Track-</td>
+				<td class="round orange">Track+</td>
+				<td class="round green">Session</td>
+				<td class="round blue">Note</td>
+				<td class="round purple">Device</td>
+				<td class="round orange">Step</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="round green">Shift</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round orange">Scale</td>
+			</tr>
+			<tr>
+				<td class="round green">Click</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round purple">octave</td>
+			</tr>
+			<tr>
+				<td class="round green">Undo</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round purple">pitch</td>
+			</tr>
+			<tr>
+				<td class="round green">Delete</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round green">Quant</td>
+			</tr>
+			<tr>
+				<td class="round green">Quant.</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round blue">Velocity</td>
+			</tr>
+			<tr>
+				<td class="round green">Dupl.</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round green">Length</td>
+			</tr>
+			<tr>
+				<td class="round green">Double</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round red">random</td>
+			</tr>
+				<tr>
+				<td class="round red">Rec</td>
+				<td class="pad orange">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad blue">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="pad ">&nbsp;</td>
+				<td class="round purple">Lock</td>
+			</tr>
+			<tr class="bottom">
+				<td></td>
+				<td class="round red">Arm</td>
+				<td class="round light_blue">Select</td>
+				<td class="round yellow">Mute</td>
+				<td class="round blue">Solo</td>
+				<td class="round green">Volume</td>
+				<td class="round orange">Pan</td>
+				<td class="round light_blue">Sends</td>
+				<td class="round red">Stop</td>
+				<td></td>
+			</tr>
+		</table>
+  </section>
+  </div>
+  </div>
+</main>
+<script>
+/* the original page's generated_toc: fills #toc with the h2 to h6 headings of its parent, nested by level;
+   clicking a heading jumps back to the table of contents */
+(function () {
+  var toc = document.getElementById('toc');
+  if (!toc) return;
+  var skip = document.createElement('p'), span = document.createElement('span'), a = document.createElement('a');
+  span.className = 'hidden';
+  a.href = '#aftertoc';
+  a.textContent = 'skip table of contents';
+  span.appendChild(a); skip.appendChild(span); toc.appendChild(skip);
+  var list = document.createElement('ul'), level = 2;
+  toc.appendChild(list);
+  var headings = toc.parentNode.querySelectorAll('h2, h3, h4, h5, h6');
+  for (var i = 0; i < headings.length; i++) {
+    var h = headings[i], hl = parseInt(h.nodeName.substr(1), 10);
+    if ((' ' + h.className + ' ').indexOf(' no-TOC ') !== -1) continue;
+    h.addEventListener('click', function () { window.location.href = '#toc'; });
+    if (!h.id) { h.id = 'toc_' + (i + 1); h.setAttribute('tabindex', '-1'); }
+    while (hl > level) {
+      var items = list.querySelectorAll(':scope > li'), last = items[items.length - 1];
+      if (!last) { last = document.createElement('li'); list.appendChild(last); }
+      var sub = document.createElement('ul');
+      last.appendChild(sub); list = sub; level++;
+    }
+    while (hl < level) { list = list.parentNode.parentNode; level--; }
+    var li = document.createElement('li'), link = document.createElement('a');
+    link.href = '#' + h.id;
+    link.textContent = h.textContent;
+    li.appendChild(link); list.appendChild(li);
+  }
+  var after = document.createElement('p');
+  after.id = 'aftertoc';
+  toc.appendChild(after);
+})();
+</script>
+</body>
+</html>
