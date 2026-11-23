@@ -19,8 +19,6 @@ from .ClipActionsComponent import ClipActionsComponent
 #NEW from .LedLightingComponent import LedLightingComponent
 from .TranslationComponent import TranslationComponent
 from .TargetTrackComponent import TargetTrackComponent
-#NEW from .SpecialDeviceComponent import SpecialDeviceComponent
-#NEW from .DeviceNavigationComponent import DeviceNavigationComponent
 from .SpecialSessionRecordingComponent import SpecialSessionRecordingComponent
 from .DrumGroupFinderComponent import DrumGroupFinderComponent
 from .DeviceComponent import DeviceComponent
@@ -336,9 +334,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		self._session.set_mixer(self._mixer)
 
 	def _create_device(self):
-		#self._device = SpecialDeviceComponent(name='Device_Control', is_enabled=False)
 		self._device = DeviceComponent(control_surface = self, name='Device_Control', is_enabled=False)
-		#self._device_navigation = DeviceNavigationComponent(name='Device_Navigation')
 		#self._device_background = BackgroundComponent(name='Device_Background_Component')
 
 	def _setup_drum_group(self):
