@@ -4,6 +4,7 @@ from _Framework.ButtonElement import ButtonElement
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 
 from .ButtonHelpers import is_press, rebind_button, show_disabled
+from .DrumGroupFinderComponent import find_drum_group_device
 
 FEEDBACK_CHANNEL = 11  # the pads play the track on this channel while velocity is held
 
@@ -74,7 +75,9 @@ class NoteSelectorComponent(ControlSurfaceComponent):
 
     @property
     def _drum_group_device(self):
-        return None
+        """The drum rack of the sequenced track (the locked one, or the selected one), or None."""
+        track = self._stepsequencer._selected_track
+        return find_drum_group_device(track) if track != None else None
 
     @property
     def is_drumrack(self):
@@ -158,12 +161,17 @@ class NoteSelectorComponent(ControlSurfaceComponent):
                 self._was_velocity_shifted = True
             elif self.is_drumrack and self._was_velocity_shifted:
                 self._was_velocity_shifted = False
-                # FIXME: _drum_group_device is always None, so this raises AttributeError.
-                self._offset = self._drum_group_device.view.selected_drum_pad.note - self._root_note
-                self._stepsequencer._scale_updated()
+                self._select_the_drum_rack_pad()
             self._update_up_button()
             self._update_down_button()
             self._update_buttons()
+
+    def _select_the_drum_rack_pad(self):
+        """After playing the track (velocity held), edit the pad selected in the drum rack."""
+        drum_rack = self._drum_group_device
+        pad = drum_rack.view.selected_drum_pad if drum_rack != None else None
+        if pad != None:
+            self.set_selected_note(pad.note)
 
     def _update_buttons(self):
         if self.is_enabled() and self._buttons != None:

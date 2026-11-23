@@ -303,3 +303,42 @@ def test_quantization_component_is_per_instance(make_rig):
         assert surface._clip_actions_component.quantization_component is actions
         slots = [surface._session.scene(s).clip_slot(t) for s in range(8) for t in range(8)]
         assert all(slot.quantization_component is actions for slot in slots)
+
+
+def _drum_rack_song(selected_note=None):
+    song = make_song(clips=[(0, 0)])
+    rack = Live.RackDevice.RackDevice(name="Drums", drum=True)
+    rack.canonical_parent = song.tracks[0]
+    song.tracks[0].devices = (rack,)
+    if selected_note is not None:
+        rack.view.selected_drum_pad = rack.drum_pads[selected_note]
+    return song
+
+
+def _choose_drum_rack_layout(rig):
+    rig.press_side(0)  # scale
+    rig.tick()
+    rig.tap(7, 0)  # drum rack
+    rig.release_side(0)
+    rig.tick()
+
+
+@pytest.mark.parametrize("song", [None, _drum_rack_song], ids=["no drum rack", "drum rack"])
+def test_drum_rack_layout_survives_the_scale_and_velocity_buttons(make_rig, song):
+    rig = _drum_seq(make_rig, song=song() if song else None)
+    _choose_drum_rack_layout(rig)
+    rig.press_side(VELOCITY)
+    rig.tick()
+    rig.release_side(VELOCITY)
+    rig.tick()
+    assert rig.surface._step_sequencer._note_selector.is_drumrack
+
+
+def test_velocity_release_selects_the_drum_rack_selected_pad(make_rig):
+    rig = _drum_seq(make_rig, song=_drum_rack_song(selected_note=41))
+    _choose_drum_rack_layout(rig)
+    rig.press_side(VELOCITY)
+    rig.tick()
+    rig.release_side(VELOCITY)
+    rig.tick()
+    assert rig.surface._step_sequencer._note_selector.selected_note == 41
