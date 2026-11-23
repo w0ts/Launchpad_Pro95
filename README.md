@@ -73,6 +73,9 @@ Launchpad Pro95 is a modified version of the Launchpad Pro script that came with
 [Launchpad95](https://w0ts.github.io/Launchpad95/). By w0ts, with contributions from boblemarin (custom scales),
 marctdt (duplicate clip), jefffm (Python 3) and John (step sequencer fixes).
 
+Launchpad Pro95 is free software, released under the GNU General Public License version 3 (GPL-3.0): see
+[LICENSE](LICENSE).
+
 ### Not affiliated with Novation or Ableton
 
 Launchpad Pro95 is an independent project. It is **not affiliated with, endorsed by, or sponsored by Novation
