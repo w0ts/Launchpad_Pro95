@@ -188,7 +188,7 @@ class SpecialSessionComponent(SessionComponent):
 	@subject_slot_group('value')
 	def _on_stop_scene_value(self, value, button):
 		if self.is_enabled():
-			if value is not 0 or not button.is_momentary():
+			if value != 0 or not button.is_momentary():
 				scene_index = list(self._stop_scene_clip_buttons).index(button) + self.scene_offset()
 				for track in self.tracks_to_use():
 					if in_range(scene_index, 0, len(track.clip_slots)) and (track.playing_slot_index == scene_index or track.fired_slot_index == scene_index):

@@ -141,7 +141,7 @@ class NoteSelectorComponent(ControlSurfaceComponent):
 		assert (self._down_button != None)
 		assert (value in range(128))
 		if self.is_enabled() and self._clip != None:
-			if value is not 0 or not sender.is_momentary():
+			if value != 0 or not sender.is_momentary():
 				if not self._is_mute_shifted and not self._enable_buttons or self._is_mute_shifted and self._enable_buttons:
 					self.scroll_down()
 				else:
@@ -183,7 +183,7 @@ class NoteSelectorComponent(ControlSurfaceComponent):
 		assert (self._up_button != None)
 		assert (value in range(128))
 		if self.is_enabled() and self._clip != None:
-			if value is not 0 or not sender.is_momentary():
+			if value != 0 or not sender.is_momentary():
 				if not self._is_mute_shifted and not self._enable_buttons or self._is_mute_shifted and self._enable_buttons:
 					self.scroll_up()
 				else:
@@ -1357,7 +1357,7 @@ class StepSequencerComponent(CompoundComponent):
 	
 	#@scale_button.pressed
 	def _scale_button_value(self, value):
-		if (value is not 0):
+		if (value != 0):
 			self._mode_backup = self._mode
 			if self._scale_component != None and self._note_selector != None:
 				self._scale_component.set_octave(int(self._note_selector._root_note / 12))
@@ -1406,7 +1406,7 @@ class StepSequencerComponent(CompoundComponent):
 		assert (value in range(128))
 		if self.is_enabled() and self._clip != None:
 			now = time.time()
-			if ((value is not 0) or (not sender.is_momentary())):
+			if ((value != 0) or (not sender.is_momentary())):
 				self._is_mute_shifted = True
 			else:
 				if now - self._last_mute_shift_button_press> 0.25:
@@ -1451,7 +1451,7 @@ class StepSequencerComponent(CompoundComponent):
 		assert (self._mode_button != None)
 		assert (value in range(128))
 		if self.is_enabled() and self._clip != None:
-			if ((value is not 0) or (not sender.is_momentary())):
+			if ((value != 0) or (not sender.is_momentary())):
 				self._last_mode_button_press = time.time()
 			else:
 				#if self._mode == STEPSEQ_MODE_MULTINOTE and time.time() - self._last_mode_button_press > 0.25:
