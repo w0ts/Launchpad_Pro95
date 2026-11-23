@@ -1,0 +1,205 @@
+"""Known bugs of the script, not fixed yet (strict xfail: a fix makes the test pass, which
+fails the run until the mark is removed). Each reason says where the bug is."""
+import Live
+import pytest
+
+from harness.rig import TOP, make_song
+
+VELOCITY, MUTE_SHIFT = 4, 6
+
+
+def _drum_seq(make_rig, song=None):
+	rig = make_rig(song=song or make_song(clips=[(0, 0)]))
+	rig.tap_top(TOP["user"])
+	rig.tick(2)
+	return rig
+
+
+def _melodic_seq(make_rig, song=None):
+	rig = make_rig(song=song or make_song(clips=[(0, 0)]))
+	rig.tap_top(TOP["user"])
+	rig.tap_top(TOP["user"])
+	rig.tick(2)
+	return rig
+
+
+def _clip(rig, track=0, scene=0):
+	return rig.song.tracks[track].clip_slots[scene].clip
+
+
+def _add(clip, pitch, start, duration=0.25, velocity=100):
+	clip.add_new_notes((Live.Clip.MidiNoteSpecification(pitch=pitch, start_time=start, duration=duration,
+		velocity=velocity, mute=False),))
+
+
+@pytest.mark.xfail(strict=True, reason="bug: NoteEditorComponent._matrix_value_message (velocity shift) appends "
+	"the note with its new velocity without removing the old one, so the clip gets a duplicate note")
+def test_velocity_shift_edit_does_not_duplicate_the_note(make_rig):
+	rig = _drum_seq(make_rig)
+	rig.tap(0, 0)
+	rig.press_side(VELOCITY)
+	rig.tap(0, 0)
+	rig.release_side(VELOCITY)
+	assert len(_clip(rig).note_tuples()) == 1
+
+
+@pytest.mark.xfail(strict=True, reason="bug: NoteEditorComponent._matrix_value_message (mute shift) appends the "
+	"muted copy without removing the note, so the clip gets a duplicate note")
+def test_mute_shift_edit_does_not_duplicate_the_note(make_rig):
+	rig = _drum_seq(make_rig)
+	rig.tap(0, 0)
+	rig.press_side(MUTE_SHIFT)
+	rig.tap(0, 0)
+	rig.release_side(MUTE_SHIFT)
+	assert len(_clip(rig).note_tuples()) == 1
+
+
+@pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent.on_clip_slot_changed removes the has_clip "
+	"listener from the new clip slot instead of the old one, so every visited slot keeps calling the sequencer")
+def test_switching_slots_releases_the_old_slot_listener(make_rig):
+	rig = _drum_seq(make_rig)
+	old_slot = rig.song.tracks[0].clip_slots[0]
+	seq = rig.surface._step_sequencer
+	rig.song.view.selected_scene = rig.song.scenes[1]
+	rig.tick()
+	assert not old_slot.has_clip_has_listener(seq.on_clip_slot_has_clip_changed)
+
+
+@pytest.mark.xfail(strict=True, reason="bug: LoopSelectorComponent.set_clip_loop sets loop_end first when the new "
+	"start is past the old end; the loop listener re-reads the old loop_start into self._loop_start, which is then "
+	"written back, so the loop keeps its old start")
+def test_loop_selector_sets_a_loop_after_the_current_one(make_rig):
+	rig = _drum_seq(make_rig)
+	q = rig.surface._step_sequencer._quantization
+	rig.tap(6, 4)  # third loop block, past the 4-beat loop at 1/16
+	rig.tap(6, 4)
+	assert (_clip(rig).loop_start, _clip(rig).loop_end) == (16 * q, 24 * q)
+
+
+@pytest.mark.xfail(strict=True, reason="bug: entering the melodic step sequencer calls "
+	"MelodicNoteEditorComponent.set_quantization with the old quantization still at its initial 16, so the "
+	"selected clip's loop is scaled by 0.25/16 (4 beats -> 1/16 beat)")
+def test_entering_the_melodic_sequencer_keeps_the_clip_loop(make_rig):
+	rig = _melodic_seq(make_rig)
+	assert (_clip(rig).loop_start, _clip(rig).loop_end) == (0.0, 4.0)
+
+
+@pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent.set_quantization_button resets the quantization "
+	"to 1/16 each time the sequencer is entered, and the melodic editor rescales the clip loop with it")
+def test_reentering_the_melodic_sequencer_keeps_its_quantization(make_rig):
+	rig = _melodic_seq(make_rig)
+	rig.tap_side(3)  # quantization: 1/32
+	before = (rig.surface._step_sequencer2._quantization, _clip(rig).loop_end)
+	rig.tap_top(TOP["session"])
+	rig.tap_top(TOP["user"])
+	rig.tap_top(TOP["user"])
+	rig.tick(2)
+	assert (rig.surface._step_sequencer2._quantization, _clip(rig).loop_end) == before
+
+
+@pytest.mark.xfail(strict=True, reason="bug: MelodicNoteEditorComponent._update_clip_notes multiplies the length by "
+	"int(self._quantization / 4.0), which is 0 for every quantization the sequencer offers, so notes have no length")
+def test_melodic_notes_have_a_length(make_rig):
+	rig = _melodic_seq(make_rig)
+	rig.tap(0, 6)
+	assert _clip(rig).note_tuples()[0][2] > 0
+
+
+@pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent._scale_updated computes the octave of a diatonic "
+	"degree with true division ((i + idx) / scale_length * 12), so the melodic sequencer's degrees above the root "
+	"get fractional pitches (truncated to the wrong note)")
+def test_melodic_degrees_follow_the_major_scale(make_rig):
+	rig = _melodic_seq(make_rig)
+	rig.press_side(0)  # scale editor (C major), released: the sequencer takes the scale
+	rig.tick()
+	rig.release_side(0)
+	rig.tick()
+	keys = rig.surface._step_sequencer2._note_editor._key_indexes[:7]
+	root = keys[0]
+	assert [k - root for k in keys] == [0, 2, 4, 5, 7, 9, 11]
+
+
+@pytest.mark.xfail(strict=True, raises=IndexError, reason="bug: MelodicNoteEditorComponent keeps fixed 128-step "
+	"lists (_init_data pages = 128, _parse_notes first_note = [True] * 128): a note past step 128 raises IndexError")
+def test_melodic_sequencer_reads_long_clips(make_rig):
+	rig = _melodic_seq(make_rig)
+	clip = _clip(rig)
+	clip.loop_end = clip.end_marker = 64.0
+	_add(clip, 36, 40.0)  # step 160 at 1/16: the notes listener parses it
+	assert rig.surface._step_sequencer2._note_editor._clip is clip
+
+
+@pytest.mark.xfail(strict=True, reason="bug: entering the melodic step sequencer rewrites the selected clip from "
+	"its step data right after the quantization change (MelodicNoteEditorComponent.set_quantization -> "
+	"_update_clip_notes): existing notes move to time 0 with length 0")
+def test_entering_the_melodic_sequencer_keeps_the_clip_notes(make_rig):
+	song = make_song(clips=[(0, 0)])
+	clip = song.tracks[0].clip_slots[0].clip
+	_add(clip, 36, 1.0)
+	_add(clip, 40, 2.0, duration=0.5, velocity=90)
+	before = clip.note_tuples()
+	_melodic_seq(make_rig, song)
+	assert clip.note_tuples() == before
+
+
+@pytest.mark.xfail(strict=True, reason="bug: the melodic step sequencer drops notes before time 0: its step lists cannot hold them "
+	"(_parse_notes indexes them from the end) and _update_clip_notes rewrites the whole clip from the steps")
+def test_melodic_edit_keeps_notes_before_zero(make_rig):
+	song = make_song(clips=[(0, 0)])
+	clip = song.tracks[0].clip_slots[0].clip
+	clip.loop_start = -1.0
+	_add(clip, 36, -1.0)
+	rig = _melodic_seq(make_rig, song)
+	rig.tap(2, 6)
+	assert [n for n in clip.note_tuples() if n[1] < 0] != []
+
+
+@pytest.mark.xfail(strict=True, reason="bug: MelodicPattern._octave_and_note (ScaleComponent.py) uses "
+	"int(index / scale_size), which truncates toward 0: a negative index gets the octave above")
+def test_melodic_pattern_octave_of_negative_index(framework):
+	from Launchpad_Pro95.ScaleComponent import MelodicPattern
+
+	pattern = MelodicPattern(steps=[1, 7], scale=[0, 2, 4, 5, 7, 9, 11], base_note=36, origin=[-1, 0])
+	assert pattern.note(0, 0).index == 36 - 1  # one degree below C is B of the octave below
+
+
+@pytest.mark.xfail(strict=True, reason="bug: TargetTrackComponent._on_tracks_changed builds the track list with "
+	"filter(), an iterator under Python 3 that the first consumer uses up, so the arm listeners see no track")
+def test_target_track_starts_on_a_track_armed_before_boot(make_rig):
+	song = make_song()
+	song.tracks[2].arm = True
+	rig = make_rig(song=song)
+	target = rig.surface._target_track_component
+	assert song.tracks[2] in target._armed_track_stack
+	assert target.target_track is song.tracks[2]
+
+
+@pytest.mark.xfail(strict=True, reason="bug: TargetTrackComponent._armed_track_stack is a class attribute, shared "
+	"by every instance (two Launchpad Pros, or a reloaded script)")
+def test_target_track_stack_is_per_instance(make_rig):
+	first = make_rig()
+	second = make_rig()
+	assert first.surface._target_track_component._armed_track_stack is not \
+		second.surface._target_track_component._armed_track_stack
+
+
+@pytest.mark.xfail(strict=True, reason="bug: TargetTrackComponent._refresh_armed_track_stack removes tracks from "
+	"the list it iterates, so it skips every other removed track")
+def test_target_track_stack_drops_removed_tracks(rig):
+	target = rig.surface._target_track_component
+	target._armed_track_stack[:] = list(rig.song.tracks[:2])
+	target._refresh_armed_track_stack([])
+	assert target._armed_track_stack == []
+
+
+@pytest.mark.xfail(strict=True, raises=KeyError, reason="bug: skin key typo 'DefaulyButton.Disabled' "
+	"(DeviceComponent.update, no device); 'DefaultButton.Disaled' in StepSequencerComponent2._update_mode_button "
+	"is the same kind of typo but no layer gives that sequencer a mode button")
+def test_device_mode_skin_keys_exist(make_rig):
+	rig = make_rig()
+	skin = rig.surface._skin
+	for key in ("DefaulyButton.Disabled", "DefaultButton.Disaled"):
+		try:
+			skin[key]
+		except Exception as error:
+			raise KeyError(key) from error
