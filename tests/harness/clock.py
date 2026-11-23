@@ -16,7 +16,7 @@ TIMED_MODULES = (
     "LoopSelectorComponent",
     "MelodicNoteEditorComponent",
     "NoteEditorComponent",
-    "StepSequencerComponent",
+    "StepSequencerButtons",
 )
 
 

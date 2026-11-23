@@ -23,6 +23,7 @@ SKIN_KEY_CALLS = (
     "set_triggered_value",
     "set_scene_value",
     "set_no_scene_value",
+    "show_on_off",  # ButtonHelpers.show_on_off(button, on_key, off_key, is_on)
 )
 SKIN_FILES = ("SkinMK2.py", "Colors.py")
 # Constant tables of skin keys, read through an index.
