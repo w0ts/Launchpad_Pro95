@@ -5,6 +5,8 @@ from _Framework.DeviceComponent import DeviceComponent as LiveDeviceComponent
 
 from .DeviceControllerStrip import DeviceControllerStrip
 
+LOCK_LONG_PRESS_SECONDS = 0.4  # a longer press on a lock button stores or removes the device
+
 
 class DeviceComponent(LiveDeviceComponent):
     __module__ = __name__
@@ -160,39 +162,10 @@ class DeviceComponent(LiveDeviceComponent):
         if self.is_enabled():
             if self._number_of_parameter_banks() <= self._bank_index:
                 self._bank_index = 0
-
-            if not self._locked_to_device2:
-                if self._device != None:
-                    if (not self.application().view.is_view_visible("Detail")) or (
-                        not self.application().view.is_view_visible("Detail/DeviceChain")
-                    ):
-                        self.application().view.show_view("Detail")
-                        self.application().view.show_view("Detail/DeviceChain")
-            # update bank buttons colors
-            if self._device != None:
-                if self._prev_bank_button != None:
-                    self._prev_bank_button.set_on_off_values("Device.Bank.On", "Device.Bank.Off")
-                if self._next_bank_button != None:
-                    self._next_bank_button.set_on_off_values("Device.Bank.On", "Device.Bank.Off")
-            else:
-                if self._prev_bank_button != None:
-                    self._prev_bank_button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
-                if self._next_bank_button != None:
-                    self._next_bank_button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
-            if self._matrix != None:
-                for x in range(self._matrix.width()):
-                    for y in range(self._matrix.height()):
-                        self._matrix.get_button(x, y).set_enabled(True)
-
-            if self._device == None and self._matrix != None:
-                for x in range(self._matrix.width()):
-                    for y in range(self._matrix.height()):
-                        if self._force:
-                            self._matrix.get_button(x, y).set_on_off_values(
-                                "DefaultButton.Disabled", "DefaultButton.Disabled"
-                            )
-                            self._matrix.get_button(x, y).turn_off()
-
+            if not self._locked_to_device2 and self._device != None:
+                self._show_device_chain()
+            self._update_bank_buttons()
+            self._update_matrix_buttons()
             # update parent
             LiveDeviceComponent.update(self)
             if self._sliders != None:
@@ -205,6 +178,32 @@ class DeviceComponent(LiveDeviceComponent):
             self.update_on_off_button()
             self.update_precision_button()
             self._force = False
+
+    def _show_device_chain(self):
+        view = self.application().view
+        if (not view.is_view_visible("Detail")) or (not view.is_view_visible("Detail/DeviceChain")):
+            view.show_view("Detail")
+            view.show_view("Detail/DeviceChain")
+
+    def _update_bank_buttons(self):
+        for button in (self._prev_bank_button, self._next_bank_button):
+            if button != None:
+                if self._device != None:
+                    button.set_on_off_values("Device.Bank.On", "Device.Bank.Off")
+                else:
+                    button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
+
+    def _update_matrix_buttons(self):
+        if self._matrix != None:
+            for x in range(self._matrix.width()):
+                for y in range(self._matrix.height()):
+                    self._matrix.get_button(x, y).set_enabled(True)
+            if self._device == None and self._force:
+                for x in range(self._matrix.width()):
+                    for y in range(self._matrix.height()):
+                        button = self._matrix.get_button(x, y)
+                        button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
+                        button.turn_off()
 
     def set_prev_bank_button(self, button):
         self._prev_bank_button = button
@@ -264,6 +263,8 @@ class DeviceComponent(LiveDeviceComponent):
         # self.update_lock_buttons()
 
     def _lock_value(self, value, sender):
+        """A long press stores the device in the lock slot (or removes the stored one), a tap
+        locks to the stored device or unlocks."""
         if self.is_enabled():
             index = 0
             for i in range(len(self._lock_buttons)):
@@ -271,88 +272,63 @@ class DeviceComponent(LiveDeviceComponent):
                     index = i
             if value != 0:
                 self._lock_button_press[index] = time.time()
-            else:
-                now = time.time()
-                if now - self._lock_button_press[index] > 0.4:
-                    if self._locked_devices[index] == None:
-                        # save locked device
-                        dev = -1
-                        for i in range(len(self._locked_devices)):
-                            if self._locked_devices[i] == self._device:
-                                dev = i
-                        if dev >= 0:
-                            if self._device != None:
-                                self._control_surface.show_message(
-                                    " '"
-                                    + self.get_device_track_name(self._device)
-                                    + " - "
-                                    + str(self._device.name)
-                                    + "' is already stored in lock button "
-                                    + str(dev + 1)
-                                    + " ! aborting."
-                                )
-                        else:
-                            if self._device != None:
-                                self._locked_devices[index] = self._device
-                                if self._device != None:
-                                    self._control_surface.show_message(
-                                        " '"
-                                        + self.get_device_track_name(self._device)
-                                        + " - "
-                                        + str(self._device.name)
-                                        + "' stored into lock button "
-                                        + str(index + 1)
-                                    )
-                                    self._locked_device_index = index
-                                    self.update()
-
-                    else:
-                        # remove saved device
-                        if self._locked_devices[index] != None:
-                            self._control_surface.show_message(
-                                "removing '"
-                                + self.get_device_track_name(self._locked_devices[index])
-                                + " - "
-                                + str(self._locked_devices[index].name)
-                                + "' from block button "
-                                + str(index + 1)
-                            )
-                            self._locked_devices[index] = None
-                            self._locked_device_index = None
+            elif time.time() - self._lock_button_press[index] > LOCK_LONG_PRESS_SECONDS:
+                if self._locked_devices[index] == None:
+                    self._store_device(index)
                 else:
-                    # use selected device
-                    if self._locked_device_index == index:
-                        if self._locked_devices[index] != None:
-                            if self._locked_devices[index] != None:
-                                self._control_surface.show_message(
-                                    "unlocked from ' "
-                                    + self.get_device_track_name(self._locked_devices[index])
-                                    + " - "
-                                    + str(self._locked_devices[index].name)
-                                    + "' ("
-                                    + str(index + 1)
-                                    + ")"
-                                )
-                        self._locked_device_index = None
-                    elif self._locked_devices[index] != None:
-                        self._locked_device_index = index
-                        self.set_device(self._locked_devices[index])
-                        if self._locked_devices[index] != None:
-                            self._control_surface.show_message(
-                                "locked to '"
-                                + self.get_device_track_name(self._locked_devices[index])
-                                + " - "
-                                + str(self._locked_devices[index].name)
-                                + " ("
-                                + str(index + 1)
-                                + ")"
-                            )
-                        self.update()
+                    self._remove_stored_device(index)
+            else:
+                self._toggle_lock(index)
             self.update_track_buttons()
             self.update_device_buttons()
             if self._locked_to_device2:
                 self.on_selected_track_changed()
             self.update_lock_buttons()
+
+    def _device_label(self, device):
+        return self.get_device_track_name(device) + " - " + str(device.name)
+
+    def _store_device(self, index):
+        stored_in = [i for i, device in enumerate(self._locked_devices) if device == self._device]
+        if stored_in:
+            if self._device != None:
+                self._control_surface.show_message(
+                    " '"
+                    + self._device_label(self._device)
+                    + "' is already stored in lock button "
+                    + str(stored_in[-1] + 1)
+                    + " ! aborting."
+                )
+        elif self._device != None:
+            self._locked_devices[index] = self._device
+            self._control_surface.show_message(
+                " '" + self._device_label(self._device) + "' stored into lock button " + str(index + 1)
+            )
+            self._locked_device_index = index
+            self.update()
+
+    def _remove_stored_device(self, index):
+        self._control_surface.show_message(
+            "removing '" + self._device_label(self._locked_devices[index]) + "' from block button " + str(index + 1)
+        )
+        self._locked_devices[index] = None
+        self._locked_device_index = None
+
+    def _toggle_lock(self, index):
+        if self._locked_device_index == index:
+            if self._locked_devices[index] != None:
+                self._control_surface.show_message(
+                    "unlocked from ' " + self._device_label(self._locked_devices[index]) + "' (" + str(index + 1) + ")"
+                )
+            self._locked_device_index = None
+        elif self._locked_devices[index] != None:
+            self._locked_device_index = index
+            self.set_device(self._locked_devices[index])
+            if self._locked_devices[index] != None:
+                self._control_surface.show_message(
+                    "locked to '" + self._device_label(self._locked_devices[index]) + " (" + str(index + 1) + ")"
+                )
+            self.update()
 
     def get_device_track_name(self, device):
         if str(type(device)) == "<class 'Track.Track'>":

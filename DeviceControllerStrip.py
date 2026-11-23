@@ -178,54 +178,45 @@ class DeviceControllerStrip(ButtonSliderElement):
     def _button_value(self, value, sender):
         assert isinstance(value, int)
         assert sender in self._buttons
+        # the base class's send_value reads this: the next value is always sent
         self._last_sent_value = -1
         if self._parameter_to_map_to != None and self._enabled and ((value != 0) or (not sender.is_momentary())):
-            if value != self._last_sent_value:
-                index_of_sender = list(self._buttons).index(sender)
-                if (self._mode == SLIDER_MODE_TOGGLE) and index_of_sender == 0:
-                    if self._value == self._max:
-                        self._parameter_to_map_to.value = self._min
-                    else:
-                        self._parameter_to_map_to.value = self._max
-
-                elif self._mode == SLIDER_MODE_SMALL_ENUM:
-                    self._parameter_to_map_to.value = index_of_sender + self._min
-
-                elif self._mode == SLIDER_MODE_BIG_ENUM:
-                    if index_of_sender >= 4:
-                        inc = 2 ** (index_of_sender - 3 - 1)
-                        if self._value + inc <= self._max:
-                            self._parameter_to_map_to.value += inc
-                        else:
-                            self._parameter_to_map_to.value = self._max
-                    else:
-                        inc = 2 ** (4 - index_of_sender - 1)
-                        if self._value - inc >= self._min:
-                            self._parameter_to_map_to.value -= inc
-                        else:
-                            self._parameter_to_map_to.value = self._min
-
-                elif self._mode == SLIDER_MODE_SLIDER:
-                    self._parameter_to_map_to.value = self._value_map[index_of_sender] * self._range + self._min
-
-                elif self._mode == SLIDER_MODE_PRECISION_SLIDER:
-                    inc = float(self._range) / 128
-                    if self._range > 7 and inc < 1:
-                        inc = 1
-                    if index_of_sender >= 4:
-                        inc = inc * 2 ** (index_of_sender - 3 - 1)
-                        if self._value + inc <= self._max:
-                            self._parameter_to_map_to.value += inc
-                        else:
-                            self._parameter_to_map_to.value = self._max
-                    else:
-                        inc = inc * 2 ** (4 - index_of_sender - 1)
-                        if self._value - inc >= self._min:
-                            self._parameter_to_map_to.value -= inc
-                        else:
-                            self._parameter_to_map_to.value = self._min
-
+            self._pad_pressed(list(self._buttons).index(sender))
             self.notify_value(value)
+
+    def _pad_pressed(self, index):
+        if (self._mode == SLIDER_MODE_TOGGLE) and index == 0:
+            if self._value == self._max:
+                self._parameter_to_map_to.value = self._min
+            else:
+                self._parameter_to_map_to.value = self._max
+        elif self._mode == SLIDER_MODE_SMALL_ENUM:
+            self._parameter_to_map_to.value = index + self._min
+        elif self._mode == SLIDER_MODE_BIG_ENUM:
+            self._step_value(index, 1)
+        elif self._mode == SLIDER_MODE_SLIDER:
+            self._parameter_to_map_to.value = self._value_map[index] * self._range + self._min
+        elif self._mode == SLIDER_MODE_PRECISION_SLIDER:
+            inc = float(self._range) / 128
+            if self._range > 7 and inc < 1:
+                inc = 1
+            self._step_value(index, inc)
+
+    def _step_value(self, index, inc):
+        """Pads 4 to 7 raise the value by inc times 1, 2, 4, 8; pads 3 to 0 lower it the same way
+        (within min and max)."""
+        if index >= 4:
+            inc = inc * 2 ** (index - 3 - 1)
+            if self._value + inc <= self._max:
+                self._parameter_to_map_to.value += inc
+            else:
+                self._parameter_to_map_to.value = self._max
+        else:
+            inc = inc * 2 ** (4 - index - 1)
+            if self._value - inc >= self._min:
+                self._parameter_to_map_to.value -= inc
+            else:
+                self._parameter_to_map_to.value = self._min
 
     def _on_parameter_changed(self):
         assert self._parameter_to_map_to != None
