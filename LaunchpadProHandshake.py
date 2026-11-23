@@ -8,7 +8,6 @@ from .consts import (
     LIVE_MODE_SWITCH_REQUEST,
     NOTE_LAYOUT_SYSEX_BYTE,
     SYSEX_CHALLENGE_RESPONSE_BYTE,
-    SYSEX_IDENTITY_REQUEST,
     SYSEX_PARAM_BYTE_LAYOUT,
     SYSEX_STANDARD_PREFIX,
     SYSEX_STANDARD_SUFFIX,
@@ -46,12 +45,6 @@ class LaunchpadProHandshakeMixin:
         self._send_midi(prefix + mode + suffix)
         self._last_sent_mode_byte = mode
 
-    def _send_identity_request(self):
-        if self._live_major_version >= 10:
-            super()._send_identity_request()
-        else:
-            self._send_midi(SYSEX_IDENTITY_REQUEST)
-
     def port_settings_changed(self):
         self.set_highlighting_session_component(None)
         super().port_settings_changed()
@@ -69,8 +62,6 @@ class LaunchpadProHandshakeMixin:
 
     def _on_handshake_successful(self):
         self._do_send_midi(LIVE_MODE_SWITCH_REQUEST)
-        # self.set_highlighting_session_component(self._session)
-
         with self.component_guard():
             self._modes.set_enabled(True)
             self._actions_component.set_enabled(True)
@@ -101,29 +92,7 @@ class LaunchpadProHandshakeMixin:
             self._update_hardware()
         elif midi_bytes[6] in (SYSEX_STATUS_BYTE_MODE, SYSEX_STATUS_BYTE_LAYOUT):
             pass
-        # if len(midi_bytes) < 7:
-        # 	pass
-        # if self._is_challenge_response(midi_bytes) and self._is_response_valid(midi_bytes):
-        # 	self._on_handshake_successful()
-        #
-        # elif False and midi_bytes[6] in (SYSEX_STATUS_BYTE_MODE, SYSEX_STATUS_BYTE_LAYOUT):
-        # 	self.log_message(str(midi_bytes))
-        # 	self.log_message(str(midi_bytes[5]))
-        # 	pass
+        elif tuple(midi_bytes[:4]) == (240, 0, 32, 41) and midi_bytes[4] == 2 and len(midi_bytes) == 9:
+            self.log_message(f"got sysex type 2. data: {midi_bytes[5]}-{midi_bytes[6]}-{midi_bytes[7]}")
         else:
-            if midi_bytes[0] == 240 and midi_bytes[1] == 0 and midi_bytes[2] == 32 and midi_bytes[3] == 41:
-                if midi_bytes[4] == 0 and len(midi_bytes) == 6:
-                    self.log_message("got sysex type 0")
-                elif midi_bytes[4] == 2 and len(midi_bytes) == 9:
-                    self.log_message(
-                        "got sysex type 2. data: "
-                        + str(midi_bytes[5])
-                        + "-"
-                        + str(midi_bytes[6])
-                        + "-"
-                        + str(midi_bytes[7])
-                    )
-                else:
-                    super().handle_sysex(midi_bytes)
-            else:
-                super().handle_sysex(midi_bytes)
+            super().handle_sysex(midi_bytes)

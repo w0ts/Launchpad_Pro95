@@ -48,12 +48,7 @@ class Launchpad_Pro95(
         self._copied_slot = None
         product_id_bytes = MANUFACTURER_ID + DEVICE_CODE
         super().__init__(*a, c_instance=c_instance, product_id_bytes=product_id_bytes, **k)
-        # self.set_enabled(False)
         self._challenge = Live.Application.get_random_int(0, 400000000) & 2139062143
-        live = Live.Application.get_application()
-        self._live_major_version = live.get_major_version()
-        self._live_minor_version = live.get_minor_version()
-        self._live_bugfix_version = live.get_bugfix_version()
         with self.component_guard():
             self._skin = make_skin()
             with inject(skin=const(self._skin)).everywhere():
@@ -75,13 +70,12 @@ class Launchpad_Pro95(
                 self._create_modes()
 
             self._on_session_record_changed.subject = self.song()
-        # do this in handshake successful. self.set_highlighting_session_component(self._session)
+        # the session is highlighted once the handshake succeeds
         self.set_device_component(self._device)
         self._device_selection_follows_track_selection = True
         self._on_session_record_changed()
 
     def disconnect(self):
-        # self.set_highlighting_session_component(None)
         self._send_midi(TURN_OFF_LEDS)
         self._send_midi(QUIT_MESSAGE)
         super().disconnect()
@@ -94,7 +88,6 @@ class Launchpad_Pro95(
             name="No_Op_Shifted_Buttons",
             is_enabled=False,
             layer=Layer(
-                # click_button=self._midimap.with_shift('Click_Button'),
                 delete_button=self._midimap.with_shift("Delete_Button"),
                 duplicate_button=self._midimap.with_shift("Duplicate_Button"),
                 double_button=self._midimap.with_shift("Double_Loop_Button"),
@@ -205,7 +198,6 @@ class Launchpad_Pro95(
 
     def _create_device(self):
         self._device = DeviceComponent(control_surface=self, name="Device_Control", is_enabled=False)
-        # self._device_background = BackgroundComponent(name='Device_Background_Component')
 
     def _setup_drum_group(self):
         self._drum_group.set_drum_group_device(self._drum_group_finder.drum_group)
@@ -222,36 +214,15 @@ class Launchpad_Pro95(
     def _on_drum_group_changed(self):
         self._instrument_component._detect_mode()
         if self._instrument_component._modes.selected_mode == "drum_mode":
-            # self._drum_group.set_drum_group_device(self._drum_group_finder.drum_group)
             self._setup_drum_group()
         if self._modes.selected_mode == "note_mode":
             self._select_note_mode()
         else:
             self.release_controlled_track()
-        # self._update_note_mode_button()
 
     def _select_note_mode(self):
         self._instrument_component._detect_mode()
         self._update_note_mode_button()
-
-    # 			"""
-    # 			Selects which note mode to use depending on the kind of
-    # 			current target track and its device chain.  Will also
-    # 			select the target if specified.
-    # 			"""
-    # track = self._target_track_component.target_track
-    # drum_device = self._drum_group_finder.drum_group
-    # if track is None or track.is_foldable or track in self.song().return_tracks or track == self.song().master_track or track.is_frozen or track.has_audio_input:
-    # 	self._note_modes.selected_mode = 'audio_mode'
-    # elif drum_device:
-    # 	self._note_modes.selected_mode = 'drum_mode'
-    # else:
-    # 	self._note_modes.selected_mode = 'note_mode'
-    # self._modes.update()
-    # if self._note_modes.selected_mode == 'audio_mode':
-    # 	self.release_controlled_track()
-    # else:
-    # 	self.set_controlled_track(self._target_track_component.target_track)
 
     def _select_target_track(self):
         track = self._target_track_component.target_track
@@ -294,10 +265,6 @@ class Launchpad_Pro95(
 
     @subject_slot("selected_mode")
     def _on_layout_changed(self, mode):
-        # if mode == 'note_mode':
-        # 	self.set_controlled_track(self._target_track_component.target_track)
-        # else:
-        # 	self.release_controlled_track()
         self._session_record.set_enabled(mode != "user_mode")
 
     @subject_slot("session_record")
