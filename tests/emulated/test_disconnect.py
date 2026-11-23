@@ -1,6 +1,4 @@
-"""After disconnect() the script should leave no listener on Live's objects (they outlive it).
-
-The step sequencers still leave some (strict xfail, see the reason)."""
+"""After disconnect() the script should leave no listener on Live's objects (they outlive it)."""
 import pytest
 
 from harness.rig import BOTTOM, TOP, make_song
@@ -84,12 +82,20 @@ def test_device_mode_leaves_no_listener(make_rig):
 	assert leaks == [], "\n".join(map(str, leaks))
 
 
-@pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent.disconnect drops self._clip without removing its "
-	"notes/playing/loop listeners, and keeps the clip slot's has_clip listener")
 @pytest.mark.parametrize("taps", [
 	[("top", "user")],
 	[("top", "user"), ("top", "user")],
 ], ids=["drum seq", "melodic seq"])
 def test_step_sequencers_leave_no_listener(make_rig, taps):
+	leaks = _run(make_rig, taps)
+	assert leaks == [], "\n".join(map(str, leaks))
+
+
+@pytest.mark.parametrize("taps", [[("top", name)] for name in ("session", "note", "device", "user")]
+	+ [[("top", "user"), ("top", "user")]]
+	+ [[("bottom", name)] for name in sorted(BOTTOM)]
+	+ [[("top", "user"), ("top", "session"), ("top", "user"), ("top", "user"), ("bottom", "volume"), ("top", "note")]],
+	ids=lambda taps: "+".join(name for _, name in taps))
+def test_every_mode_leaves_no_listener(make_rig, taps):
 	leaks = _run(make_rig, taps)
 	assert leaks == [], "\n".join(map(str, leaks))
