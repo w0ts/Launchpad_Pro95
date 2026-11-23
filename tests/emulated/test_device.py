@@ -177,3 +177,39 @@ def test_device_mode_with_a_return_or_master_track_selected(make_rig, which):
     rig.tap_top(TOP["left"])
     rig.tap_top(TOP["right"])
     rig.tick()
+
+
+def long_press(rig, index):
+    rig.press_side(index)
+    rig.wait(1.0)
+    rig.release_side(index)
+    rig.tick()
+
+
+def test_lock_buttons_store_lock_unlock_and_remove(device_rig):
+    rig = device_rig
+    synth = rig.song.tracks[0].devices[0]
+    long_press(rig, LOCK1)
+    assert component(rig)._locked_devices[0] is synth
+    assert " '1-MIDI - Synth0' stored into lock button 1" in rig.messages
+    long_press(rig, LOCK1 + 1)  # the same device in a second slot
+    assert component(rig)._locked_devices[1] is None
+    assert any("is already stored in lock button 1 ! aborting." in m for m in rig.messages)
+    rig.tap_side(LOCK1)  # locked: a tap unlocks
+    assert component(rig)._locked_device_index is None
+    assert any(m.startswith("unlocked from ' ") for m in rig.messages)
+    rig.song.view.selected_track = rig.song.tracks[1]
+    rig.tick()
+    rig.tap_side(LOCK1)  # a tap locks to the stored device again
+    assert component(rig)._locked_device_index == 0 and component(rig)._device is synth
+    assert any(m.startswith("locked to '1-MIDI - Synth0") for m in rig.messages)
+    long_press(rig, LOCK1)  # removes the stored device
+    assert component(rig)._locked_devices[0] is None
+    assert any(m.startswith("removing '1-MIDI - Synth0' from block button 1") for m in rig.messages)
+
+
+def test_lock_button_without_a_stored_device_does_nothing(device_rig):
+    rig = device_rig
+    rig.tap_side(LOCK1 + 3)
+    assert component(rig)._locked_device_index is None
+    assert component(rig)._locked_devices == [None] * 4
