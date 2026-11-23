@@ -75,7 +75,7 @@ class DeviceControllerStrip(ButtonSliderElement):
 		if self._parameter_to_map_to != None:	
 			return self._parameter_to_map_to.is_quantized
 		else:
-			return false
+			return False
 					
 	@property
 	def _mode(self):
@@ -83,7 +83,7 @@ class DeviceControllerStrip(ButtonSliderElement):
 			if self._is_quantized:
 				if self._range == 1:
 					return SLIDER_MODE_TOGGLE
-				elif self._range<=self._num_buttons:
+				elif self._range < self._num_buttons:  # range + 1 values, one pad each
 					return SLIDER_MODE_SMALL_ENUM
 				else:
 					return SLIDER_MODE_BIG_ENUM

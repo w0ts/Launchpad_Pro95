@@ -105,3 +105,41 @@ def test_no_device_leaves_the_grid_dark(make_rig):
 	rig.tick(2)
 	assert component(rig)._device is None
 	assert all(value in (None, 0) for row in rig.device.grid_values() for value in row)
+
+
+def _song_with_enum(values):
+	song = device_song()
+	device = song.tracks[0].devices[0]
+	params = list(device.parameters)
+	params[1] = Live.DeviceParameter.DeviceParameter(name="Enum", value=float(values - 1), min=0.0,
+		max=float(values - 1), is_quantized=True)
+	device.parameters = tuple(params)
+	return song
+
+
+def test_nine_value_enum_is_a_big_enum(make_rig):
+	"""9 values do not fit the 8 pads of a column: it must not be drawn as a small enum."""
+	rig = make_rig(song=_song_with_enum(9))
+	rig.tap_top(TOP["device"])
+	rig.tick(2)
+	parameter = rig.song.tracks[0].devices[0].parameters[1]
+	rig.tap(0, 4)  # big enum: pad 3 from the bottom steps down by one
+	assert parameter.value == 7.0
+
+
+def test_eight_value_enum_has_one_pad_per_value(make_rig):
+	rig = make_rig(song=_song_with_enum(8))
+	rig.tap_top(TOP["device"])
+	rig.tick(2)
+	parameter = rig.song.tracks[0].devices[0].parameters[1]
+	rig.tap(0, 5)  # third pad from the bottom
+	assert parameter.value == 2.0
+
+
+def test_strip_without_parameter_is_not_quantized(framework):
+	from Launchpad_Pro95.DeviceControllerStrip import DeviceControllerStrip
+
+	class NoParameter(object):
+		_parameter_to_map_to = None
+
+	assert DeviceControllerStrip._is_quantized.fget(NoParameter()) is False
