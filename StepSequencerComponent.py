@@ -19,8 +19,6 @@ STEPSEQ_MODE_NORMAL = 1
 STEPSEQ_MODE_MULTINOTE = 2
 STEPSEQ_MODE_SCALE_EDIT = 10
 
-LONG_BUTTON_PRESS = 1.0
-
 class NoteSelectorComponent(ControlSurfaceComponent):
 
 	def __init__(self, control_surface = None, stepsequencer = None, buttons = None):
@@ -31,7 +29,6 @@ class NoteSelectorComponent(ControlSurfaceComponent):
 
 		self._clip = None
 		self._track = None
-		self._notes = None
 		self._playhead = None
 
 		self._root_note = 36
@@ -384,26 +381,6 @@ class NoteSelectorComponent(ControlSurfaceComponent):
 	def set_key(self, key):
 		self._key = key
 
-	def note_is_available(self, key):
-		if self.is_drumrack:
-			if self._drum_group_device.drum_pads[key].chains:
-				return True
-			else:
-				return False
-		else:
-			for note in scale:
-				if key % 12 == (self.root_note + note) % 12:
-					return True
-				else:
-					return False
-
-	def note_is_used(self, key):
-		if clip != None:
-			for note in self._clip_notes:
-				if note[0] == key:  # key: 0-127 MIDI note #
-					return True
-		return False
-
 	@property
 	def selected_note(self):
 		return self._root_note + self._offset
@@ -417,7 +394,6 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 		self._stepsequencer = stepsequencer
 		self._control_surface = control_surface
 		self._clip = None
-		self._notes = None
 		self._playhead = None
 		self._buttons = None
 		
@@ -429,7 +405,6 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 
 		# used for loop selection
 		self._last_button = -1
-		self._last_button_time = time.time()
 		self._loop_point1 = -1
 		self._loop_point2 = -1
 
@@ -488,9 +463,6 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 	@property
 	def block(self):
 		return self._block
-
-	def set_blocksize(self, blocksize):
-		self._blocksize = blocksize
 
 	def set_enabled(self, enabled):
 		self._force = True
@@ -683,13 +655,11 @@ class StepSequencerComponent(CompoundComponent):
 		
 		
 		self.QUANTIZATION_COLOR_MAP = ["StepSequencer.Quantization.One","StepSequencer.Quantization.Two","StepSequencer.Quantization.Three","StepSequencer.Quantization.Four"]
-		self._name = "drum step sequencer"
 		# clip
 		self._clip = None
 		self._clip_slot = None
 		self._note_cache = []
 		self._playhead = 0
-		self._new_clip_pages = 4
 		# mode
 		self._mode = -1
 		self._mode_backup = self._mode
@@ -701,13 +671,9 @@ class StepSequencerComponent(CompoundComponent):
 		self._mode_button = None
 		self._mute_shift_button = None
 		self._matrix = None
-		self._left_button = None
-		self._right_button = None
 		
 		# scale
 		self._root_note = 36
-		self._chromatic_scale = []
-		self._diatonic_scale = []
 		# setup
 		self._number_of_lines_per_note = 1
 		self._quantization_index = 2  # 1/16
@@ -1479,7 +1445,6 @@ class StepSequencerComponent(CompoundComponent):
 			if (self._quantization_button != None):
 				assert isinstance(button, ButtonElement)
 				# keep the quantization: the button is set again each time the sequencer is entered
-				self._last_quantize_button_press = time.time()
 				self._quantization_button.add_value_listener(self._quantization_button_value)
 
 	#@quantization_button.pressed
@@ -1555,48 +1520,6 @@ class StepSequencerComponent(CompoundComponent):
 						self._control_surface.show_message("stepseq : locked to clip '"+str(self._clip.name)+"'")
 					self._update_lock_button()
 					self._update_OSD()
-
-# RIGHT Button
-	def _update_right_button(self):
-		if self.is_enabled():
-			if self._right_button != None:
-				if self._clip != None:
-					self._right_button.set_on_off_values("StepSequencer.Nav.On", "StepSequencer.Nav.Off")
-					if self._loop_selector.can_scroll(1):
-						self._right_button.turn_on()
-					else:
-						self._right_button.turn_off()
-				else:
-					self._right_button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
-					self._right_button.turn_off()
-
-	def _arrow_right_pressed(self, value, sender):
-		if self.is_enabled() and self._clip != None:
-			self._loop_selector.scroll(1)
-			self._note_editor.request_display_page()
-			self.update()
-
-# LEFT Button
-	def _update_left_button(self):
-		if self.is_enabled():
-			if self._left_button != None:
-				if self._clip != None:
-					self._left_button.set_on_off_values("StepSequencer.Nav.On", "StepSequencer.Nav.Off")
-					if self._loop_selector.can_scroll(-1):
-						self._left_button.turn_on()
-					else:
-						self._left_button.turn_off()
-				else:
-					self._left_button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
-					self._left_button.turn_off()
-
-	
-	#@arrow_left_button.pressed
-	def _arrow_left_pressed(self, button):
-		if self._clip != None:
-			self._loop_selector.scroll(-1)
-			self._note_editor.request_display_page()
-			self.update()
 
 
 # UTILS

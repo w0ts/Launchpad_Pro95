@@ -152,13 +152,6 @@ class InstrumentComponent(ControlSurfaceComponent):
 		if enabled:
 			self._do_implicit_arm(enabled)
 		
-	def _enter_scale_mode(self):
-		self._previous_mode = self._modes.selected_mode
-		self.set_mode('scale_mode')
-			
-	def _leave_scale_mode(self):
-		self.set_mode(self._previous_mode)
-			
 	def _detect_mode(self):
 		track = self._control_surface._target_track_component.target_track
 		#drum_device = self._control_surface._drum_group_finder.drum_group
@@ -338,13 +331,6 @@ class CommonModeComponent(ControlSurfaceComponent):
 	def selected_scene(self):
 		return self.song().view.selected_scene
 
-	@property
-	def selected_clip(self):
-		clip_slot = self.selected_scene.clip_slots[self.selected_track_idx]
-		if clip_slot.has_clip:
-			return clip_slot.clip
-		else:
-			return None
 	
 		
 					

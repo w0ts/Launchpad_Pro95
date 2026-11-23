@@ -59,9 +59,6 @@ class ClipActionsComponent(ControlSurfaceComponent, Subject):
 		self._track = self.song().view.selected_track
 		self._on_selection_changed()
 
-	def set_locked_clip(self, clip):
-		self._locked_clip = clip
-		
 	def get_clip(self):
 		if self._locked_clip == None:
 			return self._selected_clip

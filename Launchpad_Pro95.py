@@ -187,7 +187,6 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 				self._create_mixer()
 				self._create_device()
 				self._create_modes()
-				#self._create_m4l_interface()
 		
 			self._on_session_record_changed.subject = self.song()
 		# do this in handshake successful. self.set_highlighting_session_component(self._session)
@@ -859,13 +858,6 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 			],
 			behaviour=SpecialReenterBehaviour('session_mode')
 		)
-
-	def _create_m4l_interface(self):
-		#self._m4l_interface = M4LInterfaceComponent(controls=self.controls, component_guard=self.component_guard, priority=1)
-		self.get_control_names = self._m4l_interface.get_control_names
-		self.get_control = self._m4l_interface.get_control
-		self.grab_control = self._m4l_interface.grab_control
-		self.release_control = self._m4l_interface.release_control
 
 	def toggle_detail_view(self):
 		view = self.application().view

@@ -98,9 +98,6 @@ class NoteEditorComponent(ControlSurfaceComponent):
 	def set_scale(self, scale):
 		self._scale = scale
 
-	def set_diatonic(self, diatonic):
-		self._diatonic = diatonic
-
 	@property
 	def key_indexes(self):
 		return self._key_indexes
@@ -146,13 +143,6 @@ class NoteEditorComponent(ControlSurfaceComponent):
 
 	def set_playhead(self, playhead): # Playing cursor
 		self._playhead = playhead
-		self._update_matrix()
-
-	def update_notes(self): # Deprecated ???
-		if self._clip != None:
-			note_cache = read_all_notes(self._clip)
-			if self._clip_notes != note_cache:
-				self._clip_notes = note_cache
 		self._update_matrix()
 
 	def update(self, force=False):

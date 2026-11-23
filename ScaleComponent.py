@@ -103,9 +103,6 @@ class ScaleComponent(ControlSurfaceComponent):
 			if message:
 				self._control_surface.show_message(str("selected scale: " + KEY_NAMES[self._key])+" "+str(self._modus_names[self._modus]))
 	
-	def set_drumrack(self, drumrack):
-		self._is_drumrack = drumrack
-		
 	#def set_matrix(self, matrix):
 	#	if not matrix or not self._layout_set:
 	#		self._matrix = matrix
@@ -413,17 +410,6 @@ class ScaleComponent(ControlSurfaceComponent):
 				self._control_surface.show_message("mode : " + str(self._modus_names[self._modus]))
 			self.update()
 	
-	#@matrix.released
-	def matrix_release(self, pad):
-		pass
-		# selected_drum_pad = self._coordinate_to_pad_map[pad.coordinate]
-		# if selected_drum_pad in self._selected_pads:
-		# 	self._selected_pads.remove(selected_drum_pad)
-		# 	if not self._selected_pads:
-		# 		self._update_control_from_script()
-		# 	self.notify_pressed_pads()
-		# self._update_led_feedback()			
-
 			
 	@property
 	def is_drumrack(self):
@@ -445,10 +431,6 @@ class ScaleComponent(ControlSurfaceComponent):
 	def is_chromatic_gtr(self):
 		return self._mode == "chromatic_gtr"
 		
-	@property
-	def is_custom_scale(self):
-		return self._custom_scale
-	
 	
 	def get_pattern(self):
 		if self._custom_scale:
@@ -515,9 +497,6 @@ class Modus(Scale):
 
 	def scale(self, base_note):
 		return Scale(KEY_NAMES[base_note], [base_note + x for x in self.notes])
-
-	def scales(self, base_notes):
-		return [self.scale(b) for b in base_notes]
 
 
 class MelodicPattern(object):

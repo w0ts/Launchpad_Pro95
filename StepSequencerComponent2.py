@@ -14,8 +14,6 @@ STEPSEQ_MODE_NOTES_OCTAVES = 2
 STEPSEQ_MODE_NOTES_VELOCITIES = 3
 STEPSEQ_MODE_NOTES_LENGTHS = 4
 
-LONG_BUTTON_PRESS = 1.0
-
 LANES = 7  # scale degrees shown, one per row
 OCTAVES = 7  # octave index 0..6 = octave offset -2..+4
 MIN_STEPS = 128  # the step lists grow past this when the clip needs more
@@ -72,20 +70,8 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 		self._matrix = None
 		self._is_notes_pitches_shifted = False
 		self._last_notes_pitches_button_press = time.time()
-		self._last_notes_velocity_button_press = time.time()
-		self._last_notes_pitches_button_press = time.time()
-		self._is_octave_shifted = False
-		self._last_notes_octaves_button_press = time.time()
-		self._is_notes_velocity_shifted = False
 		self._is_notes_lengths_shifted = False
-		self._last_notes_lengths_button_press = time.time()
 
-		if side_buttons != None:
-			self.set_random_button(side_buttons[3])
-			self.set_mode_notes_lengths_button(side_buttons[4])
-			self.set_mode_notes_octaves_button(buttons[5])
-			self.set_mode_notes_velocities_button(self._side_buttons[6])
-			self.set_mode_notes_pitches_button(self._side_buttons[7])
 		self._is_velocity_shifted = False
 		self._is_mute_shifted = False
 
@@ -171,9 +157,6 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 				self._clip.end_marker = self._loop_end
 		# update clip notes
 		self._update_clip_notes()
-
-	def set_diatonic(self, diatonic):
-		self._diatonic = diatonic
 
 	def set_key_indexes(self, key_indexes):
 		if self._key_indexes != key_indexes:
@@ -288,13 +271,7 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 			self._shown_notes = shown
 			self._grid_steps = grid
 			write_all_notes(self._clip, note_cache)
-			#self._control_surface.schedule_message(1, self._sch_update, ([self._clip,tuple(note_cache)]))
 
-	def _sch_update(self, data):
-			clip = data[0]
-			note_cache = data[1]
-			write_all_notes(clip, note_cache or ())
-				
 	def update(self, force=False):
 		if force:
 			self._force_update = True
@@ -747,8 +724,6 @@ class StepSequencerComponent2(StepSequencerComponent):
 
 	def __init__(self, control_surface = None, side_buttons = None, top_buttons = None):
 		super(StepSequencerComponent2, self).__init__(control_surface)
-		self._new_clip_pages = 1
-		self._name = "melodic step sequencer"
 		
 	
 	def _delegate_matrix(self):
@@ -785,9 +760,6 @@ class StepSequencerComponent2(StepSequencerComponent):
 	def _set_note_editor(self):
 		self._note_editor = self.register_component(MelodicNoteEditorComponent(self._control_surface, self))
 
-	def _set_mute_shift_function(self):
-		self._is_mute_shifted = False
-			
 	def _set_note_selector(self):
 		self._note_selector = self.register_component(NoteSelectorComponent(self._control_surface, self))
 
@@ -798,12 +770,6 @@ class StepSequencerComponent2(StepSequencerComponent):
 		self._update_quantization_button()
 		self._update_lock_button()
 		self._update_scale_button()
-		self._update_left_button()
-		self._update_right_button()
-
-	def _update_drum_group_device(self):
-		# no drum rack mode for me. i am a melodic step seq.
-		self._drum_group_device = None
 
 	def _update_OSD(self):
 		if self._osd != None:
