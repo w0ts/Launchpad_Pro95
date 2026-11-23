@@ -98,9 +98,6 @@ def test_melodic_notes_have_a_length(make_rig):
 	assert _clip(rig).note_tuples()[0][2] > 0
 
 
-@pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent._scale_updated computes the octave of a diatonic "
-	"degree with true division ((i + idx) / scale_length * 12), so the melodic sequencer's degrees above the root "
-	"get fractional pitches (truncated to the wrong note)")
 def test_melodic_degrees_follow_the_major_scale(make_rig):
 	rig = _melodic_seq(make_rig)
 	rig.press_side(0)  # scale editor (C major), released: the sequencer takes the scale
@@ -160,8 +157,6 @@ def test_melodic_edit_keeps_notes_before_zero(make_rig):
 	assert [n for n in clip.note_tuples() if n[1] < 0] != []
 
 
-@pytest.mark.xfail(strict=True, reason="bug: MelodicPattern._octave_and_note (ScaleComponent.py) uses "
-	"int(index / scale_size), which truncates toward 0: a negative index gets the octave above")
 def test_melodic_pattern_octave_of_negative_index(framework):
 	from Launchpad_Pro95.ScaleComponent import MelodicPattern
 
@@ -209,3 +204,20 @@ def test_device_mode_skin_keys_exist(make_rig):
 			skin[key]
 		except Exception as error:
 			raise KeyError(key) from error
+
+
+def test_melodic_pattern_has_no_note_outside_the_midi_range(framework):
+	from Launchpad_Pro95.ScaleComponent import MelodicPattern
+
+	low = MelodicPattern(steps=[1, 3], scale=[0, 2, 4, 5, 7, 9, 11], base_note=-24, origin=[0, 0])
+	assert low.note(0, 0).index is None and not low.note(0, 0).valid
+	high = MelodicPattern(steps=[1, 3], scale=[0, 2, 4, 5, 7, 9, 11], base_note=120, origin=[0, 0])
+	assert high.note(7, 0).index is None
+
+
+@pytest.mark.parametrize("note", [0, 3, 4, 11, 12, 40, 127])
+def test_note_selector_selects_low_notes(make_rig, note):
+	selector = _drum_seq(make_rig).surface._step_sequencer._note_selector
+	selector.set_key(5)
+	selector.set_selected_note(note)
+	assert selector._root_note + selector._offset == note

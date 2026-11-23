@@ -375,11 +375,11 @@ class NoteSelectorComponent(ControlSurfaceComponent):
 
 	def set_selected_note(self, selected_note):
 		if self.is_drumrack:
-			self._root_note = int((selected_note + 12) / 16 - 1) * 16 + 4
+			self._root_note = ((selected_note + 12) // 16 - 1) * 16 + 4
 			self._offset = (selected_note - self._root_note + 16) % 16
 			# self._control_surface.log_message("DR selected_note:"+str(selected_note)+" self._root_note: "+ str(self._root_note)+" offset: "+ str(self._offset))
 		else:
-			self._root_note = int((selected_note - self._key) / 12) * 12 + self._key
+			self._root_note = (selected_note - self._key) // 12 * 12 + self._key
 			self._offset = (selected_note + 12 - self._root_note) % 12
 			# self._control_surface.log_message("CHR selected_note:"+str(selected_note)+" self._root_note: "+ str(self._root_note)+" offset: "+ str(self._offset))
 
@@ -1036,7 +1036,7 @@ class StepSequencerComponent(CompoundComponent):
 					keys[i] = self._note_selector._root_note + self._note_selector._offset + i
 			else:
 				for i in range(8):
-					keys[i] = self._note_selector._root_note + self._note_selector._scale[(i + idx) % self._note_selector._scale_length] + ((i + idx) / self._note_selector._scale_length) * 12
+					keys[i] = self._note_selector._root_note + self._note_selector._scale[(i + idx) % self._note_selector._scale_length] + ((i + idx) // self._note_selector._scale_length) * 12
 					key_is_root_note[i] = (keys[i] + 12) % 12 == self._note_selector._key
 					key_is_in_scale[i] = True
 		else:

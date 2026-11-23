@@ -576,20 +576,22 @@ class MelodicPattern(object):
 		index = self.steps[0] * (self.origin[0] + x) + self.steps[1] * (self.origin[1] + y)
 		if self.chromatic_gtr_mode and y > 3:
 			index = index - 1
-		octave = int(index / scale_size)
+		octave = index // scale_size
 		note = scale[index % scale_size]
 		return (octave, note)
 
 	def note(self, x, y):
 		octave, note = self._octave_and_note(x, y)
-		index = self.base_note + 12 * octave + note 
+		index = self.base_note + 12 * octave + note
+		if not 0 <= index < 128:
+			index = None  # outside the MIDI range: the pad plays nothing
 		root = note == self.scale[0]
 		if len(self.scale) < 5:
 			highlight = False
 		else:
 			highlight =  note == self.scale[2] or note == self.scale[4]
 		in_scale = note in self.scale
-		valid = index in self.valid_notes
+		valid = index is not None and index in self.valid_notes
 		return self.NoteInfo(
 			index, 
 			x,
