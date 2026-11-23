@@ -180,19 +180,6 @@ def test_target_track_stack_drops_removed_tracks(rig):
 	assert target._armed_track_stack == []
 
 
-@pytest.mark.xfail(strict=True, raises=KeyError, reason="bug: skin key typo 'DefaulyButton.Disabled' "
-	"(DeviceComponent.update, no device); 'DefaultButton.Disaled' in StepSequencerComponent2._update_mode_button "
-	"is the same kind of typo but no layer gives that sequencer a mode button")
-def test_device_mode_skin_keys_exist(make_rig):
-	rig = make_rig()
-	skin = rig.surface._skin
-	for key in ("DefaulyButton.Disabled", "DefaultButton.Disaled"):
-		try:
-			skin[key]
-		except Exception as error:
-			raise KeyError(key) from error
-
-
 def test_melodic_pattern_has_no_note_outside_the_midi_range(framework):
 	from Launchpad_Pro95.ScaleComponent import MelodicPattern
 

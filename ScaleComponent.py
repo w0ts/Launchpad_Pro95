@@ -168,9 +168,9 @@ class ScaleComponent(ControlSurfaceComponent):
 				if row==0:
 					if col == 0:
 						if self._is_absolute:
-							button.set_light("Scale.AbsoluteRoot")
+							button.set_light("Scale.AbsoluteRoot.On")
 						else:
-							button.set_light("Scale.RelativeRoot")
+							button.set_light("Scale.AbsoluteRoot.Off")
 					elif col == 1:
 						button.set_light("DefaultButton.Disabled")
 					elif col == 2:

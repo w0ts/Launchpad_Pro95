@@ -216,7 +216,7 @@ class DeviceComponent(LiveDeviceComponent):
 				for x in range(self._matrix.width()):
 					for y in range(self._matrix.height()):
 						if self._force:
-							self._matrix.get_button(x, y).set_on_off_values("DefaulyButton.Disabled","DefaultButton.Disabled")
+							self._matrix.get_button(x, y).set_on_off_values("DefaultButton.Disabled","DefaultButton.Disabled")
 							self._matrix.get_button(x, y).turn_off()
 						
 			# update parent

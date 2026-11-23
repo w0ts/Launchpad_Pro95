@@ -877,7 +877,7 @@ class StepSequencerComponent2(StepSequencerComponent):
 	def _update_mode_button(self):
 		if self.is_enabled():
 			if (self._mode_button != None):
-				self._mode_button.set_on_off_values("DefaultButton.Disaled")
+				self._mode_button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
 
 	def _mode_button_value(self, value, sender):
 		pass

@@ -160,6 +160,9 @@ class Colors:
 		class Mode:
 			On = Rgb.AMBER
 			Off = Rgb.AMBER_HALF
+		class Nav:
+			On = Rgb.MINT
+			Off = Rgb.MINT_HALF
 		class Lock:
 			class ToTrack:
 				On = Rgb.RED
@@ -191,11 +194,14 @@ class Colors:
 			Velocity1 = Color(26)
 			Velocity2 = Color(25)
 			Velocity3 = Color(24)
+			Velocity4 = Rgb.GREEN
 			Muted = Rgb.DARK_GREY
 			Playing = Rgb.RED
 			Metronome = Rgb.BLUE
 			NoteMarker = Rgb.AMBER
 			PageMarker = Rgb.YELLOW
+			CurrentPageMarker = Rgb.RED_HALF
+			CurrentPageMarkerPlay = Rgb.GREEN_HALF
 				
 	class StepSequencer2:
 		class Pitch:
