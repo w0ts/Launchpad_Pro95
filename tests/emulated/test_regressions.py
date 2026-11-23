@@ -291,3 +291,15 @@ def test_loop_selector_disconnect_releases_its_buttons(make_rig, enter):
     rig.disconnect()
     assert not any(button.value_has_listener(loop._loop_button_value) for button in buttons)
     assert not hasattr(loop, "_top_buttons")
+
+
+def test_quantization_component_is_per_instance(make_rig):
+    """Two Launchpad Pros in one Live: each quantizes clips with its own actions component."""
+    first = make_rig()
+    second = make_rig()
+    for rig in (first, second):
+        surface = rig.surface
+        actions = surface._actions_component
+        assert surface._clip_actions_component.quantization_component is actions
+        slots = [surface._session.scene(s).clip_slot(t) for s in range(8) for t in range(8)]
+        assert all(slot.quantization_component is actions for slot in slots)

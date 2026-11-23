@@ -50,7 +50,7 @@ from .SkinMK2 import make_skin
 from .SpecialMidiMap import SpecialMidiMap, make_button, make_multi_button, make_slider
 from .SpecialMixerComponent import SpecialMixerComponent
 from .SpecialModesComponent import CancelingReenterBehaviour, SpecialReenterBehaviour
-from .SpecialSessionComponent import SessionZoomingManagerComponent, SpecialClipSlotComponent
+from .SpecialSessionComponent import SessionZoomingManagerComponent
 from .SpecialSessionComponent import SpecialSessionComponent as SessionComponent
 from .SpecialSessionComponent import SpecialSessionZoomingComponent as SessionZoomingComponent
 from .SpecialSessionRecordingComponent import SpecialSessionRecordingComponent
@@ -370,7 +370,6 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
         )
         self._session.set_enabled(True)
         self._session.set_rgb_mode(CLIP_COLOR_TABLE, RGB_COLOR_TABLE)
-        SpecialClipSlotComponent.quantization_component = self._actions_component
         for scene_index in range(NUM_SCENES):
             scene = self._session.scene(scene_index)
             scene.layer = Layer(
@@ -380,6 +379,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
             )
             for track_index in range(NUM_TRACKS):
                 slot = scene.clip_slot(track_index)
+                slot.quantization_component = self._actions_component
                 slot.layer = Layer(
                     select_button=self._midimap["Shift_Button"],
                     delete_button=self._midimap["Delete_Button"],
@@ -411,7 +411,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
                 quantize_button=self._midimap["Quantize_Button"],
             ),
         )
-        ClipActionsComponent.quantization_component = self._actions_component
+        self._clip_actions_component.quantization_component = self._actions_component
 
     def _create_drums(self):
         self._drum_group_finder = DrumGroupFinderComponent(
