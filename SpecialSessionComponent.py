@@ -98,15 +98,17 @@ class SpecialClipSlotComponent(ClipSlotComponent):
             track = self._clip_slot.canonical_parent
             if track.can_be_armed and not track.arm:
                 if self.song().exclusive_arm:
-                    for t in self.song().tracks:
-                        if t.can_be_armed and t.arm:
-                            t.arm = False
-
+                    self._disarm_all_tracks()
                 track.arm = True
                 if self.song().view.selected_track != track:
                     self.song().view.selected_track = track
             if not self.song().session_record and self._clip_slot.has_clip:
                 self.song().session_record = True
+
+    def _disarm_all_tracks(self):
+        for track in self.song().tracks:
+            if track.can_be_armed and track.arm:
+                track.arm = False
 
 
 class SpecialSceneComponent(SceneComponent):
@@ -197,31 +199,32 @@ class SpecialSessionComponent(SessionComponent):
         self._horizontal_banking.update()
 
     def _update_stop_clips_led(self, index):
-        if (
+        if not (
             self.is_enabled()
             and self._stop_track_clip_buttons is not None
             and index < len(self._stop_track_clip_buttons)
         ):
-            button = self._stop_track_clip_buttons[index]
-            if button is not None:
-                tracks_to_use = self.tracks_to_use()
-                track_index = index + self.track_offset()
-                value_to_send = None
-                if track_index < len(tracks_to_use):
-                    if tracks_to_use[track_index].clip_slots:
-                        track = tracks_to_use[track_index]
-                        if track.fired_slot_index == -2:
-                            value_to_send = self._stop_clip_triggered_value
-                        elif track.playing_slot_index >= 0:
-                            value_to_send = self._stop_clip_value
-                        else:
-                            value_to_send = "Session.StoppedClip"
-                if value_to_send is None:
-                    button.turn_off()
-                elif in_range(value_to_send, 0, 128):
-                    button.send_value(value_to_send)
-                else:
-                    button.set_light(value_to_send)
+            return
+        button = self._stop_track_clip_buttons[index]
+        if button is None:
+            return
+        tracks_to_use = self.tracks_to_use()
+        track_index = index + self.track_offset()
+        value_to_send = None
+        if track_index < len(tracks_to_use) and tracks_to_use[track_index].clip_slots:
+            track = tracks_to_use[track_index]
+            if track.fired_slot_index == -2:
+                value_to_send = self._stop_clip_triggered_value
+            elif track.playing_slot_index >= 0:
+                value_to_send = self._stop_clip_value
+            else:
+                value_to_send = "Session.StoppedClip"
+        if value_to_send is None:
+            button.turn_off()
+        elif in_range(value_to_send, 0, 128):
+            button.send_value(value_to_send)
+        else:
+            button.set_light(value_to_send)
 
     def _update_stop_scene_clip_buttons(self):
         if self.is_enabled():
