@@ -1,0 +1,61 @@
+# Publish a GitHub release when a version tag is pushed (git tag v1.2.3 && git push origin v1.2.3):
+# the tests and lint run first, then Launchpad_Pro95.zip is built and attached, with the notes of the
+# matching "## [1.2.3]" section of CHANGELOG.md. How to release: README.md, "Releasing".
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+
+  release:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Version from the tag
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::tag $TAG is not like v1.2.3"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: scripts/release_notes.sh "$VERSION" > notes.md
+
+      - name: Build the zip
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          scripts/build_release.sh "$VERSION" dist
+          unzip -l dist/Launchpad_Pro95.zip
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh release create "$TAG" dist/Launchpad_Pro95.zip --title "Launchpad Pro95 $VERSION" --notes-file notes.md --verify-tag
