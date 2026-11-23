@@ -10,8 +10,7 @@ TICK_SECONDS = 0.1
 START = 1000.0
 
 # Script modules that call time.time().
-TIMED_MODULES = ("DeviceComponent", "NoteEditorComponent", "StepSequencerComponent", "StepSequencerComponent2",
-	"TrackControllerComponent")
+TIMED_MODULES = ("DeviceComponent", "NoteEditorComponent", "StepSequencerComponent", "StepSequencerComponent2")
 
 
 class FakeTime(object):
