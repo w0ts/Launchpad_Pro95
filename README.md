@@ -34,7 +34,7 @@ Needs **Ableton Live 11 or later**. Download
 [Launchpad_Pro95.zip](https://github.com/w0ts/Launchpad_Pro95/releases/latest/download/Launchpad_Pro95.zip) from the
 [latest release](https://github.com/w0ts/Launchpad_Pro95/releases/latest), put the `Launchpad_Pro95` folder in the
 `Remote Scripts` folder of your User Library, and choose it as a control surface in Live's settings. The
-[site](https://w0ts.github.io/Launchpad_Pro95/#install) has the steps with screenshots.
+[site](https://w0ts.github.io/Launchpad_Pro95/install.html) has the steps with screenshots.
 
 Live 9.5 and Live 10: use the archived release
 [legacy-live9-10](https://github.com/w0ts/Launchpad_Pro95/releases/tag/legacy-live9-10).
@@ -45,7 +45,7 @@ What changed in each version: [CHANGELOG.md](CHANGELOG.md).
 
 * **The Launchpad does not light up**: check the folder name (`Launchpad_Pro95`) and place, the Input and Output of
   the control surface (the Launchpad Pro's Live port), and that you run Live 11 or later. The
-  [F.A.Q.](https://w0ts.github.io/Launchpad_Pro95/#faq) has more.
+  [F.A.Q.](https://w0ts.github.io/Launchpad_Pro95/faq.html) has more.
 * **Logs**: Live writes the script's errors to its `Log.txt` (in Live's preferences folder).
 
 ## Development
