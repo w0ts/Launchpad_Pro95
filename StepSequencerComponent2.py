@@ -1,10 +1,10 @@
-"""The melodic step sequencer (user mode, second sub mode)."""
+"""The melodic step sequencer (user mode, second sub mode): the drum sequencer with the
+melodic grid editor, a diatonic scale, the loop selector on the bottom row and the page
+buttons on the right instead of the octave, mode and mute shift buttons."""
 
-from .LoopSelectorComponent import LoopSelectorComponent
 from .MelodicNoteEditorComponent import MelodicNoteEditorComponent
-from .NoteSelectorComponent import NoteSelectorComponent
 from .ScaleComponent import ScaleComponent
-from .StepSequencerComponent import StepSequencerComponent
+from .StepSequencerComponent import MULTINOTE_LOOP_PADS, StepSequencerComponent
 from .StepSequencerConsts import STEPSEQ_MODE_SCALE_EDIT
 from .TrackControllerComponent import TrackControllerComponent
 
@@ -16,18 +16,7 @@ class StepSequencerComponent2(StepSequencerComponent):
 
     def _delegate_matrix(self):
         if self._matrix != None:
-            self._loop_selector.set_buttons(
-                [
-                    self._matrix.get_button(0, 7),
-                    self._matrix.get_button(1, 7),
-                    self._matrix.get_button(2, 7),
-                    self._matrix.get_button(3, 7),
-                    self._matrix.get_button(4, 7),
-                    self._matrix.get_button(5, 7),
-                    self._matrix.get_button(6, 7),
-                    self._matrix.get_button(7, 7),
-                ]
-            )
+            self._loop_selector.set_buttons(self._pads(MULTINOTE_LOOP_PADS))
         else:
             self._loop_selector.set_buttons(None)
         self._note_editor.set_matrix(self._matrix)
@@ -48,28 +37,10 @@ class StepSequencerComponent2(StepSequencerComponent):
     def _set_note_editor(self):
         self._note_editor = self.register_component(MelodicNoteEditorComponent(self._control_surface, self))
 
-    def _set_note_selector(self):
-        self._note_selector = self.register_component(NoteSelectorComponent(self._control_surface, self))
-
-    def _set_loop_selector(self):
-        self._loop_selector = self.register_component(LoopSelectorComponent(self._control_surface, self))
-
-    def _update_buttons(self):
+    def _update_buttons(self):  # no mode or mute shift button
         self._update_quantization_button()
         self._update_lock_button()
         self._update_scale_button()
-
-    def _update_mode_button(self):
-        if self.is_enabled():
-            if self._mode_button != None:
-                self._mode_button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
-
-    def _mode_button_value(self, value, sender):
-        pass
-
-    def _update_loop_selector(self):
-        self._loop_selector.set_enabled(self._mode != STEPSEQ_MODE_SCALE_EDIT)
-        self._loop_selector.update()
 
     def _update_note_editor(self):
         self._note_editor.set_enabled(self._mode != STEPSEQ_MODE_SCALE_EDIT)
