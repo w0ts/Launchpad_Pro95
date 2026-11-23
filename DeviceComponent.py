@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .consts import *  # noqa
 from _Framework.DeviceComponent import DeviceComponent as LiveDeviceComponent
 from _Framework.ButtonElement import ButtonElement
 from .DeviceControllerStrip import DeviceControllerStrip

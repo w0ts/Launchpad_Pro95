@@ -10,7 +10,7 @@ from .ScaleComponent import ScaleComponent
 from .NoteComponent import NoteComponent
 #from .DrumGroupFinderComponent import DrumGroupFinderComponent
 from .TranslationComponent import TranslationComponent
-from .consts import *
+from .consts import DRUM_LAYOUT_SYSEX_BYTE, DR_MAP_CHANNEL, SESSION_LAYOUT_SYSEX_BYTE, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT, USER_LAYOUT_SYSEX_BYTE
 from functools import partial
 
 class InstrumentComponent(ControlSurfaceComponent):

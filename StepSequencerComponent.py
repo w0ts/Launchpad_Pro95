@@ -1,15 +1,14 @@
 import Live
-from .consts import * 
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 from _Framework.CompoundComponent import CompoundComponent
 from _Framework.ButtonElement import ButtonElement
 from _Framework.Util import find_if
 from .NoteEditorComponent import NoteEditorComponent
 from .ClipNotes import read_all_notes, write_all_notes
-from .ScaleComponent import * 
+from .ScaleComponent import ScaleComponent
 from .TrackControllerComponent import TrackControllerComponent
 import time
-from .Settings import *
+from .Settings import STEPSEQ__SAVE_SCALE
 
 # quantization button colours. this must remain of length 4.
 QUANTIZATION_MAP = [1, 0.5, 0.25, 0.125]  # 1/4 1/8 1/16 1/32

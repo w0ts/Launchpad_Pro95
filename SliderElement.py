@@ -1,7 +1,7 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SliderElement.py
 from _Framework.SliderElement import SliderElement as SliderElementBase
 from _Framework.Skin import Skin, SkinColorMissingError
-from .consts import *
+from .consts import FADER_TYPE_BIPOLAR, FADER_TYPE_STANDARD, SYSEX_PARAM_BYTE_FADER_SETUP, SYSEX_STANDARD_PREFIX, SYSEX_STANDARD_SUFFIX
 FADER_TYPES = (FADER_TYPE_STANDARD, FADER_TYPE_BIPOLAR)
 
 class SliderElement(SliderElementBase):

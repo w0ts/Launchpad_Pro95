@@ -1,9 +1,8 @@
-from .consts import *  # noqa
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 from _Framework.ButtonElement import ButtonElement
 from _Framework.ButtonMatrixElement import ButtonMatrixElement
-from .StepSequencerComponent import *  # noqa
-from .ScaleComponent import *  # noqa
+from .StepSequencerComponent import LoopSelectorComponent, NoteSelectorComponent, STEPSEQ_MODE_SCALE_EDIT, StepSequencerComponent
+from .ScaleComponent import ScaleComponent
 from .TrackControllerComponent import TrackControllerComponent
 from .ClipNotes import write_all_notes
 from random import randrange
