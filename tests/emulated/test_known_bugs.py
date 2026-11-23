@@ -76,16 +76,11 @@ def test_loop_selector_sets_a_loop_after_the_current_one(make_rig):
 	assert (_clip(rig).loop_start, _clip(rig).loop_end) == (16 * q, 24 * q)
 
 
-@pytest.mark.xfail(strict=True, reason="bug: entering the melodic step sequencer calls "
-	"MelodicNoteEditorComponent.set_quantization with the old quantization still at its initial 16, so the "
-	"selected clip's loop is scaled by 0.25/16 (4 beats -> 1/16 beat)")
 def test_entering_the_melodic_sequencer_keeps_the_clip_loop(make_rig):
 	rig = _melodic_seq(make_rig)
 	assert (_clip(rig).loop_start, _clip(rig).loop_end) == (0.0, 4.0)
 
 
-@pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent.set_quantization_button resets the quantization "
-	"to 1/16 each time the sequencer is entered, and the melodic editor rescales the clip loop with it")
 def test_reentering_the_melodic_sequencer_keeps_its_quantization(make_rig):
 	rig = _melodic_seq(make_rig)
 	rig.tap_side(3)  # quantization: 1/32
@@ -129,9 +124,6 @@ def test_melodic_sequencer_reads_long_clips(make_rig):
 	assert rig.surface._step_sequencer2._note_editor._clip is clip
 
 
-@pytest.mark.xfail(strict=True, reason="bug: entering the melodic step sequencer rewrites the selected clip from "
-	"its step data right after the quantization change (MelodicNoteEditorComponent.set_quantization -> "
-	"_update_clip_notes): existing notes move to time 0 with length 0")
 def test_entering_the_melodic_sequencer_keeps_the_clip_notes(make_rig):
 	song = make_song(clips=[(0, 0)])
 	clip = song.tracks[0].clip_slots[0].clip
@@ -141,6 +133,26 @@ def test_entering_the_melodic_sequencer_keeps_the_clip_notes(make_rig):
 	_melodic_seq(make_rig, song)
 	assert clip.note_tuples() == before
 
+
+
+def test_entering_and_leaving_the_sequencers_never_changes_the_clip(make_rig):
+	song = make_song(clips=[(0, 0)])
+	clip = song.tracks[0].clip_slots[0].clip
+	_add(clip, 36, 0.5, duration=0.3, velocity=77)
+	_add(clip, 37, 1.0)  # off the C major lanes
+	clip.add_new_notes((Live.Clip.MidiNoteSpecification(pitch=40, start_time=2.0, duration=0.25,
+		velocity=100, mute=True),))
+	before = (clip.note_tuples(), clip.loop_start, clip.loop_end)
+	rig = _drum_seq(make_rig, song)
+	rig.tap_top(TOP["user"])  # melodic
+	rig.tick(2)
+	rig.tap_top(TOP["session"])
+	rig.tap_top(TOP["user"])
+	rig.tap_top(TOP["user"])
+	rig.tick(2)
+	rig.tap_top(TOP["session"])
+	rig.tick()
+	assert (clip.note_tuples(), clip.loop_start, clip.loop_end) == before
 
 @pytest.mark.xfail(strict=True, reason="bug: the melodic step sequencer drops notes before time 0: its step lists cannot hold them "
 	"(_parse_notes indexes them from the end) and _update_clip_notes rewrites the whole clip from the steps")

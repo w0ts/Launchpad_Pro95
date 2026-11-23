@@ -711,10 +711,12 @@ class StepSequencerComponent(CompoundComponent):
 		self._diatonic_scale = []
 		# setup
 		self._number_of_lines_per_note = 1
-		self._quantization_index = 1
+		self._quantization_index = 2  # 1/16
 		self._quantization = QUANTIZATION_MAP[self._quantization_index]
 		self._set_loop_selector()
 		self._set_note_editor()
+		# no clip yet: the editor only takes the quantization (no loop or note change)
+		self._note_editor.set_quantization(self._quantization)
 		self._set_note_selector()
 		self._set_track_controller()
 		self._set_scale_component()
@@ -1478,8 +1480,7 @@ class StepSequencerComponent(CompoundComponent):
 			self._quantization_button = button
 			if (self._quantization_button != None):
 				assert isinstance(button, ButtonElement)
-				self._quantization_index = 2
-				self.set_quantization(QUANTIZATION_MAP[self._quantization_index])
+				# keep the quantization: the button is set again each time the sequencer is entered
 				self._last_quantize_button_press = time.time()
 				self._quantization_button.add_value_listener(self._quantization_button_value)
 
