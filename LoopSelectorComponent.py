@@ -6,11 +6,17 @@ import time
 from _Framework.ButtonElement import ButtonElement
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 
+from .ClipLoop import set_loop_and_markers
 from .ClipNotes import write_all_notes
-from .StepSequencerConsts import STEPSEQ_MODE_MULTINOTE
+
+DOUBLE_TAP_SECONDS = 0.25
 
 
 class LoopSelectorComponent(ControlSurfaceComponent):
+    """Tap a block to show it. Hold a block and tap another (or double tap one) to set the loop
+    to that range of blocks; with mute shift held the range's notes are deleted instead (muted
+    with velocity held too); with velocity held alone a longer loop is filled with a copy of
+    the current one."""
 
     def __init__(self, control_surface=None, stepsequencer=None, buttons=None):
         ControlSurfaceComponent.__init__(self)
@@ -29,10 +35,11 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 
         # used for loop selection
         self._last_button = -1
+        self.last_button_time = 0
         self._loop_point1 = -1
         self._loop_point2 = -1
 
-        self._cache = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        self._cache = [-1] * 16
         if buttons != None:
             self.set_buttons(buttons)
 
@@ -51,19 +58,8 @@ class LoopSelectorComponent(ControlSurfaceComponent):
         self.set_buttons(None)
         super().disconnect()
 
-    @property
-    def _number_of_lines_per_note(self):
-        if self._mode == STEPSEQ_MODE_MULTINOTE:
-            return self._stepsequencer._number_of_lines_per_note
-        else:
-            return 1
-
     def set_clip(self, clip):
         self._clip = clip
-
-    @property
-    def _mode(self):
-        return self._stepsequencer._mode
 
     def set_note_cache(self, note_cache):
         self._note_cache = note_cache
@@ -86,6 +82,11 @@ class LoopSelectorComponent(ControlSurfaceComponent):
         return self._stepsequencer._quantization
 
     @property
+    def _block_length(self):
+        """The length of a block in beats."""
+        return self._blocksize * self._quantization
+
+    @property
     def block(self):
         return self._block
 
@@ -105,20 +106,12 @@ class LoopSelectorComponent(ControlSurfaceComponent):
         if self._clip != None:
             # start and end are locals: the clip's loop listeners may call update(),
             # which reads the clip loop back into self._loop_start / self._loop_end.
-            # The order keeps start < end at every step.
-            if start >= self._clip.loop_end:
-                self._clip.loop_end = end
-                self._clip.loop_start = start
-                self._clip.end_marker = end
-                self._clip.start_marker = start
-            else:
-                self._clip.loop_start = start
-                self._clip.loop_end = end
-                self._clip.start_marker = start
-                self._clip.end_marker = end
+            set_loop_and_markers(self._clip, start, end)
             self._loop_start = start
             self._loop_end = end
             self.update()
+
+    # PADS
 
     def _loop_button_value(self, value, sender):
         if self.is_enabled():
@@ -128,119 +121,73 @@ class LoopSelectorComponent(ControlSurfaceComponent):
                     self._loop_point1 = x
                 elif self._loop_point2 == -1:
                     self._loop_point2 = x
-
             elif self._loop_point1 != -1:
-                setloop = self._loop_point2 != -1
-                if self._loop_point2 == -1:
-                    self._loop_point2 = x
-                    if self._last_button == x and time.time() - self.last_button_time < 0.25:
-                        setloop = True
-                        self.last_button_time = time.time()
-                        self._last_button = -1
-
-                if self._loop_point1 != -1 and self._loop_point2 != -1:
-                    if self._loop_point1 > self._loop_point2:
-                        start = self._loop_point2
-                        end = self._loop_point1
-                    else:
-                        start = self._loop_point1
-                        end = self._loop_point2
-                    end = end + 1
-                    self._block = start
-                    if setloop:
-                        if self._is_mute_shifted:
-                            if self._is_velocity_shifted:
-                                self._mute_notes_in_range(
-                                    start * self._blocksize * self._quantization,
-                                    end * self._blocksize * self._quantization,
-                                )
-                            else:
-                                self._delete_notes_in_range(
-                                    start * self._blocksize * self._quantization,
-                                    end * self._blocksize * self._quantization,
-                                )
-                        else:
-                            if self._is_velocity_shifted:
-                                self._extend_clip_content(
-                                    self._loop_start, self._loop_end, end * self._blocksize * self._quantization
-                                )
-                            self.set_clip_loop(
-                                start * self._blocksize * self._quantization, end * self._blocksize * self._quantization
-                            )
-
-                    self._stepsequencer.set_page(self._block)
-                    self._loop_point1 = -1
-                    self._loop_point2 = -1
-                    self.update()
+                self._loop_button_released(x)
                 self.last_button_time = time.time()
                 self._last_button = x
 
-    def can_scroll(self, blocks):
-        if self._clip != None:
-            if (blocks + self._block) < 0:
-                return False
-            if (blocks + self._block) * 8 * self._quantization * self._number_of_lines_per_note < self._clip.loop_start:
-                return False
-            if (
-                blocks + self._block + 1
-            ) * 8 * self._quantization * self._number_of_lines_per_note > self._clip.loop_end:
-                return False
-            return True
-        return False
+    def _loop_button_released(self, x):
+        """A pad was released while a first loop point is held: page, or act on the range."""
+        apply_to_range = self._loop_point2 != -1
+        if self._loop_point2 == -1:
+            self._loop_point2 = x
+            if self._last_button == x and time.time() - self.last_button_time < DOUBLE_TAP_SECONDS:
+                apply_to_range = True
+                self.last_button_time = time.time()
+                self._last_button = -1
+        start = min(self._loop_point1, self._loop_point2)
+        end = max(self._loop_point1, self._loop_point2) + 1
+        self._block = start
+        if apply_to_range:
+            self._apply_to_blocks(start, end)
+        self._stepsequencer.set_page(self._block)
+        self._loop_point1 = -1
+        self._loop_point2 = -1
+        self.update()
 
-    def scroll(self, blocks):
-        if self._clip != None and self.can_scroll(blocks):
-            self._block = blocks + self._block
-            self._stepsequencer.set_page(self._block)
+    def _apply_to_blocks(self, start, end):
+        start_time = start * self._block_length
+        end_time = end * self._block_length
+        if self._is_mute_shifted:
+            if self._is_velocity_shifted:
+                self._mute_notes_in_range(start_time, end_time)
+            else:
+                self._delete_notes_in_range(start_time, end_time)
+        else:
+            if self._is_velocity_shifted:
+                self._extend_clip_content(self._loop_start, self._loop_end, end_time)
+            self.set_clip_loop(start_time, end_time)
+
+    # LEDS
 
     def update(self):
         if self.is_enabled() and self._buttons:
             self._get_clip_loop()
-            i = 0
-            for button in self._buttons:
+            for i, button in enumerate(self._buttons):
                 if self._clip == None:
                     button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
                     if self._cache[i] != button._off_value:
                         button.turn_off()
                         self._cache[i] = button._off_value
                 else:
-                    in_loop = (i * self._blocksize * self._quantization < self._loop_end) and (
-                        i * self._blocksize * self._quantization >= self._loop_start
-                    )
-                    playing = (
-                        self._playhead != None
-                        and self._playhead >= i * self._blocksize * self._quantization
-                        and self._playhead < (i + 1) * self._blocksize * self._quantization
-                    )
-                    selected = i == self.block
-                    if in_loop:
-                        if playing:
-                            if selected:
-                                self._cache[i] = "StepSequencer.LoopSelector.SelectedPlaying"
-                            else:
-                                self._cache[i] = "StepSequencer.LoopSelector.Playing"
-                        else:
-                            if selected:
-                                self._cache[i] = "StepSequencer.LoopSelector.Selected"
-                            else:
-                                self._cache[i] = "StepSequencer.LoopSelector.InLoop"
-                    else:
-                        if playing:
-                            if selected:
-                                self._cache[i] = "StepSequencer.LoopSelector.SelectedPlaying"
-                            else:
-                                self._cache[i] = "StepSequencer.LoopSelector.Playing"
-                        else:
-                            if selected:
-                                self._cache[i] = "StepSequencer.LoopSelector.Selected"
-                            else:
-                                self._cache[i] = "DefaultButton.Disabled"
-
+                    self._cache[i] = self._block_color(i)
                     if self._cache[i] != button._on_value or self._force:
                         button.set_on_off_values(self._cache[i], self._cache[i])
                         button.turn_on()
-                i = i + 1
             self._force = False
+
+    def _block_color(self, i):
+        block_start = i * self._block_length
+        in_loop = self._loop_start <= block_start < self._loop_end
+        playing = self._playhead != None and block_start <= self._playhead < (i + 1) * self._block_length
+        selected = i == self.block
+        if playing:
+            return "StepSequencer.LoopSelector.SelectedPlaying" if selected else "StepSequencer.LoopSelector.Playing"
+        if selected:
+            return "StepSequencer.LoopSelector.Selected"
+        return "StepSequencer.LoopSelector.InLoop" if in_loop else "DefaultButton.Disabled"
+
+    # NOTES
 
     def _extend_clip_content(self, loop_start, old_loop_end, new_loop_end):
         # positions inside the loop are relative to loop_start
@@ -266,10 +213,7 @@ class LoopSelectorComponent(ControlSurfaceComponent):
         return True
 
     def _delete_notes_in_range(self, start, end):
-        new_notes = list()
-        for note in list(self._note_cache):
-            if note[1] < start or note[1] >= end:
-                new_notes.append(note)
+        new_notes = [note for note in self._note_cache if note[1] < start or note[1] >= end]
         write_all_notes(self._clip, new_notes)
 
     def _mute_notes_in_range(self, start, end):
