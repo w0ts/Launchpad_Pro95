@@ -342,3 +342,27 @@ def test_velocity_release_selects_the_drum_rack_selected_pad(make_rig):
     rig.release_side(VELOCITY)
     rig.tick()
     assert rig.surface._step_sequencer._note_selector.selected_note == 41
+
+
+SAVE_SCALE_READERS = ("StepSequencerComponent", "StepSequencerClip", "StepSequencerButtons")
+
+
+@pytest.mark.parametrize("enter", [_drum_seq, _melodic_seq], ids=["drum seq", "melodic seq"])
+def test_sequencers_survive_the_save_scale_setting(make_rig, monkeypatch, enter):
+    """STEPSEQ__SAVE_SCALE = "clip" called ScaleComponent methods that never existed; the
+    option is gone (as in Launchpad95), so turning it on in the modules changes nothing."""
+    import importlib
+
+    for name in SAVE_SCALE_READERS:
+        module = importlib.import_module(f"Launchpad_Pro95.{name}")
+        monkeypatch.setattr(module, "STEPSEQ__SAVE_SCALE", "clip", raising=False)
+    rig = enter(make_rig, song=make_song(clips=[(0, 0), (0, 1)]))
+    rig.press_side(0)  # scale editor
+    rig.tick()
+    rig.release_side(0)
+    rig.song.view.selected_scene = rig.song.scenes[1]  # another clip
+    rig.tick()
+    rig.tap_top(TOP["session"])
+    rig.tap_top(TOP["user"])
+    rig.tick()
+    assert _clip(rig, 0, 0).name == Live.Clip.Clip().name

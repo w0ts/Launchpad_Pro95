@@ -4,7 +4,6 @@ mode (multinote), quantization and lock."""
 import time
 
 from .ButtonHelpers import is_press, rebind_button, show_disabled, show_on_off
-from .Settings import STEPSEQ__SAVE_SCALE
 from .StepSequencerConsts import (
     QUANTIZATION_COLOR_MAP,
     QUANTIZATION_MAP,
@@ -58,8 +57,6 @@ class StepSequencerButtonsMixin:
                 self._note_selector.set_scale(self._scale_component.notes, self._scale_component._key)
                 self._note_selector.set_selected_note(self._scale_component._octave * 12 + self._scale_component._key)
                 self._scale_updated()
-                if STEPSEQ__SAVE_SCALE == "clip":
-                    self._scale_component.update_object_name(self._clip)
             self.set_mode(self._mode_backup, self._number_of_lines_per_note)
 
     # MUTE SHIFT: held (or latched by a quick second release), pads mute instead of delete

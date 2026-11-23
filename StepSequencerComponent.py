@@ -11,7 +11,6 @@ from .LoopSelectorComponent import LoopSelectorComponent
 from .NoteEditorComponent import NoteEditorComponent
 from .NoteSelectorComponent import NoteSelectorComponent
 from .ScaleComponent import ScaleComponent
-from .Settings import STEPSEQ__SAVE_SCALE
 from .StepSequencerButtons import StepSequencerButtonsMixin
 from .StepSequencerClip import StepSequencerClipMixin
 from .StepSequencerConsts import (
@@ -179,8 +178,6 @@ class StepSequencerComponent(StepSequencerButtonsMixin, StepSequencerClipMixin, 
                 self.set_mode(self._mode_backup, self._number_of_lines_per_note)
             # clear note editor cache
             self._note_editor._force_update = True
-            if STEPSEQ__SAVE_SCALE == "clip":
-                self._load_scale_from_clip()
             self._track_controller.set_enabled(enabled)
             # update clip notes as they might have changed while we were sleeping
             self.on_clip_slot_changed()
@@ -190,13 +187,6 @@ class StepSequencerComponent(StepSequencerButtonsMixin, StepSequencerClipMixin, 
             self._on_notes_changed()
         else:
             CompoundComponent.set_enabled(self, enabled)
-
-    def _load_scale_from_clip(self):
-        self._scale_component.from_object(self._clip)
-        self._note_selector.set_scale(self._scale_component.notes, self._scale_component._selected_key)
-        self._note_selector.set_selected_note(
-            self._scale_component._octave_index * 12 + self._scale_component._selected_key
-        )
 
     def set_mode(self, mode, number_of_lines_per_note=-1):
         if number_of_lines_per_note == -1:

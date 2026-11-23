@@ -2,7 +2,6 @@
 the same clip, or (lock to track) the clip triggered or playing on the locked track."""
 
 from .ClipNotes import read_all_notes
-from .Settings import STEPSEQ__SAVE_SCALE
 
 LOCKED_TRACK_REFRESH_TICKS = 5  # scene launches select the scene before the clip fires
 
@@ -124,21 +123,9 @@ class StepSequencerClipMixin:
 
     def _link_clip(self, clip):
         self._remove_clip_listeners(self._clip)
-        if STEPSEQ__SAVE_SCALE == "clip":
-            self._load_scale_from(clip)
         self._add_clip_listeners(clip)
         self._clip = clip
         self._clip_changed()
-
-    def _load_scale_from(self, clip):
-        self._scale_component.from_object(clip)
-        # must set clip to None otherwise it trigger a clip note update which we dont want.
-        self._clip = None
-        self._note_editor._clip = None
-        self._note_selector.set_scale(self._scale_component.notes, self._scale_component._selected_key)
-        self._note_selector.set_selected_note(
-            self._scale_component._octave_index * 12 + self._scale_component._selected_key
-        )
 
     # CLIP CALLBACKS
 
