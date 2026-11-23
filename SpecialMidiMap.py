@@ -1,4 +1,4 @@
-#Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SpecialMidiMap.py
+# Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SpecialMidiMap.py
 from _Framework.ButtonMatrixElement import ButtonMatrixElement
 from _Framework.Dependency import depends
 from _Framework.MidiMap import MidiMap
@@ -9,87 +9,89 @@ from .consts import USER_MODE_CHANNELS
 from .MultiButtonElement import MultiButtonElement
 from .SliderElement import SliderElement
 
-#USER_LAYOUT_START_CHANNEL = 5 #seems unused
-#NUM_USER_LAYOUT_CHANNELS = 3 #seems unused
+# USER_LAYOUT_START_CHANNEL = 5 #seems unused
+# NUM_USER_LAYOUT_CHANNELS = 3 #seems unused
 
 
 @depends(skin=None)
-def make_button(name, channel, number, midi_message_type, skin = None, default_states = None, **k):
-	return ConfigurableButtonElement(True, midi_message_type, channel, number, name=name, skin=skin, default_states=default_states, **k)
-
-@depends(skin=None)
-def make_multi_button(name, channel, number, midi_message_type, skin = None, default_states = None, **k):
-	"""
-	Creates a special button element that is actually multiple buttons;
-	one for the default channel (1) and one for each of the channels
-	used in user layouts. This allows the created buttons
-	to work correctly in all of the user layouts.
-	"""
-	is_momentary = True
-	return MultiButtonElement(
-		USER_MODE_CHANNELS,
-		is_momentary,
-		midi_message_type,
-		channel,
-		number,
-		name=name,
-		skin=skin,
-		default_states=default_states,
-		**k
-	)
+def make_button(name, channel, number, midi_message_type, skin=None, default_states=None, **k):
+    return ConfigurableButtonElement(
+        True, midi_message_type, channel, number, name=name, skin=skin, default_states=default_states, **k
+    )
 
 
 @depends(skin=None)
-def make_slider(name, channel, number, midi_message_type, skin = None):
-	slider = SliderElement(midi_message_type, channel, number, name=name, skin=skin)
-	return slider
+def make_multi_button(name, channel, number, midi_message_type, skin=None, default_states=None, **k):
+    """
+    Creates a special button element that is actually multiple buttons;
+    one for the default channel (1) and one for each of the channels
+    used in user layouts. This allows the created buttons
+    to work correctly in all of the user layouts.
+    """
+    is_momentary = True
+    return MultiButtonElement(
+        USER_MODE_CHANNELS,
+        is_momentary,
+        midi_message_type,
+        channel,
+        number,
+        name=name,
+        skin=skin,
+        default_states=default_states,
+        **k,
+    )
 
 
-class SpecialMidiMap(MidiMap):#midi map is just a 'dict' (or map)
+@depends(skin=None)
+def make_slider(name, channel, number, midi_message_type, skin=None):
+    slider = SliderElement(midi_message_type, channel, number, name=name, skin=skin)
+    return slider
 
-	def add_button(self, name, channel, number, midi_message_type, default_states = None, element_factory = make_button, **k):
-		assert(name not in self.keys())
-		self[name] = element_factory(
-			name,
-			channel,
-			number,
-			midi_message_type,
-			default_states=default_states,
-			**k
-		)
 
-	def add_matrix(self, name, element_factory, channel, numbers, midi_message_type):
-		assert(name not in self.keys())
+class SpecialMidiMap(MidiMap):  # midi map is just a 'dict' (or map)
 
-		def one_dimensional_name(base_name, x, _y):
-			return f'{base_name}_{x}'
+    def add_button(
+        self, name, channel, number, midi_message_type, default_states=None, element_factory=make_button, **k
+    ):
+        assert name not in self.keys()
+        self[name] = element_factory(name, channel, number, midi_message_type, default_states=default_states, **k)
 
-		def two_dimensional_name(base_name, x, y):
-			return f'{base_name}_{x}_{y}'
+    def add_matrix(self, name, element_factory, channel, numbers, midi_message_type):
+        assert name not in self.keys()
 
-		name_factory = two_dimensional_name if len(numbers) > 1 else one_dimensional_name
-		elements = []
-		id_dict = {}
-		for row, identifiers in enumerate(numbers):
-			element_row = []
-			for column, identifier in enumerate(identifiers):
-				element_row.append(element_factory(name_factory(name, column, row), channel, identifier, midi_message_type))
-				id_dict[identifier] = (column, row)
+        def one_dimensional_name(base_name, x, _y):
+            return f"{base_name}_{x}"
 
-			elements.append(element_row)
+        def two_dimensional_name(base_name, x, y):
+            return f"{base_name}_{x}_{y}"
 
-		self[f'{name}_Raw'] = elements
-		self[f'{name}_Ids'] = id_dict
-		self[name] = ButtonMatrixElement(rows=elements, name=name)
+        name_factory = two_dimensional_name if len(numbers) > 1 else one_dimensional_name
+        elements = []
+        id_dict = {}
+        for row, identifiers in enumerate(numbers):
+            element_row = []
+            for column, identifier in enumerate(identifiers):
+                element_row.append(
+                    element_factory(name_factory(name, column, row), channel, identifier, midi_message_type)
+                )
+                id_dict[identifier] = (column, row)
 
-	def add_modifier_button(self, name, channel, number, midi_message_type, default_states = None, element_factory = make_button):
-		assert(name not in self.keys())
-		self.add_button(
-			name,
-			channel,
-			number,
-			midi_message_type,
-			default_states=default_states,
-			element_factory=element_factory,
-			resource_type=PrioritizedResource
-		)
+            elements.append(element_row)
+
+        self[f"{name}_Raw"] = elements
+        self[f"{name}_Ids"] = id_dict
+        self[name] = ButtonMatrixElement(rows=elements, name=name)
+
+    def add_modifier_button(
+        self, name, channel, number, midi_message_type, default_states=None, element_factory=make_button
+    ):
+        assert name not in self.keys()
+        self.add_button(
+            name,
+            channel,
+            number,
+            midi_message_type,
+            default_states=default_states,
+            element_factory=element_factory,
+            resource_type=PrioritizedResource,
+        )

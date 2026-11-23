@@ -13,39 +13,39 @@ recording, and only MIDI to MIDI tracks / audio to audio tracks; notifications a
 
 class ClipSlotCopyHandler:
 
-	def __init__(self, *a, **k):
-		self._is_copying = False
-		self._source_clip_slot = None
+    def __init__(self, *a, **k):
+        self._is_copying = False
+        self._source_clip_slot = None
 
-	@property
-	def is_copying(self):
-		return self._is_copying
+    @property
+    def is_copying(self):
+        return self._is_copying
 
-	def duplicate(self, clip_slot):
-		if self._is_copying:
-			self._finish_copying(clip_slot)
-		else:
-			self._start_copying(clip_slot)
+    def duplicate(self, clip_slot):
+        if self._is_copying:
+            self._finish_copying(clip_slot)
+        else:
+            self._start_copying(clip_slot)
 
-	def stop_copying(self):
-		self._reset_copying_state()
+    def stop_copying(self):
+        self._reset_copying_state()
 
-	def _start_copying(self, source_clip_slot):
-		if getattr(source_clip_slot, "is_group_slot", False):
-			return
-		clip = source_clip_slot.clip
-		if clip is not None and not clip.is_recording:
-			self._is_copying = True
-			self._source_clip_slot = source_clip_slot
+    def _start_copying(self, source_clip_slot):
+        if getattr(source_clip_slot, "is_group_slot", False):
+            return
+        clip = source_clip_slot.clip
+        if clip is not None and not clip.is_recording:
+            self._is_copying = True
+            self._source_clip_slot = source_clip_slot
 
-	def _finish_copying(self, target_clip_slot):
-		if getattr(target_clip_slot, "is_group_slot", False):
-			return
-		source_is_audio = self._source_clip_slot.clip.is_audio_clip
-		if source_is_audio == target_clip_slot.canonical_parent.has_audio_input:
-			self._source_clip_slot.duplicate_clip_to(target_clip_slot)
-		self._reset_copying_state()
+    def _finish_copying(self, target_clip_slot):
+        if getattr(target_clip_slot, "is_group_slot", False):
+            return
+        source_is_audio = self._source_clip_slot.clip.is_audio_clip
+        if source_is_audio == target_clip_slot.canonical_parent.has_audio_input:
+            self._source_clip_slot.duplicate_clip_to(target_clip_slot)
+        self._reset_copying_state()
 
-	def _reset_copying_state(self):
-		self._source_clip_slot = None
-		self._is_copying = False
+    def _reset_copying_state(self):
+        self._source_clip_slot = None
+        self._is_copying = False

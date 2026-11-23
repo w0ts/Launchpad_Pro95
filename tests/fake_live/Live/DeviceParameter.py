@@ -1,4 +1,5 @@
 """Live.DeviceParameter."""
+
 from ._enums import AutomationState, ParameterState
 from ._model import DeviceParameter
 

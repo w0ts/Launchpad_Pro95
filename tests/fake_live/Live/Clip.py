@@ -1,4 +1,5 @@
 """Live.Clip."""
+
 from ._enums import GridQuantization, WarpMode
 from ._model import Clip, MidiNote, MidiNoteSpecification
 
