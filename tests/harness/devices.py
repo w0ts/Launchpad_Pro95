@@ -49,7 +49,7 @@ STATIC, FLASH, PULSE = 0, 1, 2
 LED_CHANNELS = (STATIC, FLASH, PULSE)
 
 
-class Led(object):
+class Led:
 	"""The state of one LED: the static value, and the flash/pulse value if any."""
 
 	def __init__(self):
@@ -80,7 +80,7 @@ class Led(object):
 		return "Led(static=%r, flash=%r, pulse=%r)" % (self.static, self.flash, self.pulse)
 
 
-class LaunchpadPro(object):
+class LaunchpadPro:
 	name = "Launchpad Pro"
 	# Universal identity reply: F0 7E <device id> 06 02 <Novation 00 20 29> <family 51 00>
 	# <model 00 00> <firmware x4> F7. The script checks bytes 5..9 (00 20 29 51 00).

@@ -1,7 +1,7 @@
 """Enum-like namespaces of the Live API (values match Live's integer values where known)."""
 
 
-class _Enum(object):
+class _Enum:
 	def __init__(self, **values):
 		self.__dict__.update(values)
 		self.values = dict((v, k) for k, v in values.items())

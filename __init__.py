@@ -1,5 +1,17 @@
-from _Framework.Capabilities import CONTROLLER_ID_KEY, PORTS_KEY, NOTES_CC, SCRIPT, SYNC, REMOTE, controller_id, inport, outport
+from _Framework.Capabilities import (
+	CONTROLLER_ID_KEY,
+	NOTES_CC,
+	PORTS_KEY,
+	REMOTE,
+	SCRIPT,
+	SYNC,
+	controller_id,
+	inport,
+	outport,
+)
+
 from .Launchpad_Pro95 import Launchpad_Pro95
+
 
 def create_instance(c_instance):
 	""" Creates and returns the Launchpad script """
@@ -8,9 +20,9 @@ def create_instance(c_instance):
 def get_capabilities():
 	return {
 		CONTROLLER_ID_KEY: controller_id(
-			vendor_id = 4661, 
-			product_ids = [81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96], 
-			model_name = 
+			vendor_id = 4661,
+			product_ids = [81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96],
+			model_name =
 			[
 				'Launchpad Pro',
 				'Launchpad Pro 2',
@@ -30,7 +42,7 @@ def get_capabilities():
 				'Launchpad Pro 16'
 			]
 		),
-		PORTS_KEY: 
+		PORTS_KEY:
 			[
 				inport(props = [NOTES_CC, SCRIPT, REMOTE]),
 				inport(props=[]),

@@ -1,8 +1,9 @@
 """Tests for ClipNotes with fake clips (run outside Live: python3 -m pytest tests)."""
 import importlib.util
 import os
-import pytest
 from collections import namedtuple
+
+import pytest
 
 _PATH = os.path.join(os.path.dirname(__file__), "..", "..", "ClipNotes.py")
 _spec = importlib.util.spec_from_file_location("ClipNotes", _PATH)
@@ -18,7 +19,7 @@ def spec_factory(**kwargs):
 	return MidiNote(**defaults)
 
 
-class OldClip(object):
+class OldClip:
 	"""Live 9/10 clip: only the selection-based note calls."""
 
 	def __init__(self, notes):
@@ -40,7 +41,7 @@ class OldClip(object):
 		self.notes = tuple(notes)
 
 
-class NewClip(object):
+class NewClip:
 	"""Live 11+ clip: extended note calls."""
 
 	def __init__(self, notes):
@@ -99,7 +100,7 @@ def test_new_api_write_empty_clears_clip():
 	assert clip.notes == []
 
 
-class Live110Clip(object):
+class Live110Clip:
 	"""Live 11.0 clip: extended calls, but no get_all_notes_extended yet."""
 
 	def __init__(self, notes):

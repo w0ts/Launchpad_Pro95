@@ -40,7 +40,7 @@ def make_song(clips=(), **k):
 	return song
 
 
-class Rig(object):
+class Rig:
 	def __init__(self, device, song=None, clock=None):
 		self.song = song if song is not None else make_song()
 		Live.Application.set_document(self.song)

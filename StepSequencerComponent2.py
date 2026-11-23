@@ -1,12 +1,19 @@
-from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+import time
+from random import randrange
+
 from _Framework.ButtonElement import ButtonElement
 from _Framework.ButtonMatrixElement import ButtonMatrixElement
-from .StepSequencerComponent import LoopSelectorComponent, NoteSelectorComponent, STEPSEQ_MODE_SCALE_EDIT, StepSequencerComponent
-from .ScaleComponent import ScaleComponent
-from .TrackControllerComponent import TrackControllerComponent
+from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+
 from .ClipNotes import write_all_notes
-from random import randrange
-import time
+from .ScaleComponent import ScaleComponent
+from .StepSequencerComponent import (
+	STEPSEQ_MODE_SCALE_EDIT,
+	LoopSelectorComponent,
+	NoteSelectorComponent,
+	StepSequencerComponent,
+)
+from .TrackControllerComponent import TrackControllerComponent
 
 STEPSEQ_MODE_NOTES = 1
 STEPSEQ_MODE_NOTES_OCTAVES = 2
@@ -293,23 +300,23 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 	def set_matrix(self, matrix):
 		assert isinstance(matrix, (ButtonMatrixElement, type(None)))
 		self._grid_buffer = [
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0]
 		]
 		self._grid_back_buffer = [
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
 			[0, 0, 0, 0, 0, 0, 0, 0],
-		 	[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
-			[0, 0, 0, 0, 0, 0, 0, 0], 
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+		 	[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0]
 		]
 		if matrix != self._matrix:
@@ -417,7 +424,7 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 					if self._grid_back_buffer[x][y] != self._grid_buffer[x][y] or self._force_update:
 						self._grid_buffer[x][y] = self._grid_back_buffer[x][y]
 						self._matrix.get_button(x,y).set_light(self._grid_buffer[x][y])
-						
+
 			self._force_update = False
 
 	def _matrix_value(self, value, x, y, is_momentary):  # matrix buttons listener
@@ -505,7 +512,7 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 					self._random_button.turn_off()
 				else:
 					self._random_button.set_light("DefaultButton.Disabled")
-					
+
 	def set_random_button(self, button):
 		assert (isinstance(button, (ButtonElement, type(None))))
 		if (self._random_button != button):
@@ -651,7 +658,7 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 						self._mode_notes_velocities_button.turn_off()
 				else:
 					self._mode_notes_velocities_button.set_light("DefaultButton.Disabled")
-					
+
 	def set_mode_notes_velocities_button(self, button):
 		assert (isinstance(button, (ButtonElement, type(None))))
 		if (self._mode_notes_velocities_button != button):
@@ -676,7 +683,7 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 				self._is_mute_shifted = True
 				self._is_notes_velocities_shifted = True
 			self._step_sequencer._is_mute_shifted = self._is_mute_shifted
-			
+
 # LENGTHS
 	def _update_mode_notes_lengths_button(self):
 		if self.is_enabled():
@@ -689,7 +696,7 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 						self._mode_notes_lengths_button.turn_off()
 				else:
 					self._mode_notes_lengths_button.set_light("DefaultButton.Disabled")
-			
+
 
 	def set_mode_notes_lengths_button(self, button):
 		assert (isinstance(button, (ButtonElement, type(None))))
@@ -717,9 +724,9 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 class StepSequencerComponent2(StepSequencerComponent):
 
 	def __init__(self, control_surface = None, side_buttons = None, top_buttons = None):
-		super(StepSequencerComponent2, self).__init__(control_surface)
-		
-	
+		super().__init__(control_surface)
+
+
 	def _delegate_matrix(self):
 		if self._matrix!=None:
 			self._loop_selector.set_buttons([
@@ -730,17 +737,17 @@ class StepSequencerComponent2(StepSequencerComponent):
 			self._loop_selector.set_buttons(None)
 		self._note_editor.set_matrix(self._matrix)
 		self._scale_component.set_matrix(self._matrix)
-		
+
 
 	def _set_scale_component(self):
 		self._scale_component = self.register_component(
 			ScaleComponent(
-				control_surface = self._control_surface, 
-				enabled = False, 
+				control_surface = self._control_surface,
+				enabled = False,
 				mode = "diatonic"
 			)
 		)
-		
+
 	def _set_track_controller(self):
 		self._track_controller = self.register_component(
 			TrackControllerComponent(
@@ -750,7 +757,7 @@ class StepSequencerComponent2(StepSequencerComponent):
 				enabled = True
 			)
 		)
-		
+
 	def _set_note_editor(self):
 		self._note_editor = self.register_component(MelodicNoteEditorComponent(self._control_surface, self))
 
@@ -772,7 +779,7 @@ class StepSequencerComponent2(StepSequencerComponent):
 
 	def _mode_button_value(self, value, sender):
 		pass
-	
+
 	def _update_loop_selector(self):
 		self._loop_selector.set_enabled(self._mode != STEPSEQ_MODE_SCALE_EDIT)
 		self._loop_selector.update()
@@ -780,19 +787,19 @@ class StepSequencerComponent2(StepSequencerComponent):
 	def _update_note_editor(self):
 		self._note_editor.set_enabled(self._mode != STEPSEQ_MODE_SCALE_EDIT)
 		self._note_editor.update()
-	
-	
+
+
 	def set_octave_button(self, button):
 		self._note_editor.set_mode_notes_octaves_button(button)
-		
+
 	def set_pitch_button(self, button):
 		self._note_editor.set_mode_notes_pitches_button(button)
-		
+
 	def set_length_button(self, button):
 		self._note_editor.set_mode_notes_lengths_button(button)
-		
+
 	def set_velocity_button(self, button):
 		self._note_editor.set_mode_notes_velocities_button(button)
-		
+
 	def set_random_button(self, button):
 		self._note_editor.set_random_button(button)

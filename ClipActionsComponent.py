@@ -1,8 +1,10 @@
 import Live
-from _Framework.SubjectSlot import Subject, subject_slot
-from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 from _Framework.Control import ButtonControl
+from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+from _Framework.SubjectSlot import Subject, subject_slot
+
 from .consts import ACTION_BUTTON_COLORS
+
 _Q = Live.Song.Quantization
 
 def duplicate_clip(song, slot, should_launch = False):
@@ -51,7 +53,7 @@ class ClipActionsComponent(ControlSurfaceComponent, Subject):
 
 	def __init__(self, target_track_component, *a, **k):
 		self._locked_clip = None
-		super(ClipActionsComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		self._target_track_component = target_track_component
 		self._on_track_changed.subject = self._target_track_component
 		self._use_selected_track = False
@@ -64,7 +66,7 @@ class ClipActionsComponent(ControlSurfaceComponent, Subject):
 			return self._selected_clip
 		else:
 			return self._locked_clip
-		
+
 	def use_selected_track(self, use_selected_track):
 		self._use_selected_track = use_selected_track
 		if use_selected_track:

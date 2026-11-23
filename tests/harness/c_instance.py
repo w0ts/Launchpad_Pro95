@@ -2,7 +2,7 @@
 import threading
 
 
-class FakeNoteRepeat(object):
+class FakeNoteRepeat:
 	"""Live's c_instance.note_repeat."""
 
 	def __init__(self):
@@ -10,7 +10,7 @@ class FakeNoteRepeat(object):
 		self.repeat_rate = 1.0
 
 
-class FakeCInstance(object):
+class FakeCInstance:
 	def __init__(self, song, on_midi=None):
 		self._song = song
 		self._on_midi = on_midi

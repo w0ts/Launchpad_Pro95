@@ -11,7 +11,7 @@ __all__ = ["MapMode", "MidiMapHandle", "CCFeedbackRule", "NoteFeedbackRule", "Pi
 NOTE, CC, PITCHBEND = "note", "cc", "pitchbend"
 
 
-class MidiMapHandle(object):
+class MidiMapHandle:
 	def __init__(self):
 		self.forwarded = set()
 		self.mappings = {}
@@ -21,7 +21,7 @@ class MidiMapHandle(object):
 		return (kind, channel, identifier) in self.forwarded
 
 
-class _FeedbackRule(object):
+class _FeedbackRule:
 	def __init__(self):
 		self.channel = 0
 		self.delay_in_ms = 0.0
@@ -29,7 +29,7 @@ class _FeedbackRule(object):
 
 class CCFeedbackRule(_FeedbackRule):
 	def __init__(self):
-		super(CCFeedbackRule, self).__init__()
+		super().__init__()
 		self.cc_no = 0
 		self.cc_value_map = ()
 		self.enabled = True
@@ -37,14 +37,14 @@ class CCFeedbackRule(_FeedbackRule):
 
 class NoteFeedbackRule(_FeedbackRule):
 	def __init__(self):
-		super(NoteFeedbackRule, self).__init__()
+		super().__init__()
 		self.note_no = 0
 		self.vel_map = ()
 
 
 class PitchBendFeedbackRule(_FeedbackRule):
 	def __init__(self):
-		super(PitchBendFeedbackRule, self).__init__()
+		super().__init__()
 		self.value_pair_map = ()
 
 

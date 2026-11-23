@@ -13,7 +13,7 @@ START = 1000.0
 TIMED_MODULES = ("DeviceComponent", "NoteEditorComponent", "StepSequencerComponent", "StepSequencerComponent2")
 
 
-class FakeTime(object):
+class FakeTime:
 	def __init__(self, start=START):
 		self.now = start
 

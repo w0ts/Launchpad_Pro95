@@ -1,8 +1,9 @@
 from itertools import chain
+
 import Live
-from _Framework.Util import find_if
-from _Framework.SubjectSlot import Subject, subject_slot_group, subject_slot
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+from _Framework.SubjectSlot import Subject, subject_slot, subject_slot_group
+from _Framework.Util import find_if
 
 
 class DrumGroupFinderComponent(ControlSurfaceComponent, Subject):
@@ -15,7 +16,7 @@ class DrumGroupFinderComponent(ControlSurfaceComponent, Subject):
 	_drum_group = None
 
 	def __init__(self, target_track_component, layer = None, is_enabled = True, *a, **k):
-		super(DrumGroupFinderComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		self._target_track_component = target_track_component
 		self._on_track_changed.subject = self._target_track_component
 		self.update()
@@ -47,7 +48,7 @@ class DrumGroupFinderComponent(ControlSurfaceComponent, Subject):
 		self.update()
 
 	def update(self):
-		super(DrumGroupFinderComponent, self).update()
+		super().update()
 		if self.is_enabled():
 			self._update_listeners()
 			self._update_drum_group()

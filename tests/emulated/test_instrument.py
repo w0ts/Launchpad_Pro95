@@ -3,7 +3,6 @@
 track it is dark (audio mode). Scene buttons, top first: scale (hold), octave up, octave
 down, -, mute (drum), solo (drum), play clip, stop clip."""
 import Live
-
 from harness.rig import TOP, make_song
 
 SCALE, UP, DOWN, MUTE, SOLO, PLAY, STOP = 0, 1, 2, 4, 5, 6, 7

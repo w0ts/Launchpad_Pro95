@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 
-from _Framework.DeviceComponent import DeviceComponent as LiveDeviceComponent
-from _Framework.ButtonElement import ButtonElement
-from .DeviceControllerStrip import DeviceControllerStrip
 import time
-import Live
+
+from _Framework.ButtonElement import ButtonElement
+from _Framework.DeviceComponent import DeviceComponent as LiveDeviceComponent
+
+from .DeviceControllerStrip import DeviceControllerStrip
 
 
 class DeviceComponent(LiveDeviceComponent):
@@ -39,7 +39,7 @@ class DeviceComponent(LiveDeviceComponent):
 		self.set_enabled(is_enabled)
 
 		self._selected_track = None
-		
+
 		self._lock_buttons = [None for index in range(4)]
 		self._locked_device_bank = [0 for index in range(4)]
 		self._lock_button_press = [0 for index in range(4)]
@@ -63,17 +63,17 @@ class DeviceComponent(LiveDeviceComponent):
 			self._next_bank_button = side_buttons[2]
 			# precision
 			self.set_precision_button(side_buttons[3])
-		
+
 			# lock buttons
 			self.set_lock_button1(side_buttons[4])
 			self.set_lock_button2(side_buttons[5])
 			self.set_lock_button3(side_buttons[6])
 			self.set_lock_button4(side_buttons[7])
-		
+
 		if matrix != None:
 			self.set_matrix(matrix)
-		
-		
+
+
 		# selected device listener
 		self.song().add_appointed_device_listener(self._on_device_changed)
 
@@ -88,7 +88,7 @@ class DeviceComponent(LiveDeviceComponent):
 			self.set_parameter_controls(self._sliders)
 		else:
 			self.sliders = []
-		
+
 	def disconnect(self):
 		self.song().remove_appointed_device_listener(self._on_device_changed)
 		# LiveDeviceComponent.disconnect(self)
@@ -106,7 +106,7 @@ class DeviceComponent(LiveDeviceComponent):
 	@property
 	def _locked_to_device2(self):
 		return self._locked_device_index != None
-		
+
 	def set_enabled(self, active):
 		if active:
 			self.force = True
@@ -133,7 +133,7 @@ class DeviceComponent(LiveDeviceComponent):
 			self.set_device(self._selected_track.view.selected_device)
 			if self.is_enabled():
 				self.update()
-	
+
 	def set_device(self, device):
 		if(device != self._device):
 			if self._number_of_parameter_banks() <= self._bank_index:
@@ -147,7 +147,7 @@ class DeviceComponent(LiveDeviceComponent):
 		if self.is_enabled():
 			if self._number_of_parameter_banks() <= self._bank_index:
 				self._bank_index = 0
-				
+
 			if(not self._locked_to_device2):
 				if(self._device != None):
 					if ((not self.application().view.is_view_visible('Detail')) or (not self.application().view.is_view_visible('Detail/DeviceChain'))):
@@ -168,14 +168,14 @@ class DeviceComponent(LiveDeviceComponent):
 				for x in range(self._matrix.width()):
 					for y in range(self._matrix.height()):
 						self._matrix.get_button(x, y).set_enabled(True)
-						
+
 			if self._device == None and self._matrix != None:
 				for x in range(self._matrix.width()):
 					for y in range(self._matrix.height()):
 						if self._force:
 							self._matrix.get_button(x, y).set_on_off_values("DefaultButton.Disabled","DefaultButton.Disabled")
 							self._matrix.get_button(x, y).turn_off()
-						
+
 			# update parent
 			LiveDeviceComponent.update(self)
 			if self._sliders != None:
@@ -193,7 +193,7 @@ class DeviceComponent(LiveDeviceComponent):
 		self._prev_bank_button = button
 		if self._prev_bank_button !=None and self._next_bank_button != None or self._prev_bank_button ==None and self._next_bank_button == None:
 			self.set_bank_nav_buttons(self._prev_bank_button, self._next_bank_button)
-		
+
 	def set_next_bank_button(self, button):
 		self._next_bank_button = button
 		if self._prev_bank_button !=None and self._next_bank_button != None or self._prev_bank_button ==None and self._next_bank_button == None:
@@ -213,7 +213,7 @@ class DeviceComponent(LiveDeviceComponent):
 						self._lock_buttons[index].turn_on()
 					else:
 						self._lock_buttons[index].turn_off()
-			
+
 	def set_lock_button1(self, button):
 		self.set_lock_button(button,1)
 	def set_lock_button2(self, button):
@@ -222,7 +222,7 @@ class DeviceComponent(LiveDeviceComponent):
 		self.set_lock_button(button,3)
 	def set_lock_button4(self, button):
 		self.set_lock_button(button,4)
-		
+
 	def set_lock_button(self, button, index):
 		if len(self._lock_buttons)>=index:
 			if self._lock_buttons[index-1] != None:
@@ -260,7 +260,7 @@ class DeviceComponent(LiveDeviceComponent):
 									self._control_surface.show_message(" '"+self.get_device_track_name(self._device)+" - "+str(self._device.name)+"' stored into lock button " + str(index+1))
 									self._locked_device_index = index
 									self.update()
-									
+
 					else:
 						#remove saved device
 						if self._locked_devices[index] != None:
@@ -283,17 +283,17 @@ class DeviceComponent(LiveDeviceComponent):
 			self.update_track_buttons()
 			self.update_device_buttons()
 			if self._locked_to_device2:
-				self.on_selected_track_changed()		
+				self.on_selected_track_changed()
 			self.update_lock_buttons()
-				
-		
+
+
 	def get_device_track_name(self, device):
 			if str(type(device)) == "<class 'Track.Track'>":
 				return str(device.name)
 			else:
 				return self.get_device_track_name(device.canonical_parent)
-			
-			
+
+
 
 # Precision button
 	def update_precision_button(self):
@@ -420,7 +420,7 @@ class DeviceComponent(LiveDeviceComponent):
 	def selected_track(self):
 		return self.song().view.selected_track
 
-	
+
 
 # DEVICES
 	def update_device_buttons(self):

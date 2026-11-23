@@ -3,7 +3,6 @@
 scale, octave, pitch, quantization, velocity, length, random, lock."""
 import Live
 import pytest
-
 from harness.rig import TOP, make_song
 
 OCTAVE, PITCH, VELOCITY, LENGTH, RANDOM = 1, 2, 4, 5, 6

@@ -1,12 +1,14 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SpecialMidiMap.py
-from _Framework.MidiMap import MidiMap
 from _Framework.ButtonMatrixElement import ButtonMatrixElement
-from _Framework.Resource import PrioritizedResource
 from _Framework.Dependency import depends
+from _Framework.MidiMap import MidiMap
+from _Framework.Resource import PrioritizedResource
+
 from .ConfigurableButtonElement import ConfigurableButtonElement
+from .consts import USER_MODE_CHANNELS
 from .MultiButtonElement import MultiButtonElement
 from .SliderElement import SliderElement
-from .consts import USER_MODE_CHANNELS
+
 #USER_LAYOUT_START_CHANNEL = 5 #seems unused
 #NUM_USER_LAYOUT_CHANNELS = 3 #seems unused
 
@@ -25,14 +27,14 @@ def make_multi_button(name, channel, number, midi_message_type, skin = None, def
 	"""
 	is_momentary = True
 	return MultiButtonElement(
-		USER_MODE_CHANNELS, 
-		is_momentary, 
-		midi_message_type, 
-		channel, 
-		number, 
-		name=name, 
-		skin=skin, 
-		default_states=default_states, 
+		USER_MODE_CHANNELS,
+		is_momentary,
+		midi_message_type,
+		channel,
+		number,
+		name=name,
+		skin=skin,
+		default_states=default_states,
 		**k
 	)
 
@@ -48,10 +50,10 @@ class SpecialMidiMap(MidiMap):#midi map is just a 'dict' (or map)
 	def add_button(self, name, channel, number, midi_message_type, default_states = None, element_factory = make_button, **k):
 		assert(name not in self.keys())
 		self[name] = element_factory(
-			name, 
-			channel, 
-			number, 
-			midi_message_type, 
+			name,
+			channel,
+			number,
+			midi_message_type,
 			default_states=default_states,
 			**k
 		)
@@ -83,11 +85,11 @@ class SpecialMidiMap(MidiMap):#midi map is just a 'dict' (or map)
 	def add_modifier_button(self, name, channel, number, midi_message_type, default_states = None, element_factory = make_button):
 		assert(name not in self.keys())
 		self.add_button(
-			name, 
-			channel, 
-			number, 
-			midi_message_type, 
-			default_states=default_states, 
-			element_factory=element_factory, 
+			name,
+			channel,
+			number,
+			midi_message_type,
+			default_states=default_states,
+			element_factory=element_factory,
 			resource_type=PrioritizedResource
 		)

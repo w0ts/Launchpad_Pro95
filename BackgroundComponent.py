@@ -1,11 +1,12 @@
-from _Framework.SubjectSlot import SubjectSlotError
 from _Framework.BackgroundComponent import BackgroundComponent as BackgroundComponentBase
+from _Framework.SubjectSlot import SubjectSlotError
+
 
 class BackgroundComponent(BackgroundComponentBase):
 
 	def _clear_control(self, name, control):
 		if control:
-			super(BackgroundComponent, self)._clear_control(name, control)
+			super()._clear_control(name, control)
 		else:
 			slot = self._control_slots.get(name, None)
 			if slot:
@@ -18,10 +19,10 @@ class BackgroundComponent(BackgroundComponentBase):
 class ModifierBackgroundComponent(BackgroundComponentBase):
 
 	def __init__(self, *a, **k):
-		super(ModifierBackgroundComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 
 	def _clear_control(self, name, control):
-		super(ModifierBackgroundComponent, self)._clear_control(name, control)
+		super()._clear_control(name, control)
 		if control:
 			try:
 				self._control_slots[name] = self.register_slot(control, lambda *a, **k: self._on_value_listener(control, *a, **k), 'value')

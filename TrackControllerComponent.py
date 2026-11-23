@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 
-from _Framework.MixerComponent import MixerComponent
 from _Framework.ButtonElement import ButtonElement
+from _Framework.MixerComponent import MixerComponent
 
 
 class TrackControllerComponent(MixerComponent):
@@ -20,7 +19,7 @@ class TrackControllerComponent(MixerComponent):
 		self._skin_name = skin_name
 		MixerComponent.__init__(self, 1)
 		self.set_enabled(enabled)
-		
+
 
 	def disconnect(self):
 		self.set_prev_scene_button(None)
@@ -141,7 +140,7 @@ class TrackControllerComponent(MixerComponent):
 			if self.is_enabled():
 				if self.selected_scene_idx > 0:
 					self.song().view.selected_scene = self.song().scenes[self.selected_scene_idx - 1]
-				
+
 	def _next_scene_value(self, value, sender):
 		assert (self._next_scene_button != None)
 		assert (value in range(128))
@@ -171,14 +170,14 @@ class TrackControllerComponent(MixerComponent):
 				if self.can_implicit_arm_track(track):
 					track.implicit_arm = self._implicit_arm and arm and self.selected_track == track
 
-		
+
 	def on_selected_track_changed(self):
 		self._do_implicit_arm()
 		self.update()
 
 	def on_selected_scene_changed(self):
 		self.update()
-	
+
 	@property
 	def selected_track(self):
 		return self.song().view.selected_track

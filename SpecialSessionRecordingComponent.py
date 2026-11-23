@@ -1,7 +1,13 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SpecialSessionRecordingComponent.py
 import Live
 from _Framework.ClipCreator import ClipCreator
-from _Framework.SessionRecordingComponent import SessionRecordingComponent, track_playing_slot, track_is_recording, subject_slot
+from _Framework.SessionRecordingComponent import (
+	SessionRecordingComponent,
+	subject_slot,
+	track_is_recording,
+	track_playing_slot,
+)
+
 
 class SpecialSessionRecordingComponent(SessionRecordingComponent):
 	"""
@@ -13,7 +19,7 @@ class SpecialSessionRecordingComponent(SessionRecordingComponent):
 		self._target_track_component = target_track_component
 		self._modes_component = None
 		self._note_mode_name = None
-		super(SpecialSessionRecordingComponent, self).__init__(ClipCreator(), True, *a, **k)
+		super().__init__(ClipCreator(), True, *a, **k)
 
 	def set_modes_component(self, modes_component):
 		self._modes_component = modes_component

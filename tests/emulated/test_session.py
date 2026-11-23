@@ -2,7 +2,6 @@
 move the session box, and the left buttons modify a pad press (delete, duplicate,
 double, quantize, shift = select)."""
 import Live
-
 from harness.rig import BOTTOM, LEFT, TOP, make_song
 
 

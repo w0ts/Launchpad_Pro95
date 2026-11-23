@@ -1,9 +1,11 @@
-from _Framework.Util import find_if, first, clamp
+from _Framework.Control import ButtonControl, PlayableControl, control_matrix
 from _Framework.Dependency import depends
-from _Framework.SubjectSlot import subject_slot_group, subject_slot
-from _Framework.Control import PlayableControl, ButtonControl, control_matrix
+from _Framework.SubjectSlot import subject_slot, subject_slot_group
+from _Framework.Util import clamp, find_if, first
+
 from .consts import ACTION_BUTTON_COLORS
-from .SlideComponent import SlideComponent, Slideable, ScrollComponent
+from .SlideComponent import ScrollComponent, Slideable, SlideComponent
+
 BASE_DRUM_RACK_NOTE = 36
 DEFAULT_POSITION = 9
 
@@ -30,7 +32,7 @@ class ResettingScrollComponent(ScrollComponent):
 
 	def __init__(self, scrollable = None, *a, **k):
 		self._did_reset = False
-		super(ResettingScrollComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 
 	def _on_scroll_pressed(self, button, scroll_step, scroll_task):
 		self._did_reset = self._should_reset()
@@ -39,7 +41,7 @@ class ResettingScrollComponent(ScrollComponent):
 			self._scroll_task_down.kill()
 			self.scrollable.reset()
 		else:
-			super(ResettingScrollComponent, self)._on_scroll_pressed(button, scroll_step, scroll_task)
+			super()._on_scroll_pressed(button, scroll_step, scroll_task)
 
 	def _on_scroll_released(self, scroll_task):
 		scroll_task.kill()
@@ -85,7 +87,7 @@ class DrumGroupComponent(ResettableSlideComponent, Slideable):
 		self._visible_drum_pads = []
 		self._translation_channel = translation_channel
 		self._coordinate_to_pad_map = {}
-		super(DrumGroupComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		self._set_pad_translations = set_pad_translations
 		self._on_selected_clip_changed.subject = self._pitch_deleter
 		self._layout_set = False
@@ -144,7 +146,7 @@ class DrumGroupComponent(ResettableSlideComponent, Slideable):
 		return []
 
 	def update(self):
-		super(DrumGroupComponent, self).update()
+		super().update()
 		self._set_control_pads_from_script(False)
 		self._update_led_feedback()
 
@@ -180,7 +182,7 @@ class DrumGroupComponent(ResettableSlideComponent, Slideable):
 			self._update_drum_pad_listeners()
 			self._on_selected_drum_pad_changed()
 			self._update_identifier_translations()
-			super(DrumGroupComponent, self).update()
+			super().update()
 
 	def _update_drum_pad_listeners(self):
 		"""

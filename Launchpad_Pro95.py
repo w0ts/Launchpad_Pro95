@@ -1,45 +1,77 @@
 from functools import partial
+
 import Live
-from _Framework.Util import const
-from _Framework.Dependency import inject
-from _Framework.SubjectSlot import subject_slot
-from _Framework.Layer import Layer
-from _Framework.ControlSurface import OptimizedControlSurface
-from _Framework.IdentifiableControlSurface import IdentifiableControlSurface
-from _Framework.ModesComponent import ModesComponent, LayerMode, AddLayerMode, ReenterBehaviour
-from _Framework.InputControlElement import MIDI_NOTE_TYPE, MIDI_CC_TYPE
-from _Framework.ComboElement import ComboElement
 from _Framework.ButtonMatrixElement import ButtonMatrixElement
+from _Framework.ComboElement import ComboElement
+from _Framework.ControlSurface import OptimizedControlSurface
+from _Framework.Dependency import inject
+from _Framework.IdentifiableControlSurface import IdentifiableControlSurface
+from _Framework.InputControlElement import MIDI_CC_TYPE, MIDI_NOTE_TYPE
+from _Framework.Layer import Layer
+from _Framework.ModesComponent import AddLayerMode, LayerMode, ModesComponent, ReenterBehaviour
+from _Framework.SubjectSlot import subject_slot
+from _Framework.Util import const
+
+from .ActionsComponent import ActionsComponent
+from .BackgroundComponent import BackgroundComponent, ModifierBackgroundComponent
+from .ClipActionsComponent import ClipActionsComponent
 from .Colors import CLIP_COLOR_TABLE, RGB_COLOR_TABLE
+
+#NEW from .UserMatrixComponent import UserMatrixComponent
+from .consts import (
+	CHALLENGE_PREFIX,
+	CHROM_MAP_CHANNEL,
+	DEVICE_CODE,
+	DR_MAP_CHANNEL,
+	DRUM_LAYOUT_SYSEX_BYTE,
+	FADER_LAYOUT_SYSEX_BYTE,
+	FEEDBACK_CHANNELS,
+	LIVE_MODE_SWITCH_REQUEST,
+	MANUFACTURER_ID,
+	NOTE_LAYOUT_SYSEX_BYTE,
+	PAN_MAP_CHANNEL,
+	QUIT_MESSAGE,
+	SESSION_LAYOUT_SYSEX_BYTE,
+	SYSEX_CHALLENGE_RESPONSE_BYTE,
+	SYSEX_IDENTITY_REQUEST,
+	SYSEX_PARAM_BYTE_LAYOUT,
+	SYSEX_PARAM_BYTE_STANDALONE_LAYOUT,
+	SYSEX_STANDARD_PREFIX,
+	SYSEX_STANDARD_SUFFIX,
+	SYSEX_STATUS_BYTE_LAYOUT,
+	SYSEX_STATUS_BYTE_MODE,
+	TURN_OFF_LEDS,
+	USER_LAYOUT_SYSEX_BYTE,
+	VOLUME_MAP_CHANNEL,
+)
+from .DeviceComponent import DeviceComponent
+from .DrumGroupComponent import DrumGroupComponent
+from .DrumGroupFinderComponent import DrumGroupFinderComponent
+from .InstrumentComponent import InstrumentComponent
 from .SkinMK2 import make_skin
 from .SpecialMidiMap import SpecialMidiMap, make_button, make_multi_button, make_slider
-from .BackgroundComponent import ModifierBackgroundComponent, BackgroundComponent
-from .ActionsComponent import ActionsComponent
-from .ClipActionsComponent import ClipActionsComponent
-#NEW from .LedLightingComponent import LedLightingComponent
-from .TranslationComponent import TranslationComponent
-from .TargetTrackComponent import TargetTrackComponent
+from .SpecialMixerComponent import SpecialMixerComponent
+from .SpecialModesComponent import CancelingReenterBehaviour, SpecialReenterBehaviour
+from .SpecialSessionComponent import SessionZoomingManagerComponent, SpecialClipSlotComponent
+from .SpecialSessionComponent import SpecialSessionComponent as SessionComponent
+from .SpecialSessionComponent import SpecialSessionZoomingComponent as SessionZoomingComponent
 from .SpecialSessionRecordingComponent import SpecialSessionRecordingComponent
-from .DrumGroupFinderComponent import DrumGroupFinderComponent
-from .DeviceComponent import DeviceComponent
 from .StepSequencerComponent import StepSequencerComponent
 from .StepSequencerComponent2 import StepSequencerComponent2
-from .DrumGroupComponent import DrumGroupComponent
-from .SpecialMixerComponent import SpecialMixerComponent
-from .SpecialSessionComponent import SpecialSessionComponent as SessionComponent, SpecialClipSlotComponent, SpecialSessionZoomingComponent as SessionZoomingComponent, SessionZoomingManagerComponent
-from .SpecialModesComponent import SpecialModesComponent, SpecialReenterBehaviour, CancelingReenterBehaviour
-from .InstrumentComponent import InstrumentComponent
-#NEW from .UserMatrixComponent import UserMatrixComponent
-from .consts import CHALLENGE_PREFIX, CHROM_MAP_CHANNEL, DEVICE_CODE, DRUM_LAYOUT_SYSEX_BYTE, DR_MAP_CHANNEL, FADER_LAYOUT_SYSEX_BYTE, FEEDBACK_CHANNELS, LIVE_MODE_SWITCH_REQUEST, MANUFACTURER_ID, NOTE_LAYOUT_SYSEX_BYTE, PAN_MAP_CHANNEL, QUIT_MESSAGE, SESSION_LAYOUT_SYSEX_BYTE, SYSEX_CHALLENGE_RESPONSE_BYTE, SYSEX_IDENTITY_REQUEST, SYSEX_PARAM_BYTE_LAYOUT, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT, SYSEX_STANDARD_PREFIX, SYSEX_STANDARD_SUFFIX, SYSEX_STATUS_BYTE_LAYOUT, SYSEX_STATUS_BYTE_MODE, TURN_OFF_LEDS, USER_LAYOUT_SYSEX_BYTE, VOLUME_MAP_CHANNEL
+from .TargetTrackComponent import TargetTrackComponent
+
+#NEW from .LedLightingComponent import LedLightingComponent
+from .TranslationComponent import TranslationComponent
+
 NUM_TRACKS = 8
 NUM_SCENES = 8
 
 class MidiMap(SpecialMidiMap):
 
 	def __init__(self, *a, **k):
-		
-		super(MidiMap, self).__init__(*a, **k)
-		
+
+		super().__init__(*a, **k)
+
 		#left buttons
 		left_button_names = (
 			'Session_Record_Button',
@@ -54,13 +86,13 @@ class MidiMap(SpecialMidiMap):
 		default_states = {True: 'DefaultButton.On', False: 'DefaultButton.Off'}
 		rec_states = {True: 'Recording.On', False: 'Recording.Off'}
 		shift_states = {True: 'Misc.ShiftOn', False: 'Misc.Shift'}
-		
+
 		for index, val in enumerate(left_button_names):
 			if val in ('Session_Record_Button', 'Undo_Button', 'Click_Button'):
 				self.add_button(val, 0, (index + 1) * 10, MIDI_CC_TYPE, default_states=rec_states if val == 'Session_Record_Button' else default_states)
 			else:
 				self.add_modifier_button(val, 0, (index + 1) * 10, MIDI_CC_TYPE, default_states=shift_states if val == 'Shift_Button' else default_states)
-		
+
 		#bottom buttons
 		self.add_button('Record_Arm_Mode_Button', 0, 1, MIDI_CC_TYPE, default_states={True: 'Mode.RecordArm.On', False: 'Mode.RecordArm.Off'})
 		self.add_button('Track_Select_Mode_Button', 0, 2, MIDI_CC_TYPE, default_states={True: 'Mode.TrackSelect.On', False: 'Mode.TrackSelect.Off'})
@@ -81,17 +113,17 @@ class MidiMap(SpecialMidiMap):
 		self.add_button('Note_Mode_Button', 0, 96, MIDI_CC_TYPE, element_factory=make_multi_button, default_states = {True: 'Mode.Drum.On', False: 'Mode.Drum.Off'})
 		self.add_button('Device_Mode_Button', 0, 97, MIDI_CC_TYPE, default_states={True: 'Mode.Device.On', False: 'Mode.Device.Off'}, element_factory=make_multi_button)
 		self.add_button('User_Mode_Button', 0, 98, MIDI_CC_TYPE, default_states={True: 'Mode.User.On', False: 'Mode.User.Off'}, element_factory=make_multi_button, color_slaves=True)
-		
+
 		#scene buttons
 		self.add_matrix('Scene_Launch_Button_Matrix', make_button, 0, [[ identifier for identifier in range(89, 18, -10) ]], MIDI_CC_TYPE)
-		
+
 		self['Scene_Stop_Button_Matrix'] = self['Scene_Launch_Button_Matrix'].submatrix[:7, :]
 		self['Scene_Stop_Button_Matrix'].name = 'Scene_Stop_Button_Matrix'
 		self['Stop_All_Clips_Button'] = self['Scene_Launch_Button_Matrix_Raw'][0][7]
-		
+
 		#main matrix
 		self.add_matrix('Main_Button_Matrix', make_button, 0, [ [ identifier for identifier in range(start, start + NUM_TRACKS) ] for start in range(81, 10, -10) ], MIDI_NOTE_TYPE)
-		
+
 		#User
 		# self.add_matrix('User_Button_Matrix', make_button, 5, [ [ identifier for identifier in xrange(start, start + NUM_TRACKS) ] for start in xrange(81, 10, -10) ], MIDI_NOTE_TYPE)
 		# self.add_button('User_Scene_1', 5, 99, MIDI_NOTE_TYPE, default_states={True: 'Mode.User.On', False: 'Mode.User.Off'})
@@ -102,15 +134,15 @@ class MidiMap(SpecialMidiMap):
 		# self.add_button('User_Scene_6', 5, 104, MIDI_NOTE_TYPE, default_states={True: 'Mode.User.On', False: 'Mode.User.Off'})
 		# self.add_button('User_Scene_7', 5, 105, MIDI_NOTE_TYPE, default_states={True: 'Mode.User.On', False: 'Mode.User.Off'})
 		# self.add_button('User_Scene_8', 5, 106, MIDI_NOTE_TYPE, default_states={True: 'Mode.User.On', False: 'Mode.User.Off'})
-		
-		#mixer button matrix	
+
+		#mixer button matrix
 		self['Mixer_Button_Matrix'] = self['Main_Button_Matrix'].submatrix[:, 7:]
 		self['Mixer_Button_Matrix'].name = 'Mixer_Button_Matrix'
-		
+
 		#matrix with session button pressed ?
 		matrix_rows_with_session_button_raw = [ [ self.with_session_button(self['Main_Button_Matrix_Raw'][row][column]) for column in range(8) ] for row in range(8) ]
 		self['Main_Button_Matrix_With_Session_Button'] = ButtonMatrixElement(rows=matrix_rows_with_session_button_raw, name='Main_Button_Matrix_With_Session_Button')
-		
+
 		#note matrix
 		note_buttons_raw = []
 		for identifier in range(128):
@@ -139,10 +171,10 @@ class MidiMap(SpecialMidiMap):
 				result.append(button_row)
 
 			return result
-			
+
 		# drum matrix
 		self['Drum_Button_Matrix'] = ButtonMatrixElement(rows=make_raw_drum_matrix(), name='Drum_Button_Matrix')
-		
+
 		#slider matrix
 		self.add_matrix('Slider_Button_Matrix', make_slider, 0, [[ identifier for identifier in range(21, 29) ]], MIDI_CC_TYPE)
 		for index, slider in enumerate(self['Slider_Button_Matrix_Raw'][0]):
@@ -161,7 +193,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	def __init__(self, c_instance, *a, **k):
 		self._copied_slot = None
 		product_id_bytes = MANUFACTURER_ID + DEVICE_CODE
-		super(Launchpad_Pro95, self).__init__(c_instance=c_instance, product_id_bytes=product_id_bytes, *a, **k)
+		super().__init__(c_instance=c_instance, product_id_bytes=product_id_bytes, *a, **k)
 		#self.set_enabled(False)
 		self._challenge = Live.Application.get_random_int(0, 400000000) & 2139062143
 		live = Live.Application.get_application()
@@ -187,7 +219,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 				self._create_mixer()
 				self._create_device()
 				self._create_modes()
-		
+
 			self._on_session_record_changed.subject = self.song()
 		# do this in handshake successful. self.set_highlighting_session_component(self._session)
 		self.set_device_component(self._device)
@@ -198,17 +230,17 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		#self.set_highlighting_session_component(None)
 		self._send_midi(TURN_OFF_LEDS)
 		self._send_midi(QUIT_MESSAGE)
-		super(Launchpad_Pro95, self).disconnect()
+		super().disconnect()
 
 	def _create_background(self):
 		self._modifier_background_component = ModifierBackgroundComponent(
-			name='Background_Component', 
-			is_enabled=False, 
+			name='Background_Component',
+			is_enabled=False,
 			layer=Layer(shift_button=self._midimap['Shift_Button'])
 		)
 		self._shifted_background = BackgroundComponent(
-			name='No_Op_Shifted_Buttons', 
-			is_enabled=False, 
+			name='No_Op_Shifted_Buttons',
+			is_enabled=False,
 			layer=Layer(
 				#click_button=self._midimap.with_shift('Click_Button'),
 				delete_button=self._midimap.with_shift('Delete_Button'),
@@ -221,7 +253,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	def _create_global_component(self):
 		self._actions_component = ActionsComponent(
 			name='Global_Actions',
-			is_enabled=False, 
+			is_enabled=False,
 			layer=Layer(
 				undo_button=self._midimap['Undo_Button'],
 				redo_button=self._midimap.with_shift('Undo_Button'),
@@ -267,9 +299,9 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 				)
 
 		self._session_zoom = SessionZoomingComponent(
-			self._session, 
-			name='Session_Overview', 
-			is_enabled=True, 
+			self._session,
+			name='Session_Overview',
+			is_enabled=True,
 			enable_skinning=True
 		)
 
@@ -277,7 +309,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		self._session_record = SpecialSessionRecordingComponent(
 			self._target_track_component,
 			name='Session_Recording',
-			is_enabled=False, 
+			is_enabled=False,
 			layer=Layer(
 				record_button=self._midimap['Session_Record_Button']
 			)
@@ -285,9 +317,9 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_actions(self):
 		self._clip_actions_component = ClipActionsComponent(
-			self._target_track_component, 
-			name='Clip_Actions', 
-			is_enabled=False, 
+			self._target_track_component,
+			name='Clip_Actions',
+			is_enabled=False,
 			layer=Layer(
 				duplicate_button=self._midimap['Duplicate_Button'],
 				double_button=self._midimap['Double_Loop_Button'],
@@ -298,9 +330,9 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_drums(self):
 		self._drum_group_finder = DrumGroupFinderComponent(
-			self._target_track_component, 
-			name = 'Drum_Group_Finder', 
-			is_enabled = False, 
+			self._target_track_component,
+			name = 'Drum_Group_Finder',
+			is_enabled = False,
 			layer = None
 		)
 		self._on_drum_group_changed.subject = self._drum_group_finder
@@ -315,18 +347,18 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_step_sequencer(self):
 		self._step_sequencer = StepSequencerComponent(self)
-	
+
 	def _create_step_sequencer2(self):
 		self._step_sequencer2 = StepSequencerComponent2(self)
-	
+
 	def _create_instrument_component(self):
 		self._instrument_component = InstrumentComponent(self, self._drum_group)
-		
+
 	def _create_mixer(self):
 		self._mixer = SpecialMixerComponent(
-			NUM_TRACKS, 
-			auto_name=True, 
-			is_enabled=True, 
+			NUM_TRACKS,
+			auto_name=True,
+			is_enabled=True,
 			invert_mute_feedback=True
 		)
 		self._mixer.name = 'Mixer_Control'
@@ -354,7 +386,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	def _create_modes(self):
 		self._modes = ModesComponent(name='Launchpad_Modes', is_enabled=False)
 		self._session_layer_mode = AddLayerMode(
-			self._session, 
+			self._session,
 			Layer(
 				scene_launch_buttons=self._midimap['Scene_Launch_Button_Matrix'],
 				clip_launch_buttons=self._midimap['Main_Button_Matrix'],
@@ -366,16 +398,16 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		)
 		action_button_background = BackgroundComponent(name='No_Op_Buttons')
 		self._action_button_background_layer_mode = LayerMode(
-			action_button_background, 
+			action_button_background,
 			Layer(
-				delete_button=self._midimap['Delete_Button'], 
-				quantize_button=self._midimap['Quantize_Button'], 
-				duplicate_button=self._midimap['Duplicate_Button'], 
+				delete_button=self._midimap['Delete_Button'],
+				quantize_button=self._midimap['Quantize_Button'],
+				duplicate_button=self._midimap['Duplicate_Button'],
 				double_button=self._midimap['Double_Loop_Button']
 			)
 		)
 		self._clip_delete_layer_mode = AddLayerMode(
-			self._clip_actions_component, 
+			self._clip_actions_component,
 			layer=Layer(
 				delete_button=self._midimap['Delete_Button']
 			)
@@ -412,25 +444,25 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_session_zooming_modes(self):
 		session_zoom_layer = Layer(
-			button_matrix=self._midimap['Main_Button_Matrix'], 
-			nav_left_button=self._midimap['Arrow_Left_Button'], 
-			nav_right_button=self._midimap['Arrow_Right_Button'], 
-			nav_up_button=self._midimap['Arrow_Up_Button'], 
+			button_matrix=self._midimap['Main_Button_Matrix'],
+			nav_left_button=self._midimap['Arrow_Left_Button'],
+			nav_right_button=self._midimap['Arrow_Right_Button'],
+			nav_up_button=self._midimap['Arrow_Up_Button'],
 			nav_down_button=self._midimap['Arrow_Down_Button']
 		)
 		session_zooming_layer_mode = LayerMode(self._session_zoom, session_zoom_layer)
 		self._session_zooming_manager = SessionZoomingManagerComponent(self._modes, is_enabled=False)
 		session_zooming_button_layer_mode = LayerMode(
-			self._session_zooming_manager, 
+			self._session_zooming_manager,
 			Layer(session_zooming_button=self._midimap['Session_Mode_Button'])
 		)
 		self._prioritized_session_zooming_button_layer_mode = LayerMode(
-			self._session_zooming_manager, 
+			self._session_zooming_manager,
 			Layer(session_zooming_button=self._midimap['Session_Mode_Button'], priority=1)
 		)
 		self._session_zooming_background = BackgroundComponent(name='Session_Zooming_Background')
 		session_zooming_background_layer_mode = LayerMode(
-			self._session_zooming_background, 
+			self._session_zooming_background,
 			Layer(
 				scene_launch_buttons=self._midimap['Scene_Launch_Button_Matrix'],
 				delete_button=self._midimap['Delete_Button'],
@@ -456,7 +488,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_session_mode(self):
 		self._modes.add_mode(
-			'session_mode', 
+			'session_mode',
 			[
 				partial(self._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
 				self._session_layer_mode, self._session.update_navigation_buttons],
@@ -466,45 +498,45 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	def _create_note_modes(self):
 		#pass
 		#note_mode_matrix_translation = self._create_translation(
-		#	'Note_Mode_Matrix_Translation', 
-		#	CHROM_MAP_CHANNEL, 
+		#	'Note_Mode_Matrix_Translation',
+		#	CHROM_MAP_CHANNEL,
 		#	Layer(
-		#		button_matrix=self._midimap['Main_Button_Matrix'], 
-		#		note_button_matrix=self._midimap['Note_Button_Matrix'], 
-		#		drum_matrix=self._midimap['Drum_Button_Matrix'], 
+		#		button_matrix=self._midimap['Main_Button_Matrix'],
+		#		note_button_matrix=self._midimap['Note_Button_Matrix'],
+		#		drum_matrix=self._midimap['Drum_Button_Matrix'],
 		#		mixer_button_matrix=self._midimap['Mixer_Button_Matrix']
-		#	), 
+		#	),
 		#	should_enable=False
 		#)
 		# note_mode_scene_launch_translation = self._create_translation(
-		# 	'Note_Mode_Scene_Launch_Translation', 
-		# 	#CHROM_MAP_CHANNEL, 
+		# 	'Note_Mode_Scene_Launch_Translation',
+		# 	#CHROM_MAP_CHANNEL,
 		# 	DR_MAP_CHANNEL,
 		# 	Layer(
 		# 		scene_launch_buttons=self._midimap['Scene_Launch_Button_Matrix']
 		# 	)
 		# )
 		#drum_mode_note_matrix_translation = self._create_translation(
-		#	'Drum_Mode_Note_Button_Translation', 
-		#	0, 
+		#	'Drum_Mode_Note_Button_Translation',
+		#	0,
 		#	Layer(note_button_matrix=self._midimap['Note_Button_Matrix']),
 		#	should_enable=False,
 		#	should_reset=False
 		#)
 
-		
+
 		#self._note_modes = SpecialModesComponent(name='Note_Modes')
 		#self._note_modes.add_mode(
-		#	'chromatic_mode', 
+		#	'chromatic_mode',
 		#	[
-		#		partial(self._layout_setup, NOTE_LAYOUT_SYSEX_BYTE), 
+		#		partial(self._layout_setup, NOTE_LAYOUT_SYSEX_BYTE),
 		#		self._clip_delete_layer_mode,
 		#		note_mode_matrix_translation
 		#	]
 		#)
-		
+
 		#self._note_modes.add_mode(
-		#	'audio_mode', 
+		#	'audio_mode',
 		#	[
 		#		partial(self._layout_setup, AUDIO_LAYOUT_SYSEX_BYTE),
 		#		self._clip_delete_layer_mode
@@ -512,7 +544,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		#)
 		#self._note_modes.set_enabled(False)
 		#self._modes.add_mode(
-		#	'note_mode', 
+		#	'note_mode',
 		#	[
 		#		note_mode_scene_launch_translation,
 		#		self._note_modes,
@@ -525,15 +557,15 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		#	behaviour=ReenterBehaviour(self.toggle_detail_view)
 		#)
 		#self._drum_group = DrumGroupComponent(
-		#	self._clip_actions_component, 
-		#	name='Drum_Group_Control'#, 
+		#	self._clip_actions_component,
+		#	name='Drum_Group_Control'#,
 		#	#translation_channel=DR_MAP_CHANNEL
 		#)
-		
+
 		self._instrument_component._modes.set_enabled(False)
 		self._instrument_component.set_layers(self._midimap)
 		self._modes.add_mode(
-			'note_mode', 
+			'note_mode',
 			[
 				#note_mode_scene_launch_translation,
 				self._instrument_component._modes,
@@ -545,18 +577,18 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 			],
 			behaviour=ReenterBehaviour(self.toggle_detail_view)
 		)
-		
+
 		self._session_record.set_modes_component(self._modes)
 		self._session_record.set_note_mode_name('note_mode')
 
 	def _create_device_mode(self):
 		#device_mode_scene_launch_translation = self._create_translation(
-		#	'Device_Mode_Scene_Launch_Translation', 
-		#	DEVICE_MAP_CHANNEL, 
+		#	'Device_Mode_Scene_Launch_Translation',
+		#	DEVICE_MAP_CHANNEL,
 		#	Layer(scene_launch_buttons=self._midimap['Scene_Launch_Button_Matrix'])
 		#)
 		device_layer_mode = LayerMode(
-			self._device, 
+			self._device,
 			#layer=Layer(parameter_controls=self._midimap['Slider_Button_Matrix'])
 			layer=Layer(
 				matrix = self._midimap['Main_Button_Matrix'],
@@ -575,21 +607,21 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 			)
 		)
 		#device_nav_layer_mode = LayerMode(
-		#	self._device_navigation, 
+		#	self._device_navigation,
 		#	layer=Layer(
-		#		device_nav_left_button=self._midimap['Arrow_Left_Button'], 
+		#		device_nav_left_button=self._midimap['Arrow_Left_Button'],
 		#		device_nav_right_button=self._midimap['Arrow_Right_Button']
 		#	)
 		#)
 		#device_background_layer_mode = LayerMode(
-		#	self._device_background, 
+		#	self._device_background,
 		#	layer=Layer(
 		#		arrow_up_button=self._midimap['Arrow_Up_Button'],
 		#		arrow_down_button=self._midimap['Arrow_Down_Button']
 		#	)
 		#)
 		self._modes.add_mode(
-			'device_mode', 
+			'device_mode',
 			[
 				#partial(self._layout_switch, SESSION_LAYOUT_SYSEX_BYTE),
 				#partial(self._layout_setup, FADER_LAYOUT_SYSEX_BYTE),
@@ -603,20 +635,20 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 			 	#device_mode_scene_launch_translation,
 			 	self._show_playing_clip,
 		 		self._set_clip_actions_type
-			], 
+			],
 			behaviour=ReenterBehaviour(self.toggle_detail_view)
 		)
 
 	def _create_user_mode(self):
 		self._user_button_modes = ModesComponent(name='User_Button_Modes', is_enabled=False)
-		
+
 		self._user_button_modes.add_mode(
 			'stepsequencer_mode',
 			[
 				partial(self._layout_switch, SESSION_LAYOUT_SYSEX_BYTE),
 				partial(self._layout_setup, DRUM_LAYOUT_SYSEX_BYTE, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT),
 				LayerMode(
-					self._step_sequencer, 
+					self._step_sequencer,
 					Layer(
 						matrix = self._midimap['Main_Button_Matrix'],
 						prev_track_button = self._midimap['Arrow_Left_Button'],
@@ -636,7 +668,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 				#,self._step_sequencer.update()
 			]
 		)
-		
+
 		self._user_button_modes.add_mode(
 			'stepsequencer2_mode',
 			[
@@ -663,24 +695,24 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 				#,self._step_sequencer2.update()
 			]
 		)
-		
+
 		self._user_button_modes.add_mode('user_mode', [
 			partial(self._layout_switch, SESSION_LAYOUT_SYSEX_BYTE),
 			partial(self._layout_setup, USER_LAYOUT_SYSEX_BYTE)
 		])
 		self._user_button_modes.selected_mode = "stepsequencer_mode"
 		self._modes.add_mode(
-				'user_mode', 
+				'user_mode',
 				[
 					partial(self._layout_switch, SESSION_LAYOUT_SYSEX_BYTE),
 					partial(self._layout_setup, DRUM_LAYOUT_SYSEX_BYTE, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT),
 					self._enable_user_button_modes,
 					self._user_button_modes
-					
+
 				],
 				behaviour=ReenterBehaviour(self._toggle_user_button_modes)
 			)
-			
+
 	def _toggle_user_button_modes(self):
 		self._user_button_modes.cycle_mode()
 		button = self._midimap['User_Mode_Button']
@@ -698,20 +730,20 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		self._enable_user_button_modes()
 		self._step_sequencer.update()
 		self._step_sequencer2.update()
-	
+
 	def _enable_user_button_modes(self):
 		self._step_sequencer.set_enabled(self._user_button_modes.selected_mode == "stepsequencer_mode")
 		self._step_sequencer2.set_enabled(self._user_button_modes.selected_mode == "stepsequencer2_mode")
 		#self._step_sequencer.update()
 		#self._step_sequencer2.update()
-		
+
 	def _create_record_arm_mode(self):
 		arm_layer_mode = LayerMode(
-			self._mixer, 
+			self._mixer,
 			layer=Layer(arm_buttons=self._midimap['Mixer_Button_Matrix'])
 		)
 		self._modes.add_mode(
-			'record_arm_mode', 
+			'record_arm_mode',
 			[
 				partial(self._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
 		 		self._session_layer_mode,
@@ -741,7 +773,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	def _create_mute_mode(self):
 		mute_layer_mode = LayerMode(self._mixer, layer=Layer(mute_buttons=self._midimap['Mixer_Button_Matrix']))
 		self._modes.add_mode(
-			'mute_mode', 
+			'mute_mode',
 			[
 				partial(self._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
 		 		self._session_layer_mode,
@@ -755,11 +787,11 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_solo_mode(self):
 		solo_layer_mode = LayerMode(
-			self._mixer, 
+			self._mixer,
 			layer=Layer(solo_buttons=self._midimap['Mixer_Button_Matrix'])
 		)
 		self._modes.add_mode(
-			'solo_mode', 
+			'solo_mode',
 			[
 				partial(self._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
 		 		self._session_layer_mode,
@@ -773,8 +805,8 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_volume_mode(self):
 		volume_mode_scene_launch_translation = self._create_translation(
-			'Volume_Mode_Scene_Launch_Translation', 
-			VOLUME_MAP_CHANNEL, 
+			'Volume_Mode_Scene_Launch_Translation',
+			VOLUME_MAP_CHANNEL,
 			Layer(scene_launch_buttons=self._midimap['Scene_Launch_Button_Matrix'])
 		)
 		volume_layer_mode = LayerMode(self._mixer, layer=Layer(volume_controls=self._midimap['Slider_Button_Matrix']))
@@ -794,16 +826,16 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_pan_mode(self):
 		pan_mode_scene_launch_translation = self._create_translation(
-			'Pan_Mode_Scene_Launch_Translation', 
-			PAN_MAP_CHANNEL, 
+			'Pan_Mode_Scene_Launch_Translation',
+			PAN_MAP_CHANNEL,
 			Layer(scene_launch_buttons=self._midimap['Scene_Launch_Button_Matrix'])
 		)
 		pan_layer_mode = LayerMode(
-			self._mixer, 
+			self._mixer,
 			layer=Layer(pan_controls=self._midimap['Slider_Button_Matrix'])
 		)
 		self._modes.add_mode(
-			'pan_mode', 
+			'pan_mode',
 			[
 				partial(self._layout_setup, FADER_LAYOUT_SYSEX_BYTE),
 		 		pan_layer_mode,
@@ -818,14 +850,14 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_sends_mode(self):
 		send_layer_mode = LayerMode(
-			self._mixer, 
+			self._mixer,
 			layer=Layer(
 				send_controls=self._midimap['Slider_Button_Matrix'],
 				send_select_buttons=self._midimap['Scene_Launch_Button_Matrix']
 			)
 		)
 		self._modes.add_mode(
-			'sends_mode', 
+			'sends_mode',
 			[
 				partial(self._layout_setup, FADER_LAYOUT_SYSEX_BYTE),
 		 		send_layer_mode,
@@ -839,7 +871,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _create_stop_clips_mode(self):
 		stop_layer_mode = AddLayerMode(
-			self._session, 
+			self._session,
 			Layer(
 				stop_track_clip_buttons=self._midimap['Mixer_Button_Matrix'],
 				stop_scene_clip_buttons=self._midimap['Scene_Stop_Button_Matrix'],
@@ -870,7 +902,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	@subject_slot('drum_group')
 	def _on_drum_group_changed(self):
 		self._instrument_component._detect_mode()
-		if self._instrument_component._modes.selected_mode == 'drum_mode':	
+		if self._instrument_component._modes.selected_mode == 'drum_mode':
 			#self._drum_group.set_drum_group_device(self._drum_group_finder.drum_group)
 			 self._setup_drum_group()
 		if self._modes.selected_mode == 'note_mode':
@@ -929,7 +961,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 			if slot_index >= 0:
 				clip_slot = track.clip_slots[slot_index]
 				self.song().view.highlighted_clip_slot = clip_slot
-				
+
 
 	def _set_clip_actions_type(self):
 		self._clip_actions_component.use_selected_track(self._use_sel_track())
@@ -963,7 +995,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	def _update_hardware(self):
 		self._clear_send_cache()
 		self.update()
-		
+
 	def _update_global_components(self):
 		self._actions_component.update()
 		self._session_record.update()
@@ -971,7 +1003,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _layout_setup(self, mode, mode_type = SYSEX_PARAM_BYTE_LAYOUT):
 		self._layout_switch(mode, mode_type)
-		
+
 		self._clear_send_cache()
 		self._update_global_components()
 
@@ -983,15 +1015,15 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 
 	def _send_identity_request(self):
 		if self._live_major_version >= 10:
-			super(Launchpad_Pro95, self)._send_identity_request()
+			super()._send_identity_request()
 		else:
 			self._send_midi(SYSEX_IDENTITY_REQUEST)
 
 	def port_settings_changed(self):
 		self.set_highlighting_session_component(None)
-		super(Launchpad_Pro95, self).port_settings_changed()
+		super().port_settings_changed()
 
-        
+
 	def on_identified(self):
 		self._send_challenge()
 
@@ -999,14 +1031,14 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		challenge_bytes = []
 		for index in range(4):
 			challenge_bytes.append(self._challenge >> 8 * index & 127)
-			
+
 		challenge = CHALLENGE_PREFIX + tuple(challenge_bytes) + (247,)
 		self._send_midi(challenge)
 
 	def _on_handshake_successful(self):
 		self._do_send_midi(LIVE_MODE_SWITCH_REQUEST)
 		#self.set_highlighting_session_component(self._session)
-		
+
 		with self.component_guard():
 			self._modes.set_enabled(True)
 			self._actions_component.set_enabled(True)
@@ -1041,7 +1073,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 		#	pass
 		#if self._is_challenge_response(midi_bytes) and self._is_response_valid(midi_bytes):
 		#	self._on_handshake_successful()
-		#	
+		#
 		#elif False and midi_bytes[6] in (SYSEX_STATUS_BYTE_MODE, SYSEX_STATUS_BYTE_LAYOUT):
 		#	self.log_message(str(midi_bytes))
 		#	self.log_message(str(midi_bytes[5]))
@@ -1053,8 +1085,8 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 				elif midi_bytes[4]==2 and len(midi_bytes)==9:
 					self.log_message("got sysex type 2. data: "+str(midi_bytes[5])+"-"+str(midi_bytes[6])+"-"+str(midi_bytes[7]))
 				else:
-					super(Launchpad_Pro95, self).handle_sysex(midi_bytes)
+					super().handle_sysex(midi_bytes)
 			else:
-				super(Launchpad_Pro95, self).handle_sysex(midi_bytes)
-			
-			
+				super().handle_sysex(midi_bytes)
+
+

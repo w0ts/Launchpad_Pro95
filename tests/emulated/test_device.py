@@ -3,7 +3,6 @@
 Scene buttons, top first: on/off, bank down, bank up, precision, lock 1-4."""
 import Live
 import pytest
-
 from harness.rig import TOP, make_song
 
 ON_OFF, PREV_BANK, NEXT_BANK, PRECISION, LOCK1 = 0, 1, 2, 3, 4
@@ -139,7 +138,7 @@ def test_eight_value_enum_has_one_pad_per_value(make_rig):
 def test_strip_without_parameter_is_not_quantized(framework):
 	from Launchpad_Pro95.DeviceControllerStrip import DeviceControllerStrip
 
-	class NoParameter(object):
+	class NoParameter:
 		_parameter_to_map_to = None
 
 	assert DeviceControllerStrip._is_quantized.fget(NoParameter()) is False

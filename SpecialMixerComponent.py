@@ -1,11 +1,21 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SpecialMixerComponent.py
 from functools import partial
-from _Framework.Util import clamp
+
+from _Framework.ChannelStripComponent import ChannelStripComponent
+from _Framework.Control import ControlList, RadioButtonControl, RadioButtonGroup
 from _Framework.Dependency import depends
 from _Framework.MixerComponent import MixerComponent
-from _Framework.ChannelStripComponent import ChannelStripComponent
-from _Framework.Control import RadioButtonControl, RadioButtonGroup, ControlList
-from .consts import FADER_TYPE_STANDARD, FADER_TYPE_BIPOLAR, VOLUME_MAP_CHANNEL, PAN_MAP_CHANNEL, SENDS_MAP_CHANNEL, FADER_LAYOUT_SYSEX_BYTE
+from _Framework.Util import clamp
+
+from .consts import (
+	FADER_LAYOUT_SYSEX_BYTE,
+	FADER_TYPE_BIPOLAR,
+	FADER_TYPE_STANDARD,
+	PAN_MAP_CHANNEL,
+	SENDS_MAP_CHANNEL,
+	VOLUME_MAP_CHANNEL,
+)
+
 SEND_COLORS = (('Sends.A', 'Sends.AAvail'),
  ('Sends.B', 'Sends.BAvail'),
  ('Sends.C', 'Sends.CAvail'),
@@ -30,7 +40,7 @@ class SpecialRadioButtonGroup(ControlList, RadioButtonControl):
 			return control
 
 	def __init__(self, *a, **k):
-		super(SpecialRadioButtonGroup, self).__init__(RadioButtonControl, *a, **k)
+		super().__init__(RadioButtonControl, *a, **k)
 
 
 class SpecialMixerComponent(MixerComponent):
@@ -39,7 +49,7 @@ class SpecialMixerComponent(MixerComponent):
 	@depends(layout_setup=None)
 	def __init__(self, num_tracks = 0, num_returns = 0, auto_name = False, invert_mute_feedback = False, layout_setup = None, *a, **k):
 		self._layout_setup = layout_setup
-		super(SpecialMixerComponent, self).__init__(num_tracks, num_returns, auto_name, invert_mute_feedback, *a, **k)
+		super().__init__(num_tracks, num_returns, auto_name, invert_mute_feedback, *a, **k)
 		self.on_num_sends_changed()
 
 	def _create_strip(self):
@@ -56,7 +66,7 @@ class SpecialMixerComponent(MixerComponent):
 			else:
 				strip.set_volume_control(None)
 			i=i+1
-		
+
 	def set_pan_controls(self, controls):
 		#for strip, control in map(None, self._channel_strips, controls or []):
 		i=0
@@ -85,7 +95,7 @@ class SpecialMixerComponent(MixerComponent):
 					strip.set_send_controls(None)
 			i=i+1
 
-	def set_arm_buttons(self, buttons):	
+	def set_arm_buttons(self, buttons):
 		#for strip in self._channel_strips:#, button in map(None, self._channel_strips, buttons or []):
 		i=0
 		for strip in self._channel_strips:
@@ -108,7 +118,7 @@ class SpecialMixerComponent(MixerComponent):
 			else:
 				strip.set_solo_button(None)
 			i=i+1
-			
+
 	def set_mute_buttons(self, buttons):
 		#for strip, button in map(None, self._channel_strips, buttons or []):
 		i=0
@@ -158,16 +168,16 @@ class SpecialMixerComponent(MixerComponent):
 class SpecialChanStripComponent(ChannelStripComponent):
 
 	def __init__(self, *a, **k):
-		super(SpecialChanStripComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		self.empty_color = 'DefaultButton.Disabled'
 
 	def _arm_value(self, value):
-		super(SpecialChanStripComponent, self)._arm_value(value)
+		super()._arm_value(value)
 		if self.is_enabled() and value and self._track and self._track.can_be_armed and self.song().view.selected_track != self._track:
 			self.song().view.selected_track = self._track
 
 	def _select_value(self, value):
-		super(SpecialChanStripComponent, self)._select_value(value)
+		super()._select_value(value)
 		if self.is_enabled() and value and self._track:
 			view = self.application().view
 			if view.is_view_visible('Detail') and not view.is_view_visible('Detail/DeviceChain'):

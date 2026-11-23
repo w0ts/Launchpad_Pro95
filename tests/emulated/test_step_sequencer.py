@@ -4,7 +4,6 @@ the bottom-right 4x4 pads are the loop selector. Scene buttons, top first: scale
 up, octave down, quantization, velocity, mode, mute shift, lock."""
 import Live
 import pytest
-
 from harness.rig import TOP, make_song
 
 VELOCITY, MODE, MUTE_SHIFT = 4, 5, 6

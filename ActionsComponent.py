@@ -1,10 +1,12 @@
 import Live
-from _Framework.Util import BooleanContext
-from _Framework.SubjectSlot import subject_slot
-from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
-from _Framework.ToggleComponent import ToggleComponent
 from _Framework.Control import ButtonControl, ToggleButtonControl
+from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+from _Framework.SubjectSlot import subject_slot
+from _Framework.ToggleComponent import ToggleComponent
+from _Framework.Util import BooleanContext
+
 from .consts import ACTION_BUTTON_COLORS
+
 RecordingQuantization = Live.Song.RecordingQuantization
 
 class ActionsComponent(ControlSurfaceComponent):
@@ -20,7 +22,7 @@ class ActionsComponent(ControlSurfaceComponent):
 
 	def __init__(self, *a, **k):
 		self.suppressing_control_notifications = BooleanContext()
-		super(ActionsComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		self._record_quantization = RecordingQuantization.rec_q_sixtenth
 		self._on_record_quantization_changed_in_live.subject = self.song()
 		self._on_record_quantization_changed_in_live()
@@ -36,7 +38,7 @@ class ActionsComponent(ControlSurfaceComponent):
 	@tap_button.pressed
 	def tap_button(self, button):
 		self.song().tap_tempo()
-			
+
 	@undo_button.pressed
 	def undo_button(self, button):
 		if self.song().can_undo:
@@ -70,5 +72,5 @@ class ActionsComponent(ControlSurfaceComponent):
 		self._metronome_toggle.set_toggle_button(button)
 
 	def update(self):
-		super(ActionsComponent, self).update()
+		super().update()
 		self._metronome_toggle.update()

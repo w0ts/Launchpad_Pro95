@@ -1,7 +1,6 @@
 """Regression tests for bugs fixed in the script (most were strict xfails first: see git log)."""
 import Live
 import pytest
-
 from harness.rig import TOP, make_song
 
 VELOCITY, MUTE_SHIFT = 4, 6

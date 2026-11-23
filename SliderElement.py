@@ -1,7 +1,15 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SliderElement.py
+from _Framework.Skin import Skin
 from _Framework.SliderElement import SliderElement as SliderElementBase
-from _Framework.Skin import Skin, SkinColorMissingError
-from .consts import FADER_TYPE_BIPOLAR, FADER_TYPE_STANDARD, SYSEX_PARAM_BYTE_FADER_SETUP, SYSEX_STANDARD_PREFIX, SYSEX_STANDARD_SUFFIX
+
+from .consts import (
+	FADER_TYPE_BIPOLAR,
+	FADER_TYPE_STANDARD,
+	SYSEX_PARAM_BYTE_FADER_SETUP,
+	SYSEX_STANDARD_PREFIX,
+	SYSEX_STANDARD_SUFFIX,
+)
+
 FADER_TYPES = (FADER_TYPE_STANDARD, FADER_TYPE_BIPOLAR)
 
 class SliderElement(SliderElementBase):
@@ -11,7 +19,7 @@ class SliderElement(SliderElementBase):
 		self._header = None
 		self._type = FADER_TYPE_STANDARD
 		self._color = 0
-		super(SliderElement, self).__init__(msg_type, channel, identifier, *a, **k)
+		super().__init__(msg_type, channel, identifier, *a, **k)
 		self.set_needs_takeover(False)
 
 	def set_index(self, index):
@@ -30,7 +38,7 @@ class SliderElement(SliderElementBase):
 		self._color = int(color)
 
 	def install_connections(self, install_translation_callback, install_mapping_callback, install_forwarding_callback):
-		super(SliderElement, self).install_connections(install_translation_callback, install_mapping_callback, install_forwarding_callback)
+		super().install_connections(install_translation_callback, install_mapping_callback, install_forwarding_callback)
 		if len(self.resource.owners) > 0:
 			self._setup_fader()
 

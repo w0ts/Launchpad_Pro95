@@ -7,7 +7,7 @@ twice or removing an unknown one raises RuntimeError.
 """
 
 
-class ListenerSet(object):
+class ListenerSet:
 	def __init__(self):
 		self._by_name = {}
 

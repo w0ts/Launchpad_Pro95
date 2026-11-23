@@ -3,8 +3,6 @@ import glob
 import os
 import warnings
 
-import pytest
-
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SOURCES = sorted(glob.glob(os.path.join(REPO_ROOT, "*.py")))
 

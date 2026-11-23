@@ -49,12 +49,12 @@ def get_all_scales_ordered():
 	return SCALES
 
 
-class BeatTime(object):
+class BeatTime:
 	def __init__(self, bars=1, beats=1, sub_division=1, ticks=0):
 		self.bars, self.beats, self.sub_division, self.ticks = bars, beats, sub_division, ticks
 
 
-class TimeFormat(object):
+class TimeFormat:
 	ms_time = 0
 	smpte_24 = 1
 	smpte_25 = 2

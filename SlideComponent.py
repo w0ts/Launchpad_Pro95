@@ -2,10 +2,11 @@
 """
 Component that navigates a series of pages.
 """
-from _Framework.Util import clamp
-from _Framework.SubjectSlot import subject_slot, Subject
 from _Framework.CompoundComponent import CompoundComponent
-from _Framework.ScrollComponent import ScrollComponent, Scrollable
+from _Framework.ScrollComponent import Scrollable, ScrollComponent
+from _Framework.SubjectSlot import Subject, subject_slot
+from _Framework.Util import clamp
+
 
 class Slideable(Subject):
 	"""
@@ -48,7 +49,7 @@ class Slideable(Subject):
 class SlideComponent(CompoundComponent, Scrollable):
 
 	def __init__(self, slideable = None, *a, **k):
-		super(SlideComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		slideable = slideable or self
 		self._slideable = slideable
 		self._position_scroll, self._page_scroll = self.register_components(ScrollComponent(), ScrollComponent())

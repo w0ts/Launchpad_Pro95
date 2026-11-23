@@ -2,7 +2,6 @@
 acts on the 8 tracks of the session box while the rest stays the session. Volume, pan and
 sends: the Launchpad Pro shows 8 faders (CC 21..28) mapped to the tracks."""
 import pytest
-
 from harness.devices import FADER_SETUP_COMMAND
 from harness.rig import BOTTOM, make_song
 

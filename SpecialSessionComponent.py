@@ -1,17 +1,17 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SpecialSessionComponent.py
 import Live
-from _Framework.Util import find_if, in_range
-from _Framework.Dependency import depends
-from _Framework.SubjectSlot import subject_slot, subject_slot_group
-from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+from _Framework.ClipSlotComponent import ClipSlotComponent
 from _Framework.Control import ButtonControl
+from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+from _Framework.Dependency import depends
+from _Framework.SceneComponent import SceneComponent
 from _Framework.SessionComponent import SessionComponent
 from _Framework.SessionZoomingComponent import SessionZoomingComponent
-from _Framework.SceneComponent import SceneComponent
-from _Framework.ClipSlotComponent import ClipSlotComponent
-from .ClipActionsComponent import double_clip, duplicate_clip
-
+from _Framework.SubjectSlot import subject_slot, subject_slot_group
+from _Framework.Util import find_if, in_range
 from pushbase import special_session_component
+
+from .ClipActionsComponent import double_clip
 
 
 def copyclip(source_slot, destination_slot):
@@ -34,7 +34,7 @@ class SpecialClipSlotComponent(ClipSlotComponent):
 		self._should_arm = False
 		self._double_loop_button = None
 		self._quantize_button = None
-		super(SpecialClipSlotComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		self._should_arm = should_arm
 
 	def set_double_loop_button(self, button):
@@ -44,7 +44,7 @@ class SpecialClipSlotComponent(ClipSlotComponent):
 		self._quantize_button = button
 
 	def _do_select_clip(self, clip_slot):
-		super(SpecialClipSlotComponent, self)._do_select_clip(clip_slot)
+		super()._do_select_clip(clip_slot)
 		if self._clip_slot is not None:
 			if not self.application().view.is_view_visible('Detail'):
 				self.application().view.show_view('Detail')
@@ -92,7 +92,7 @@ class SpecialClipSlotComponent(ClipSlotComponent):
 	def _do_duplicate_clip(self):
 		if self._clip_slot:
                         copyclip(self.canonical_parent._copied_slot,self._clip_slot)
-                        
+
 	def _do_track_arm(self):
 		if self._clip_slot:
 			track = self._clip_slot.canonical_parent
@@ -114,7 +114,7 @@ class SpecialSceneComponent(SceneComponent):
 
 	def __init__(self, *a, **k):
 		self._duplicate_button = None
-		super(SpecialSceneComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 
 	def set_duplicate_button(self, button):
 		self._duplicate_button = button
@@ -152,22 +152,22 @@ class SpecialSessionComponent(SessionComponent):
 
 	def __init__(self, *a, **k):
 		self._stop_scene_clip_buttons = None
-		super(SpecialSessionComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 
 	def set_clip_launch_buttons(self, buttons):
 		if buttons:
 			buttons.reset()
-		super(SpecialSessionComponent, self).set_clip_launch_buttons(buttons)
+		super().set_clip_launch_buttons(buttons)
 
 	def set_stop_track_clip_buttons(self, buttons):
 		if buttons:
 			buttons.reset()
-		super(SpecialSessionComponent, self).set_stop_track_clip_buttons(buttons)
+		super().set_stop_track_clip_buttons(buttons)
 
 	def set_scene_launch_buttons(self, buttons):
 		if buttons:
 			buttons.reset_state()
-		super(SpecialSessionComponent, self).set_scene_launch_buttons(buttons)
+		super().set_scene_launch_buttons(buttons)
 
 	def set_stop_scene_clip_buttons(self, buttons):
 		if buttons:
@@ -179,7 +179,7 @@ class SpecialSessionComponent(SessionComponent):
 	def set_stop_all_clips_button(self, button):
 		if button:
 			button.reset()
-		super(SpecialSessionComponent, self).set_stop_all_clips_button(button)
+		super().set_stop_all_clips_button(button)
 
 	@subject_slot_group('value')
 	def _on_stop_scene_value(self, value, button):
@@ -273,11 +273,11 @@ class SpecialSessionComponent(SessionComponent):
 		self._update_stop_all_clips_button()
 
 	def _reassign_scenes(self):
-		super(SpecialSessionComponent, self)._reassign_scenes()
+		super()._reassign_scenes()
 		self._update_stop_scene_clip_buttons()
 
 	def update(self):
-		super(SpecialSessionComponent, self).update()
+		super().update()
 		if self._allow_updates:
 			self._update_stop_scene_clip_buttons()
 
@@ -305,7 +305,7 @@ class SessionZoomingManagerComponent(ControlSurfaceComponent):
 	def __init__(self, modes, *a, **k):
 		self._modes = modes
 		self._mode = modes.selected_mode
-		super(SessionZoomingManagerComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 
 	@session_zooming_button.pressed
 	def session_zooming_button(self, button):
@@ -328,6 +328,6 @@ class SessionZoomingManagerComponent(ControlSurfaceComponent):
 			self._modes.selected_mode = self._mode
 
 	def on_enabled_changed(self):
-		super(SessionZoomingManagerComponent, self).on_enabled_changed()
+		super().on_enabled_changed()
 		if self.is_enabled():
 			self._mode = self._modes.selected_mode

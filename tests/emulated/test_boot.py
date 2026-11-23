@@ -1,6 +1,5 @@
 """Boot, identity, challenge handshake and disconnect of the Launchpad Pro."""
-from harness.devices import (CHALLENGE_COMMAND, IDENTITY_REQUEST, LEDS_OFF_COMMAND, MODE_COMMAND,
-	NOVATION_PREFIX)
+from harness.devices import CHALLENGE_COMMAND, IDENTITY_REQUEST, LEDS_OFF_COMMAND, MODE_COMMAND, NOVATION_PREFIX
 
 
 def test_identity_then_challenge_then_live_mode(rig):

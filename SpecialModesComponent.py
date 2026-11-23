@@ -1,10 +1,11 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/SpecialModesComponent.py
-from _Framework.ModesComponent import ReenterBehaviour, ModesComponent
+from _Framework.ModesComponent import ModesComponent, ReenterBehaviour
+
 
 class SpecialModesComponent(ModesComponent):
 
 	def on_enabled_changed(self):
-		super(SpecialModesComponent, self).on_enabled_changed()
+		super().on_enabled_changed()
 		if not self.is_enabled():
 			self._last_selected_mode = None
 
@@ -30,21 +31,21 @@ class SpecialReenterBehaviour(ReenterBehaviour):
 class CancelingReenterBehaviour(SpecialReenterBehaviour):
 
 	def __init__(self, *a, **k):
-		super(CancelingReenterBehaviour, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 		self._reenter_mode_active = False
 
 	def press_immediate(self, component, mode):
 		was_active = component.selected_mode == mode
-		super(CancelingReenterBehaviour, self).press_immediate(component, mode)
+		super().press_immediate(component, mode)
 		if was_active:
 			self._reenter_mode_active = True
 
 	def release_immediate(self, component, mode):
-		super(CancelingReenterBehaviour, self).release_immediate(component, mode)
+		super().release_immediate(component, mode)
 		self._return(component, mode)
 
 	def release_delayed(self, component, mode):
-		super(CancelingReenterBehaviour, self).release_delayed(component, mode)
+		super().release_delayed(component, mode)
 		self._return(component, mode)
 
 	def _return(self, component, mode):

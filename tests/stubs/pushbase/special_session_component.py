@@ -11,7 +11,7 @@ recording, and only MIDI to MIDI tracks / audio to audio tracks; notifications a
 """
 
 
-class ClipSlotCopyHandler(object):
+class ClipSlotCopyHandler:
 
 	def __init__(self, *a, **k):
 		self._is_copying = False

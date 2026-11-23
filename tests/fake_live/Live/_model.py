@@ -11,7 +11,7 @@ class LimitationError(Exception):
 	pass
 
 
-class _Object(object):
+class _Object:
 	canonical_parent = None
 
 	def __init__(self, **values):
@@ -34,7 +34,7 @@ class DeviceParameter(_Object):
 		self.value_items = tuple(value_items)
 		self.default_value = value
 		self.original_name = name
-		super(DeviceParameter, self).__init__(name=name, value=value, **k)
+		super().__init__(name=name, value=value, **k)
 
 	def __setattr__(self, name, value):
 		if name == "value" and "max" in self.__dict__:
@@ -76,7 +76,7 @@ class MixerDevice(_Object):
 
 # --------------------------------------------------------------------------- devices
 
-class DeviceType(object):
+class DeviceType:
 	undefined = 0
 	instrument = 1
 	audio_effect = 2
@@ -90,7 +90,7 @@ class Device(_Object):
 	can_have_drum_pads = False
 
 	def __init__(self, name="Device", class_name="OriginalSimpler", type=DeviceType.instrument, num_parameters=8, parameters=None):
-		super(Device, self).__init__(name=name)
+		super().__init__(name=name)
 		self.class_name = class_name
 		self.class_display_name = class_name
 		self.type = type
@@ -115,7 +115,7 @@ class DeviceView(_Object):
 @listenable(name="", mute=False, solo=False, color=0, devices=tuple)
 class Chain(_Object):
 	def __init__(self, name="Chain", devices=()):
-		super(Chain, self).__init__(name=name)
+		super().__init__(name=name)
 		self.devices = tuple(devices)
 		for device in self.devices:
 			device.canonical_parent = self
@@ -124,7 +124,7 @@ class Chain(_Object):
 @listenable(name="", mute=False, solo=False)
 class DrumPad(_Object):
 	def __init__(self, note, chains=()):
-		super(DrumPad, self).__init__(name="Pad %d" % note)
+		super().__init__(name="Pad %d" % note)
 		self.note = note
 		self.chains = tuple(chains)
 
@@ -134,7 +134,7 @@ class RackDevice(Device):
 	can_have_chains = True
 
 	def __init__(self, name="Rack", chains=(), drum=False, **k):
-		super(RackDevice, self).__init__(name=name, class_name="DrumGroupDevice" if drum else "InstrumentGroupDevice", **k)
+		super().__init__(name=name, class_name="DrumGroupDevice" if drum else "InstrumentGroupDevice", **k)
 		self.chains = tuple(chains)
 		for chain in self.chains:
 			chain.canonical_parent = self
@@ -153,7 +153,7 @@ class RackDevice(Device):
 DEFAULT_CLIP_COLOR = 15549221
 
 
-class MidiNoteSpecification(object):
+class MidiNoteSpecification:
 	"""Live 11 Live.Clip.MidiNoteSpecification (keyword arguments)."""
 
 	def __init__(self, pitch, start_time, duration, velocity=100.0, mute=False, probability=1.0,
@@ -168,7 +168,7 @@ class MidiNoteSpecification(object):
 		self.release_velocity = float(release_velocity)
 
 
-class MidiNote(object):
+class MidiNote:
 	_next_id = 1
 
 	def __init__(self, spec):
@@ -191,7 +191,7 @@ class MidiNote(object):
 @events("notes")
 class Clip(_Object):
 	def __init__(self, length=4.0, is_midi=True, notes=(), name="Clip"):
-		super(Clip, self).__init__(name=name, loop_end=float(length), end_marker=float(length))
+		super().__init__(name=name, loop_end=float(length), end_marker=float(length))
 		self.is_midi_clip = is_midi
 		self.is_audio_clip = not is_midi
 		self._notes = [MidiNote(MidiNoteSpecification(*note)) for note in notes]
@@ -318,7 +318,7 @@ class ClipSlot(_Object):
 	is_group_slot = False
 
 	def __init__(self, track):
-		super(ClipSlot, self).__init__()
+		super().__init__()
 		self.canonical_parent = track
 		self.fire_count = 0
 
@@ -392,7 +392,7 @@ class TrackView(_Object):
 @events("data", "available_input_routing_types", "input_routing_channel", "output_routing_type")
 class Track(_Object):
 	def __init__(self, song, name="Track", is_midi=True, num_scenes=8, num_sends=2, can_be_armed=True, devices=()):
-		super(Track, self).__init__(name=name)
+		super().__init__(name=name)
 		self.canonical_parent = song
 		self.has_midi_input = is_midi
 		self.has_audio_input = not is_midi
@@ -450,7 +450,7 @@ class Track(_Object):
 @listenable(name="", color=0, is_triggered=False, tempo=-1.0, is_empty=False)
 class Scene(_Object):
 	def __init__(self, song, name=""):
-		super(Scene, self).__init__(name=name)
+		super().__init__(name=name)
 		self.canonical_parent = song
 		self.fire_count = 0
 
@@ -512,7 +512,7 @@ class SongView(_Object):
 @events("data", "cue_points")
 class Song(_Object):
 	def __init__(self, num_tracks=8, num_scenes=8, num_returns=2, midi_tracks=None):
-		super(Song, self).__init__()
+		super().__init__()
 		self.view = SongView(self)
 		self.undo_steps = []
 		self.tap_count = 0

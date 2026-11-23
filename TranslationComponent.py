@@ -1,6 +1,8 @@
 #Embedded file name: /Users/versonator/Jenkins/live/output/mac_64_static/Release/midi-remote-scripts/Launchpad_Pro/TranslationComponent.py
 from functools import partial
+
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+
 
 class TranslationComponent(ControlSurfaceComponent):
 	"""
@@ -13,7 +15,7 @@ class TranslationComponent(ControlSurfaceComponent):
 		self._translated_channel = translated_channel
 		self._should_enable = bool(should_enable)
 		self._should_reset = should_reset
-		super(TranslationComponent, self).__init__(*a, **k)
+		super().__init__(*a, **k)
 
 	def __getattr__(self, name):
 		if len(name) > 4 and name[:4] == 'set_':

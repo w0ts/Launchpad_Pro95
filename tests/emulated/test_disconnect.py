@@ -1,6 +1,5 @@
 """After disconnect() the script should leave no listener on Live's objects (they outlive it)."""
 import pytest
-
 from harness.rig import BOTTOM, TOP, make_song
 
 

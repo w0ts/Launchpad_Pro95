@@ -34,7 +34,7 @@ def encrypt_challenge2(challenge):
 	return (value >> 7) & 0x7F7F
 
 
-class ApplicationView(object):
+class ApplicationView:
 	NavDirection = NavDirection
 
 	def __init__(self):
@@ -97,7 +97,7 @@ class ApplicationView(object):
 		return len(self._listeners.get(name, ()))
 
 
-class Application(object):
+class Application:
 	View = ApplicationView
 
 	def __init__(self):

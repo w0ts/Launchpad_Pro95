@@ -1,7 +1,6 @@
 """Every mode of Launchpad_Pro95: the buttons that select it, the layout it asks the
 Launchpad Pro for, and how pressing its button again behaves."""
 import pytest
-
 from harness.devices import LIVE_LAYOUT_COMMAND, STANDALONE_LAYOUT_COMMAND
 from harness.rig import BOTTOM, TOP, make_song
 

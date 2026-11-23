@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 
-from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
-from _Framework.ButtonElement import ButtonElement
-from _Framework.ButtonMatrixElement import ButtonMatrixElement
-from .ClipNotes import read_all_notes, write_all_notes
 import time
+
+from _Framework.ButtonElement import ButtonElement
+from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+
+from .ClipNotes import read_all_notes, write_all_notes
 
 
 class NoteEditorComponent(ControlSurfaceComponent):
@@ -21,14 +21,14 @@ class NoteEditorComponent(ControlSurfaceComponent):
 		# playback step indicator
 		self.display_metronome = True
 		self.metronome_color = "StepSequencer.NoteEditor.Metronome"
-		
+
 		# playback page indicator
 		self._current_page = -1
 
 		# Velocity color map. this must remain of length 3. WHY???
 		self.velocity_map = [20, 50, 80, 105, 127]
 		self.velocity_color_map = [	"StepSequencer.NoteEditor.Velocity0", "StepSequencer.NoteEditor.Velocity1", "StepSequencer.NoteEditor.Velocity2", "StepSequencer.NoteEditor.Velocity3", "StepSequencer.NoteEditor.Velocity4"]
-		
+
 		# other colors
 		self.muted_note_color = "StepSequencer.NoteEditor.Muted"
 		self.playing_note_color = "StepSequencer.NoteEditor.Playing"
@@ -69,7 +69,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 		# modes
 		self._is_mute_shifted = False
 		self._is_mutlinote = False
-				
+
 		# matrix
 		if matrix != None:
 			self.set_matrix(matrix)
@@ -155,8 +155,8 @@ class NoteEditorComponent(ControlSurfaceComponent):
 	def _display_selected_page(self): # OK
 		for i in range(0, self._height):
 			self._grid_back_buffer[self._page % self.width][i] = "StepSequencer.NoteEditor.PageMarker"
-		
-	# Displays 3 buttons for the root of the scale and 1 for the in scale notes 	
+
+	# Displays 3 buttons for the root of the scale and 1 for the in scale notes
 	def _display_note_markers(self):# (out of scale notes buttons are dark) OK
 		for i in range(0, int(self.height / self.number_of_lines_per_note)):
 			if self._key_index_is_root_note[i]:
@@ -171,9 +171,9 @@ class NoteEditorComponent(ControlSurfaceComponent):
 
 
 #*********************MATRIX*********************
-	
+
 	#Add listener and initialize note buffers OK
-	def set_matrix(self, matrix): 
+	def set_matrix(self, matrix):
 		if (matrix != self._matrix):
 			if (self._matrix != None):
 				self._matrix.remove_value_listener(self._matrix_value)
@@ -186,7 +186,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 				self._grid_back_buffer = [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]
 
 	# Updates the LP LEDs OK
-	def _update_matrix(self):  
+	def _update_matrix(self):
 		if self.is_enabled() and self._matrix!=None:
 			# clear back buffer
 			for x in range(self.width):
@@ -219,10 +219,10 @@ class NoteEditorComponent(ControlSurfaceComponent):
 					self._display_selected_page()
 					if self._display_page_time + 0.25 < time.time():
 						self._display_page = False
-						
 
 
-				# Display the notes in the 1st left column 
+
+				# Display the notes in the 1st left column
 				if self.is_multinote:
 					self._display_note_markers()
 					# Display the current played page
@@ -260,7 +260,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 							idx = self.key_indexes.index(note_key)
 						except ValueError:
 							idx = -1
-						
+
 						if idx == 0:
 							note_grid_y_base = 0
 						else:
@@ -272,7 +272,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 					else:
 						note_grid_x_position = -1
 						note_grid_y_position = -1
-				
+
 					#Set note color
 					if (note_grid_x_position >= 0):
 						# compute colors
@@ -307,19 +307,19 @@ class NoteEditorComponent(ControlSurfaceComponent):
 
 	def request_display_page(self): # Reset page column display timer
 		self._display_page = True
-		self._display_page_time = time.time()			
-	
-	
+		self._display_page_time = time.time()
+
+
 
 	# matrix buttons listener OK
-	def _matrix_value(self, value, x, y, is_momentary): 
+	def _matrix_value(self, value, x, y, is_momentary):
 		if self.is_enabled() and y < self.height: #Height value can be 8 (MULTINOTE/SCALE_EDIT) or 4 (STEPSEQ_MODE_NORMAL)
 			if ((value != 0) or (not is_momentary)): #if NOTE_ON or button is toggle
 				self._stepsequencer._was_velocity_shifted = False # Some previous state logic INVESTIGATE
 				self._matrix_value_message([value, x, y, is_momentary])
 
 	#Add/Delete/Mute notes in the cache for PL light management and in the Live's Clip OK
-	def _matrix_value_message(self, values):  # (value=127/0, x=idx, y=idx, is_momentary=True) 
+	def _matrix_value_message(self, values):  # (value=127/0, x=idx, y=idx, is_momentary=True)
 		value = values[0]
 		x = values[1]
 		y = values[2]
@@ -329,7 +329,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 		assert (value in range(128))
 		assert (x in range(self._matrix.width()))
 		assert (y in range(self._matrix.height()))
-		assert isinstance(is_momentary, type(False))
+		assert isinstance(is_momentary, bool)
 
 		if self.is_enabled() and self._clip == None:
 			self._stepsequencer.create_clip()
@@ -341,7 +341,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 
 				# note data
 
-				if self.is_multinote: # Calculate note pitch and time for notes 
+				if self.is_multinote: # Calculate note pitch and time for notes
 					time = self.quantization * (self._page * self.width * self.number_of_lines_per_note + x + (y % self.number_of_lines_per_note * self.width))
 					pitch = self._key_indexes[int(8 / self.number_of_lines_per_note) - 1 - int(y / self.number_of_lines_per_note)]
 				else:
@@ -382,8 +382,8 @@ class NoteEditorComponent(ControlSurfaceComponent):
 
 #*********************VELOCITY/BTN_SHIFT*********************
 
-	# Updates the velocity button light OK			
-	def _update_velocity_button(self): 
+	# Updates the velocity button light OK
+	def _update_velocity_button(self):
 		if self.is_enabled() and self._velocity_button != None:
 			if self._clip != None:
 				if self._is_velocity_shifted:
@@ -395,7 +395,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 				self._velocity_button.set_light("DefaultButton.Disabled")
 
 	# Refresh button and its listener OK
-	def set_velocity_button(self, button): 
+	def set_velocity_button(self, button):
 		assert (isinstance(button, (ButtonElement, type(None))))
 		if (button != self._velocity_button):
 			if (self._velocity_button != None):
@@ -404,9 +404,9 @@ class NoteEditorComponent(ControlSurfaceComponent):
 			if (self._velocity_button != None):
 				self._velocity_button.add_value_listener(self._velocity_value, identify_sender=True)
 
-			
-	# Handle button shifted and velocity selection OK			
-	def _velocity_value(self, value, sender): 
+
+	# Handle button shifted and velocity selection OK
+	def _velocity_value(self, value, sender):
 		assert (self._velocity_button != None)
 		assert (value in range(128))
 		if self.is_enabled():
@@ -431,7 +431,7 @@ class NoteEditorComponent(ControlSurfaceComponent):
 				self._velocity_last_press = time.time()
 				self._update_velocity_button()
 			self._stepsequencer._note_selector.update()
-			
+
 #*********************MUTE/BTN_SHIFT*********************
 
 	# Mute all entries for a given MIDI note OK

@@ -1,7 +1,6 @@
 """ClipNotes against the fake Live clip (note ids, deprecated-call recording), and the step
 sequencer editing a clip that holds notes before time 0."""
 import Live
-
 from harness.rig import TOP, make_song
 
 

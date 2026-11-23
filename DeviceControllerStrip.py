@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
+
 
 from _Framework.ButtonSliderElement import ButtonSliderElement
-import math
 
 SLIDER_MODE_OFF = 0
 SLIDER_MODE_TOGGLE = 1
@@ -25,59 +24,59 @@ class DeviceControllerStrip(ButtonSliderElement):
 		self._value_map = tuple([float(index) / (self._num_buttons-1) for index in range(self._num_buttons)])
 		self._precision_mode = False
 		self._enabled = True
-	
+
 	def set_enabled(self,enabled):
 		self._enabled = enabled
-	
+
 	def set_precision_mode(self, precision_mode):
 		self._precision_mode = precision_mode
 		self.update()
-	
+
 	@property
 	def _value(self):
-		if self._parameter_to_map_to != None:	
+		if self._parameter_to_map_to != None:
 			return self._parameter_to_map_to.value
 		else:
 			return 0
-			
+
 	@property
 	def _max(self):
-		if self._parameter_to_map_to != None:	
+		if self._parameter_to_map_to != None:
 			return self._parameter_to_map_to.max
 		else:
 			return 0
-	
+
 	@property
 	def _min(self):
-		if self._parameter_to_map_to != None:	
+		if self._parameter_to_map_to != None:
 			return self._parameter_to_map_to.min
 		else:
 			return 0
 
 	@property
 	def _range(self):
-		if self._parameter_to_map_to != None:	
+		if self._parameter_to_map_to != None:
 			return self._parameter_to_map_to.max - self._parameter_to_map_to.min
 		else:
 			return 0
 
 	@property
 	def _default_value(self):
-		if self._parameter_to_map_to != None:	
+		if self._parameter_to_map_to != None:
 			return self._parameter_to_map_to._default_value
 		else:
 			return 0
-				
+
 	@property
 	def _is_quantized(self):
-		if self._parameter_to_map_to != None:	
+		if self._parameter_to_map_to != None:
 			return self._parameter_to_map_to.is_quantized
 		else:
 			return False
-					
+
 	@property
 	def _mode(self):
-		if self._parameter_to_map_to != None:	
+		if self._parameter_to_map_to != None:
 			if self._is_quantized:
 				if self._range == 1:
 					return SLIDER_MODE_TOGGLE
@@ -89,10 +88,10 @@ class DeviceControllerStrip(ButtonSliderElement):
 				if self._precision_mode:
 					return SLIDER_MODE_PRECISION_SLIDER
 				else:
-					return SLIDER_MODE_SLIDER				
+					return SLIDER_MODE_SLIDER
 		else:
 			return SLIDER_MODE_OFF
-				
+
 
 	def update(self):
 		if self._enabled:
@@ -112,15 +111,15 @@ class DeviceControllerStrip(ButtonSliderElement):
 
 	def reset(self):
 		self._update_off()
-		
+
 	def reset_if_no_parameter(self):
 		if self._parameter_to_map_to == None:
 			self.reset()
-			
+
 	def _update_off(self):
 		v =  ["DefaultButton.Disabled" for index in range(len(self._buttons))]
 		self._update_buttons(tuple(v))
-	
+
 	def _update_toggle(self):
 		v =  ["DefaultButton.Disabled" for index in range(len(self._buttons))]
 		if self._value==self._max:
@@ -149,7 +148,7 @@ class DeviceControllerStrip(ButtonSliderElement):
 		else:
 			v[4]="Device.BigEnum.Off"
 		self._update_buttons(tuple(v))
-	
+
 	def _update_slider(self):
 		v =  ["DefaultButton.Disabled" for index in range(len(self._buttons))]
 		for index in range(len(self._buttons)):
@@ -158,20 +157,20 @@ class DeviceControllerStrip(ButtonSliderElement):
 			else:
 				v[index]="Device.Slider.Off"
 		self._update_buttons(tuple(v))
-		
+
 	def _update_precision_slider(self):
 		v =  ["DefaultButton.Disabled" for index in range(len(self._buttons))]
 		if self._value>self._min:
 			v[3]="Device.PrecisionSlider.On"
 		else:
 			v[3]="Device.PrecisionSlider.Off"
-			
+
 		if self._value<self._max:
 			v[4]="Device.PrecisionSlider.On"
 		else:
 			v[4]="Device.PrecisionSlider.Off"
 		self._update_buttons(tuple(v))
-			
+
 	def _update_buttons(self, buttons):
 		assert isinstance(buttons, tuple)
 		assert (len(buttons) == len(self._buttons))
@@ -194,10 +193,10 @@ class DeviceControllerStrip(ButtonSliderElement):
 						self._parameter_to_map_to.value = self._min
 					else:
 						self._parameter_to_map_to.value = self._max
-						
+
 				elif self._mode == SLIDER_MODE_SMALL_ENUM:
 					self._parameter_to_map_to.value = index_of_sender + self._min
-					
+
 				elif self._mode == SLIDER_MODE_BIG_ENUM:
 					if index_of_sender>=4:
 						inc = 2**(index_of_sender - 3 -1)
@@ -205,18 +204,18 @@ class DeviceControllerStrip(ButtonSliderElement):
 							self._parameter_to_map_to.value += inc
 						else:
 							self._parameter_to_map_to.value = self._max
-					else:	
+					else:
 						inc = 2**(4 - index_of_sender -1)
 						if self._value - inc >= self._min:
 							self._parameter_to_map_to.value -= inc
 						else:
 							self._parameter_to_map_to.value = self._min
-							
-							
+
+
 				elif (self._mode == SLIDER_MODE_SLIDER):
 					self._parameter_to_map_to.value = self._value_map[index_of_sender]*self._range + self._min
 
-					
+
 				elif (self._mode == SLIDER_MODE_PRECISION_SLIDER):
 					inc = float(self._range) / 128
 					if self._range>7 and inc<1:
@@ -233,8 +232,8 @@ class DeviceControllerStrip(ButtonSliderElement):
 							self._parameter_to_map_to.value -= inc
 						else:
 							self._parameter_to_map_to.value = self._min
-				
-				
+
+
 			self.notify_value(value)
 
 	def _on_parameter_changed(self):
