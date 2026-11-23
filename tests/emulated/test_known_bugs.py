@@ -213,3 +213,27 @@ def test_extending_the_loop_copies_the_loop_not_the_clip_start(make_rig):
 	assert (c.loop_start, c.loop_end) == (2.0, 6.0)
 	assert (36, 4.0) in [(n[0], n[1]) for n in c.note_tuples()]
 	assert all(n[1] < 4.0 for n in c.note_tuples() if n[0] == 40)
+
+
+@pytest.mark.parametrize("which", ["return", "master"])
+def test_sequencer_arrows_with_a_return_or_master_track_selected(make_rig, which):
+	rig = make_rig(song=make_song(clips=[(0, 0)]))
+	song = rig.song
+	song.view.selected_track = song.return_tracks[0] if which == "return" else song.master_track
+	rig.tick()
+	rig.tap_top(TOP["user"])
+	rig.tick(2)
+	for arrow in ("left", "right", "up", "down"):
+		rig.tap_top(TOP[arrow])
+	rig.tick()
+
+
+def test_disabling_a_disabled_track_controller_keeps_the_implicit_arm(make_rig):
+	rig = make_rig(song=make_song(clips=[(0, 0)]))
+	controller = rig.surface._step_sequencer._track_controller
+	controller.set_enabled(False)
+	controller._implicit_arm = True
+	track = rig.song.view.selected_track
+	track.implicit_arm = True  # e.g. set by note mode
+	controller.set_enabled(False)
+	assert track.implicit_arm

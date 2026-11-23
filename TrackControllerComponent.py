@@ -57,7 +57,7 @@ class TrackControllerComponent(MixerComponent):
 		MixerComponent.disconnect(self)
 
 	def set_enabled(self, enabled):
-		if self.is_enabled and not enabled:
+		if self.is_enabled() and not enabled:
 			# disable implicit arm while leaving.
 			if self._implicit_arm:
 				if self.selected_track.can_be_armed:
@@ -157,13 +157,13 @@ class TrackControllerComponent(MixerComponent):
 		if self.is_enabled():
 			if self._prev_track_button != None:
 				self._prev_track_button.set_on_off_values("Mode."+self._skin_name)
-				if self.selected_track_idx > 0:
+				if self.selected_track_idx is not None and self.selected_track_idx > 0:
 					self._prev_track_button.turn_on()
 				else:
 					self._prev_track_button.turn_off()
 			if self._next_track_button != None :
 				self._next_track_button.set_on_off_values("Mode."+self._skin_name)
-				if self.selected_track_idx < len(self.song().tracks) - 1:
+				if self.selected_track_idx is not None and self.selected_track_idx < len(self.song().tracks) - 1:
 					self._next_track_button.turn_on()
 				else:
 					self._next_track_button.turn_off()
@@ -183,7 +183,7 @@ class TrackControllerComponent(MixerComponent):
 		assert (value in range(128))
 		if self.is_enabled():
 			if (not sender.is_momentary()) or (value != 0):
-				if self.selected_track_idx < len(self.song().tracks) - 1:
+				if self.selected_track_idx is not None and self.selected_track_idx < len(self.song().tracks) - 1:
 					self.song().view.selected_track = self.song().tracks[self.selected_track_idx + 1]
 					self._do_implicit_arm()
 
@@ -202,7 +202,7 @@ class TrackControllerComponent(MixerComponent):
 		assert (value in range(128))
 		if (not sender.is_momentary()) or (value != 0):
 			if self.is_enabled():
-				if self.selected_track_idx > 0:
+				if self.selected_track_idx is not None and self.selected_track_idx > 0:
 					self.song().view.selected_track = self.song().tracks[self.selected_track_idx - 1]
 					self._do_implicit_arm()
 
@@ -284,7 +284,7 @@ class TrackControllerComponent(MixerComponent):
 		if self.is_enabled():
 			if value != 0 or not self._play_button.is_momentary():
 				self._play_button.turn_on()
-				if self.selected_scene != None:
+				if self.selected_scene != None and self.selected_track_idx is not None:
 					slot = self.selected_scene.clip_slots[self.selected_track_idx]
 					slot.fire()
 					self._control_surface.show_message("fire clip")
@@ -302,13 +302,13 @@ class TrackControllerComponent(MixerComponent):
 				self._stop_button.turn_on()
 			else:
 				if now - self._last_stop_button_press > self._long_press:
-					if self.selected_scene != None:
+					if self.selected_scene != None and self.selected_track_idx is not None:
 						slot = self.selected_scene.clip_slots[self.selected_track_idx]
 						if slot and slot.has_clip:
 							slot.delete_clip()
 							self._control_surface.show_message("delete clip")
 				else:
-					if self.selected_scene != None:
+					if self.selected_scene != None and self.selected_track_idx is not None:
 						slot = self.selected_scene.clip_slots[self.selected_track_idx]
 						slot.stop()
 						self._control_surface.show_message("stop clip")
@@ -471,7 +471,9 @@ class TrackControllerComponent(MixerComponent):
 
 	@property
 	def selected_track_idx(self):
-		return list(self.song().tracks).index(self.song().view.selected_track)
+		tracks = list(self.song().tracks)
+		track = self.song().view.selected_track
+		return tracks.index(track) if track in tracks else None  # None: a return or the master track
 
 	@property
 	def selected_scene_idx(self):
@@ -483,6 +485,8 @@ class TrackControllerComponent(MixerComponent):
 
 	@property
 	def selected_clip(self):
+		if self.selected_track_idx is None:
+			return None  # a return or master track has no clip slots
 		clip_slot = self.selected_scene.clip_slots[self.selected_track_idx]
 		if clip_slot.has_clip:
 			return clip_slot.clip
