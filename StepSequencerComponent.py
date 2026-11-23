@@ -4,11 +4,6 @@ from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 from _Framework.CompoundComponent import CompoundComponent
 from _Framework.ButtonElement import ButtonElement
 from _Framework.Util import find_if
-try:
-    from itertools import imap
-except ImportError:
-    # Python 3...
-    imap=map
 from .NoteEditorComponent import NoteEditorComponent
 from .ClipNotes import read_all_notes, write_all_notes
 from .ScaleComponent import * 

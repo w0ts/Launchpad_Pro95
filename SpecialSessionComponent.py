@@ -13,10 +13,6 @@ from .ClipActionsComponent import double_clip, duplicate_clip
 
 from pushbase import special_session_component
 
-try:
-    xrange
-except NameError:
-    xrange = range
 
 def copyclip(source_slot, destination_slot):
 
@@ -223,7 +219,7 @@ class SpecialSessionComponent(SessionComponent):
 
 	def _update_stop_scene_clip_buttons(self):
 		if self.is_enabled():
-			for index in xrange(self._num_scenes):
+			for index in range(self._num_scenes):
 				self._update_stop_scene_leds(index)
 
 	def _update_stop_scene_leds(self, index):
