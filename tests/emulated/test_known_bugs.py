@@ -157,8 +157,6 @@ def test_melodic_pattern_octave_of_negative_index(framework):
 	assert pattern.note(0, 0).index == 36 - 1  # one degree below C is B of the octave below
 
 
-@pytest.mark.xfail(strict=True, reason="bug: TargetTrackComponent._on_tracks_changed builds the track list with "
-	"filter(), an iterator under Python 3 that the first consumer uses up, so the arm listeners see no track")
 def test_target_track_starts_on_a_track_armed_before_boot(make_rig):
 	song = make_song()
 	song.tracks[2].arm = True
@@ -168,8 +166,6 @@ def test_target_track_starts_on_a_track_armed_before_boot(make_rig):
 	assert target.target_track is song.tracks[2]
 
 
-@pytest.mark.xfail(strict=True, reason="bug: TargetTrackComponent._armed_track_stack is a class attribute, shared "
-	"by every instance (two Launchpad Pros, or a reloaded script)")
 def test_target_track_stack_is_per_instance(make_rig):
 	first = make_rig()
 	second = make_rig()
@@ -177,8 +173,6 @@ def test_target_track_stack_is_per_instance(make_rig):
 		second.surface._target_track_component._armed_track_stack
 
 
-@pytest.mark.xfail(strict=True, reason="bug: TargetTrackComponent._refresh_armed_track_stack removes tracks from "
-	"the list it iterates, so it skips every other removed track")
 def test_target_track_stack_drops_removed_tracks(rig):
 	target = rig.surface._target_track_component
 	target._armed_track_stack[:] = list(rig.song.tracks[:2])
