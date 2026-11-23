@@ -213,3 +213,46 @@ def test_lock_button_without_a_stored_device_does_nothing(device_rig):
     rig.tap_side(LOCK1 + 3)
     assert component(rig)._locked_device_index is None
     assert component(rig)._locked_devices == [None] * 4
+
+
+def _enum_rig(make_rig, values):
+    rig = make_rig(song=_song_with_enum(values))
+    rig.tap_top(TOP["device"])
+    rig.tick(2)
+    return rig, rig.song.tracks[0].devices[0].parameters[1]
+
+
+def test_two_value_parameter_toggles_on_the_bottom_pad(make_rig):
+    rig, parameter = _enum_rig(make_rig, 2)
+    rig.tap(0, 7)
+    assert parameter.value == 0.0
+    rig.tap(0, 7)
+    assert parameter.value == 1.0
+    rig.tap(0, 3)  # the other pads do nothing
+    assert parameter.value == 1.0
+
+
+def test_big_enum_pads_step_by_one_to_eight(make_rig):
+    rig, parameter = _enum_rig(make_rig, 20)  # starts at 19, the maximum
+    values = []
+    for y in (7, 0, 3, 7, 7, 7, 4, 1):  # pad indexes 0, 7, 4, 0, 0, 0, 3, 6 from the bottom
+        rig.tap(0, y)
+        values.append(parameter.value)
+    assert values == [11.0, 19.0, 19.0, 11.0, 3.0, 0.0, 0.0, 4.0]
+
+
+def test_precision_mode_steps_by_a_128th_of_the_range(device_rig):
+    rig = device_rig
+    parameter = rig.song.tracks[0].devices[0].parameters[1]
+    span = parameter.max - parameter.min
+    rig.tap_side(PRECISION)
+    rig.tick()
+    rig.tap(0, 7)
+    rig.tap(0, 7)  # down by 8/128, then to the minimum at most
+    start = parameter.value
+    rig.tap(0, 3)  # up by 1/128
+    assert parameter.value == pytest.approx(start + span / 128)
+    rig.tap(0, 0)  # up by 8/128
+    assert parameter.value == pytest.approx(start + 9 * span / 128)
+    rig.tap(0, 5)  # down by 2/128
+    assert parameter.value == pytest.approx(start + 7 * span / 128)
