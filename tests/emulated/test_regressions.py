@@ -162,6 +162,16 @@ def test_melodic_pattern_octave_of_negative_index(framework):
     assert pattern.note(0, 0).index == 36 - 1  # one degree below C is B of the octave below
 
 
+@pytest.mark.parametrize("degrees_below, expected", [(1, 35), (7, 24), (8, 23), (14, 12)])
+def test_melodic_pattern_pads_below_the_lowest_root(framework, degrees_below, expected):
+    """PR #9 (zfhrp6) reported pads below the lowest root playing an octave too high. Floor division
+    also gets an exact octave below right (7 degrees below C is the C an octave down, not two)."""
+    from Launchpad_Pro95.ScaleComponent import MelodicPattern
+
+    pattern = MelodicPattern(steps=[1, 7], scale=[0, 2, 4, 5, 7, 9, 11], base_note=36, origin=[-degrees_below, 0])
+    assert pattern.note(0, 0).index == expected
+
+
 def test_target_track_starts_on_a_track_armed_before_boot(make_rig):
     song = make_song()
     song.tracks[2].arm = True
