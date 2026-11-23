@@ -44,6 +44,15 @@ def _target_name(target):
     return getattr(target, "attr", getattr(target, "id", None))
 
 
+def _returned_strings(value):
+    """String constants a return statement can give (also both sides of a conditional)."""
+    if isinstance(value, ast.IfExp):
+        yield from _returned_strings(value.body)
+        yield from _returned_strings(value.orelse)
+    elif isinstance(value, ast.Constant) and isinstance(value.value, str):
+        yield value.value
+
+
 def requested_keys():
     """(file:line, key, single_arg_on_off) for each literal skin key the script draws."""
     found = []
@@ -58,6 +67,9 @@ def requested_keys():
                 for key in _string_args(node):
                     if "." in key:
                         found.append((where, key, single))
+            elif isinstance(node, ast.Return) and node.value is not None:
+                # colour helpers (e.g. a block or step colour) return skin keys
+                found += [(where, key, False) for key in _returned_strings(node.value) if "." in key]
             elif isinstance(node, ast.Assign):
                 names = [_target_name(t) for t in node.targets]
                 if any(name in KEY_LISTS for name in names):

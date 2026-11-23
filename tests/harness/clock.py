@@ -14,7 +14,7 @@ START = 1000.0
 TIMED_MODULES = (
     "DeviceComponent",
     "LoopSelectorComponent",
-    "MelodicNoteEditorComponent",
+    "MelodicPageButtons",
     "NoteEditorComponent",
     "StepSequencerButtons",
 )
