@@ -1,7 +1,9 @@
 name: Tests
 
 on:
+  # Every branch; tag pushes run these checks through release.yml instead.
   push:
+    branches: ["**"]
   pull_request:
   workflow_dispatch:
   # release.yml runs the same tests and lint before it publishes a release.
