@@ -9,6 +9,24 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      # Settings in pyproject.toml. Same pinned versions locally: uvx ruff@0.17.6 / uvx black@26.10.1.
+      - name: Ruff
+        run: uvx ruff@0.17.6 check --output-format=github .
+
+      - name: Black
+        run: uvx black@26.10.1 --check --diff .
+
   pytest:
     runs-on: ubuntu-latest
     timeout-minutes: 15

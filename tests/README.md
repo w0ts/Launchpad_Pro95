@@ -14,6 +14,13 @@ ABLETON_FRAMEWORK_DIR=/some/dir/ableton-framework python3.11 -m pytest
 
 Add `--cov` for the coverage of the script modules.
 
+Lint and format (settings in `pyproject.toml`, same pinned versions as CI):
+
+```sh
+uvx ruff@0.17.6 check .
+uvx black@26.10.1 --check .
+```
+
 ### Where `_Framework` comes from
 
 The script imports Ableton's `_Framework` (plus `_Generic` and `pushbase`), which is not in
