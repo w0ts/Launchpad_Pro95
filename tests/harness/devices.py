@@ -77,7 +77,7 @@ class Led:
 		return None
 
 	def __repr__(self):
-		return "Led(static=%r, flash=%r, pulse=%r)" % (self.static, self.flash, self.pulse)
+		return f"Led(static={self.static!r}, flash={self.flash!r}, pulse={self.pulse!r})"
 
 
 class LaunchpadPro:

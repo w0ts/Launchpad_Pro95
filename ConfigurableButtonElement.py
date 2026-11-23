@@ -6,7 +6,7 @@ class ConfigurableButtonElement(ButtonElement):
 	"""
 	Special button class (adapted from Push script for LP Pro)
 	that can be configured with custom on- and off-values.
-	
+
 	A ConfigurableButtonElement can have states other than True or
 	False, which can be defined by setting the 'states' property.
 	Thus 'set_light' can take any state or skin color.

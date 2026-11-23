@@ -62,10 +62,10 @@ class SpecialMidiMap(MidiMap):#midi map is just a 'dict' (or map)
 		assert(name not in self.keys())
 
 		def one_dimensional_name(base_name, x, _y):
-			return '%s_%d' % (base_name, x)
+			return f'{base_name}_{x}'
 
 		def two_dimensional_name(base_name, x, y):
-			return '%s_%d_%d' % (base_name, x, y)
+			return f'{base_name}_{x}_{y}'
 
 		name_factory = two_dimensional_name if len(numbers) > 1 else one_dimensional_name
 		elements = []
@@ -78,8 +78,8 @@ class SpecialMidiMap(MidiMap):#midi map is just a 'dict' (or map)
 
 			elements.append(element_row)
 
-		self['%s_Raw' % name] = elements
-		self['%s_Ids' % name] = id_dict
+		self[f'{name}_Raw'] = elements
+		self[f'{name}_Ids'] = id_dict
 		self[name] = ButtonMatrixElement(rows=elements, name=name)
 
 	def add_modifier_button(self, name, channel, number, midi_message_type, default_states = None, element_factory = make_button):

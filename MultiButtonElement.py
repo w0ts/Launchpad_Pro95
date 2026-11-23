@@ -6,7 +6,7 @@ class MultiButtonElement(ConfigurableButtonElement):
 	"""
 	Special button element for use with a button on a controller that sends
 	the same MIDI message on different MIDI channels at different times.
-	
+
 	Inits a list of slave button elements that it forwards all sent values to
 	and also receives values from.
 	"""
@@ -23,7 +23,7 @@ class MultiButtonElement(ConfigurableButtonElement):
 				identifier,
 				skin,
 				(default_states if color_slaves else None),
-				name=(name + '_ch_' + str(slave_channel + 1)), *a, **k
+				*a, name=(name + '_ch_' + str(slave_channel + 1)), **k
 				)
 			for slave_channel in slave_channels
 		]

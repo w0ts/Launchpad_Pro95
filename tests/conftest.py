@@ -30,7 +30,7 @@ if not FRAMEWORK_DIR:
 	FRAMEWORK_ERROR = ("ABLETON_FRAMEWORK_DIR is not set: run scripts/fetch_framework.sh <dir> and set "
 		"ABLETON_FRAMEWORK_DIR=<dir> (or point it at Live's 'MIDI Remote Scripts' folder)")
 elif not os.path.isdir(os.path.join(FRAMEWORK_DIR, "_Framework")):
-	FRAMEWORK_ERROR = "ABLETON_FRAMEWORK_DIR=%s has no _Framework folder" % FRAMEWORK_DIR
+	FRAMEWORK_ERROR = f"ABLETON_FRAMEWORK_DIR={FRAMEWORK_DIR} has no _Framework folder"
 else:
 	# After fake_live, so a 'Live' folder there could never shadow the fake.
 	sys.path.insert(1, FRAMEWORK_DIR)
@@ -73,7 +73,7 @@ def clock(framework, monkeypatch):
 
 	fake = FakeTime()
 	for name in TIMED_MODULES:
-		monkeypatch.setattr(sys.modules["%s.%s" % (PACKAGE_NAME, name)], "time", fake)
+		monkeypatch.setattr(sys.modules[f"{PACKAGE_NAME}.{name}"], "time", fake)
 	return fake
 
 

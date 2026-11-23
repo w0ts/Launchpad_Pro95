@@ -39,11 +39,11 @@ class DeviceParameter(_Object):
 	def __setattr__(self, name, value):
 		if name == "value" and "max" in self.__dict__:
 			if not (self.min <= value <= self.max):
-				raise RuntimeError("Invalid value %r for parameter %s" % (value, self.name))
+				raise RuntimeError(f"Invalid value {value!r} for parameter {self.name}")
 		object.__setattr__(self, name, value)
 
 	def str_for_value(self, value):
-		return "%.2f" % value
+		return f"{value:.2f}"
 
 	def __str__(self):
 		return self.str_for_value(self.value)
@@ -69,7 +69,7 @@ class MixerDevice(_Object):
 		self.crossfader = DeviceParameter("Crossfader", 0.0, -1.0, 1.0)
 		self.cue_volume = DeviceParameter("Cue Volume", 0.85, 0.0, 1.0)
 		self.song_tempo = DeviceParameter("Song Tempo", 120.0, 20.0, 999.0)
-		self.sends = tuple(DeviceParameter("Send %s" % chr(65 + i), 0.0, 0.0, 1.0) for i in range(num_sends))
+		self.sends = tuple(DeviceParameter(f"Send {chr(65 + i)}", 0.0, 0.0, 1.0) for i in range(num_sends))
 		for param in (self.volume, self.panning, self.track_activator) + self.sends:
 			param.canonical_parent = self
 
@@ -96,7 +96,7 @@ class Device(_Object):
 		self.type = type
 		if parameters is None:
 			parameters = [DeviceParameter("Device On", 1.0, 0.0, 1.0, is_quantized=True)]
-			parameters += [DeviceParameter("%s P%d" % (name, i + 1), 0.0, 0.0, 1.0) for i in range(num_parameters)]
+			parameters += [DeviceParameter(f"{name} P{i + 1}", 0.0, 0.0, 1.0) for i in range(num_parameters)]
 		for param in parameters:
 			param.canonical_parent = self
 		self.parameters = tuple(parameters)
@@ -124,7 +124,7 @@ class Chain(_Object):
 @listenable(name="", mute=False, solo=False)
 class DrumPad(_Object):
 	def __init__(self, note, chains=()):
-		super().__init__(name="Pad %d" % note)
+		super().__init__(name=f"Pad {note}")
 		self.note = note
 		self.chains = tuple(chains)
 
@@ -182,7 +182,7 @@ class MidiNote:
 		return (self.pitch, self.start_time, self.duration, self.velocity, self.mute)
 
 	def __repr__(self):
-		return "MidiNote%r" % (self.as_tuple(),)
+		return f"MidiNote{self.as_tuple()!r}"
 
 
 @listenable(name="", color=DEFAULT_CLIP_COLOR, color_index=0, is_playing=False, is_triggered=False,
@@ -229,7 +229,7 @@ class Clip(_Object):
 		specs = tuple(specs)
 		for spec in specs:
 			if not isinstance(spec, MidiNoteSpecification):
-				raise TypeError("add_new_notes expects MidiNoteSpecification, got %r" % (spec,))
+				raise TypeError(f"add_new_notes expects MidiNoteSpecification, got {spec!r}")
 		new = [MidiNote(spec) for spec in specs]
 		self._notes.extend(new)
 		if new:
@@ -517,13 +517,13 @@ class Song(_Object):
 		self.undo_steps = []
 		self.tap_count = 0
 		midi_tracks = range(num_tracks) if midi_tracks is None else midi_tracks
-		self.tracks = tuple(Track(self, "%d-%s" % (i + 1, "MIDI" if i in midi_tracks else "Audio"),
+		self.tracks = tuple(Track(self, f"{i + 1}-{'MIDI' if i in midi_tracks else 'Audio'}",
 			is_midi=i in midi_tracks, num_scenes=num_scenes, num_sends=num_returns) for i in range(num_tracks))
 		self.visible_tracks = self.tracks
-		self.return_tracks = tuple(Track(self, "%s-Return" % chr(65 + i), is_midi=False, num_scenes=0,
+		self.return_tracks = tuple(Track(self, f"{chr(65 + i)}-Return", is_midi=False, num_scenes=0,
 			num_sends=num_returns, can_be_armed=False) for i in range(num_returns))
 		self.master_track = Track(self, "Master", is_midi=False, num_scenes=0, num_sends=0, can_be_armed=False)
-		self.scenes = tuple(Scene(self, "Scene %d" % (i + 1)) for i in range(num_scenes))
+		self.scenes = tuple(Scene(self, f"Scene {i + 1}") for i in range(num_scenes))
 		self.view.selected_track = self.tracks[0] if self.tracks else None
 		self.view.selected_scene = self.scenes[0] if self.scenes else None
 		self.view.highlighted_clip_slot = self.tracks[0].clip_slots[0] if self.tracks and self.scenes else None
@@ -585,7 +585,7 @@ class Song(_Object):
 	def create_scene(self, index):
 		scenes = list(self.scenes)
 		index = len(scenes) if index < 0 else index
-		scene = Scene(self, "Scene %d" % (len(scenes) + 1))
+		scene = Scene(self, f"Scene {len(scenes) + 1}")
 		scenes.insert(index, scene)
 		for track in self.tracks:
 			track._add_slot(index)

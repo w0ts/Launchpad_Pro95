@@ -227,7 +227,7 @@ class AudioModeComponent(ControlSurfaceComponent):
 	def set_matrix(self, matrix):
 		if not matrix or not self._layout_set:
 			self.matrix.set_control_element(matrix)
-			for index, button in enumerate(self.matrix):
+			for button in self.matrix:
 				button.color = "DefaultButton.Disabled"
 				#button.enabled = False
 			self._layout_set = bool(matrix)

@@ -35,7 +35,7 @@ def requested_keys():
 			continue
 		tree = ast.parse(open(path, encoding="utf-8").read())
 		for node in ast.walk(tree):
-			where = "%s:%d" % (os.path.basename(path), getattr(node, "lineno", 0))
+			where = f"{os.path.basename(path)}:{getattr(node, 'lineno', 0)}"
 			if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr in SKIN_KEY_CALLS:
 				single = node.func.attr == "set_on_off_values" and len(node.args) == 1
 				for key in _string_args(node):
@@ -55,10 +55,10 @@ def requested_keys():
 
 def dynamic_keys():
 	"""Keys the script builds at run time."""
-	keys = ["StepSequencer.NoteEditor.Velocity%d" % index for index in range(5)]
+	keys = [f"StepSequencer.NoteEditor.Velocity{index}" for index in range(5)]
 	# TrackControllerComponent: set_on_off_values("Mode." + skin_name).
 	for name in ("Session", "StepSequencer", "StepSequencer2"):
-		keys += ["Mode.%s.On" % name, "Mode.%s.Off" % name]
+		keys += [f"Mode.{name}.On", f"Mode.{name}.Off"]
 	return keys
 
 
@@ -82,6 +82,6 @@ def test_every_requested_skin_key_exists(rig):
 	missing = []
 	for where, key, single in requested_keys():
 		wanted = [key + ".On", key + ".Off"] if single else [key]
-		missing += ["%s %s" % (where, k) for k in wanted if not _has_key(skin, k)]
-	missing += ["dynamic %s" % k for k in dynamic_keys() if not _has_key(skin, k)]
+		missing += [f"{where} {k}" for k in wanted if not _has_key(skin, k)]
+	missing += [f"dynamic {k}" for k in dynamic_keys() if not _has_key(skin, k)]
 	assert missing == []

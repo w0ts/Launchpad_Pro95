@@ -477,20 +477,20 @@ class Modus(Scale):
 class MelodicPattern:
 
 	def __init__(self,
-	 		steps=[0, 0],
+	 		steps=None,
 			scale=range(12),
 			base_note=0,
-			origin=[0, 0],
+			origin=None,
 			valid_notes=range(128),
 			chromatic_mode=False,
 			chromatic_gtr_mode=False,
 			diatonic_ns_mode=False,
 			*a, **k):
 		super().__init__(*a, **k)
-		self.steps = steps
+		self.steps = steps if steps is not None else [0, 0]
 		self.scale = scale
 		self.base_note = base_note
-		self.origin = origin
+		self.origin = origin if origin is not None else [0, 0]
 		self.valid_notes = valid_notes
 		self.chromatic_mode = chromatic_mode
 		self.chromatic_gtr_mode = chromatic_gtr_mode

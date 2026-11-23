@@ -193,7 +193,7 @@ class Launchpad_Pro95(IdentifiableControlSurface, OptimizedControlSurface):
 	def __init__(self, c_instance, *a, **k):
 		self._copied_slot = None
 		product_id_bytes = MANUFACTURER_ID + DEVICE_CODE
-		super().__init__(c_instance=c_instance, product_id_bytes=product_id_bytes, *a, **k)
+		super().__init__(*a, c_instance=c_instance, product_id_bytes=product_id_bytes, **k)
 		#self.set_enabled(False)
 		self._challenge = Live.Application.get_random_int(0, 400000000) & 2139062143
 		live = Live.Application.get_application()

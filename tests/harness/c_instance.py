@@ -44,7 +44,7 @@ class FakeCInstance:
 		midi_bytes = tuple(midi_bytes)
 		for byte in midi_bytes:
 			if not 0 <= byte <= 255:
-				raise ValueError("Invalid MIDI byte in %r" % (midi_bytes,))
+				raise ValueError(f"Invalid MIDI byte in {midi_bytes!r}")
 		with self._lock:
 			self.sent.append(midi_bytes)
 		if self._on_midi is not None:

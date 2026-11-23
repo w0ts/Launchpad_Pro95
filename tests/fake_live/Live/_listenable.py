@@ -36,21 +36,21 @@ def add_event(cls, name):
 	def add(self, listener):
 		listeners = _listeners_of(self).listeners(name)
 		if listener in listeners:
-			raise RuntimeError("Listener already connected: %s" % name)
+			raise RuntimeError(f"Listener already connected: {name}")
 		listeners.append(listener)
 
 	def remove(self, listener):
 		listeners = _listeners_of(self).listeners(name)
 		if listener not in listeners:
-			raise RuntimeError("Listener not connected: %s" % name)
+			raise RuntimeError(f"Listener not connected: {name}")
 		listeners.remove(listener)
 
 	def has(self, listener):
 		return listener in _listeners_of(self).listeners(name)
 
-	setattr(cls, "add_%s_listener" % name, add)
-	setattr(cls, "remove_%s_listener" % name, remove)
-	setattr(cls, "%s_has_listener" % name, has)
+	setattr(cls, f"add_{name}_listener", add)
+	setattr(cls, f"remove_{name}_listener", remove)
+	setattr(cls, f"{name}_has_listener", has)
 
 
 def add_property(cls, name, default):

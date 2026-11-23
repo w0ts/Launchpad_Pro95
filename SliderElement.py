@@ -12,9 +12,12 @@ from .consts import (
 
 FADER_TYPES = (FADER_TYPE_STANDARD, FADER_TYPE_BIPOLAR)
 
+DEFAULT_SKIN = Skin()
+
+
 class SliderElement(SliderElementBase):
 
-	def __init__(self, msg_type, channel, identifier, skin = Skin(), *a, **k):
+	def __init__(self, msg_type, channel, identifier, skin = DEFAULT_SKIN, *a, **k):
 		self._skin = skin
 		self._header = None
 		self._type = FADER_TYPE_STANDARD

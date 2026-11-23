@@ -6,7 +6,7 @@ class NoteComponent(ControlSurfaceComponent):
 
 	matrix = control_matrix(PlayableControl)
 
-	def __init__(self, control_surface = None, feedback_channels = [0,1,2], non_feedback_channel = 15, get_pattern = None, *a, **k):
+	def __init__(self, control_surface = None, feedback_channels = (0, 1, 2), non_feedback_channel = 15, get_pattern = None, *a, **k):
 		self._get_pattern = get_pattern
 		self._control_surface = control_surface
 		self._layout_set = False
@@ -21,7 +21,7 @@ class NoteComponent(ControlSurfaceComponent):
 		note_channel = [0 for i in range(128)]
 
 		lala = 1
-		for index, button in enumerate(self.matrix):
+		for button in self.matrix:
 			row, col = button.coordinate
 			note_info = pattern.note(col, max_j - row)
 			if note_info.index != None and note_info.index<128:
@@ -60,7 +60,7 @@ class NoteComponent(ControlSurfaceComponent):
 	# 			self._layout_set_scene = bool(matrix)
 
 	@matrix.pressed
-	def drum_matrix(self, pad):
+	def matrix(self, pad):
 		pass
 		# selected_drum_pad = self._coordinate_to_pad_map[pad.coordinate]
 		# 		if self.mute_button.is_pressed:
@@ -84,7 +84,7 @@ class NoteComponent(ControlSurfaceComponent):
 		# 			self._update_led_feedback()
 
 	@matrix.released
-	def drum_matrix(self, pad):
+	def matrix(self, pad):
 		pass
 		# selected_drum_pad = self._coordinate_to_pad_map[pad.coordinate]
 		# if selected_drum_pad in self._selected_pads:

@@ -12,8 +12,8 @@ def device_song():
 	song = make_song()
 	for index in (0, 1):
 		track = song.tracks[index]
-		devices = (Live.Device.Device(name="Synth%d" % index, class_name="TestSynth", num_parameters=16),
-			Live.Device.Device(name="Fx%d" % index, class_name="TestFx", num_parameters=8))
+		devices = (Live.Device.Device(name=f"Synth{index}", class_name="TestSynth", num_parameters=16),
+			Live.Device.Device(name=f"Fx{index}", class_name="TestFx", num_parameters=8))
 		track.devices = devices
 		for device in devices:
 			device.canonical_parent = track

@@ -21,6 +21,6 @@ def test_no_identity_comparison_with_literals():
 		with warnings.catch_warnings(record=True) as caught:
 			warnings.simplefilter("always")
 			compile(text, path, "exec")
-		offenders += ["%s: %s" % (os.path.basename(path), w.message) for w in caught
+		offenders += [f"{os.path.basename(path)}: {w.message}" for w in caught
 			if issubclass(w.category, SyntaxWarning)]
 	assert offenders == []
