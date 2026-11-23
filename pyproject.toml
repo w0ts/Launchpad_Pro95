@@ -17,7 +17,7 @@ ignore = [
 	# "x != None" must stay: a Live object whose C++ object was deleted compares equal to
 	# None, which "x is not None" does not see.
 	"E711",
-	# black owns the line length; what it leaves long is comments (mostly commented-out code).
+	# black owns the line length; after it only 26 long comments (mostly commented-out code) remain.
 	"E501",
 ]
 
