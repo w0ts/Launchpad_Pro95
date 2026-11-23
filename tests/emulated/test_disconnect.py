@@ -110,3 +110,66 @@ def test_step_sequencers_leave_no_listener(make_rig, taps):
 def test_every_mode_leaves_no_listener(make_rig, taps):
     leaks = _run(make_rig, taps)
     assert leaks == [], "\n".join(map(str, leaks))
+
+
+def _sequencer_rig(make_rig, user_taps):
+    """A rig in the drum sequencer (one user tap) or the melodic sequencer (two)."""
+    rig = make_rig(song=make_song(clips=[(0, 0)]))
+    for _ in range(user_taps):
+        rig.tap_top(TOP["user"])
+        rig.tick()
+    return rig
+
+
+def test_every_component_runs_the_base_disconnect(make_rig, monkeypatch):
+    """A component's disconnect must reach ControlSurfaceComponent.disconnect (it releases the
+    component's slots, listeners and tasks)."""
+    from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
+
+    rig = _sequencer_rig(make_rig, 2)
+    components = list(rig.surface.components)
+    reached = set()
+    base_disconnect = ControlSurfaceComponent.disconnect
+
+    def recording_disconnect(self):
+        reached.add(id(self))
+        base_disconnect(self)
+
+    monkeypatch.setattr(ControlSurfaceComponent, "disconnect", recording_disconnect)
+    rig.disconnect()
+    skipped = [type(c).__name__ for c in components if id(c) not in reached]
+    assert skipped == []
+
+
+@pytest.mark.parametrize("melodic", [False, True], ids=["drum seq", "melodic seq"])
+def test_note_editor_disconnect_releases_its_controls(make_rig, melodic):
+    rig = _sequencer_rig(make_rig, 2 if melodic else 1)
+    surface = rig.surface
+    editor = (surface._step_sequencer2 if melodic else surface._step_sequencer)._note_editor
+    names = [("_matrix", "_matrix_value")]
+    if melodic:
+        names += [
+            ("_random_button", "_random_button_value"),
+            ("_mode_notes_pitches_button", "_mode_button_notes_pitches_value"),
+        ]
+    else:
+        names += [("_velocity_button", "_velocity_value")]
+    pairs = [(getattr(editor, attr), getattr(editor, method)) for attr, method in names]
+    assert all(element.value_has_listener(listener) for element, listener in pairs)
+    # the editor alone: disconnecting the surface would also disconnect the controls
+    editor.disconnect()
+    still = [listener.__qualname__ for element, listener in pairs if element.value_has_listener(listener)]
+    assert still == []
+
+
+def test_scale_editor_gives_the_matrix_back(make_rig):
+    rig = _sequencer_rig(make_rig, 1)
+    scale = rig.surface._step_sequencer._scale_component
+    rig.press_side(0)  # scale editor: the scale component takes the matrix
+    rig.tick()
+    matrix = scale._matrix
+    assert matrix.value_has_listener(scale._matrix_pressed)
+    rig.release_side(0)  # back to the sequencer
+    rig.tick()
+    assert scale._matrix is None
+    assert not matrix.value_has_listener(scale._matrix_pressed)

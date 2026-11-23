@@ -80,9 +80,10 @@ class NoteEditorComponent(GridBufferMixin, ControlSurfaceComponent):
             self.set_matrix(matrix)
 
     def disconnect(self):
-        self._matrix = None
-        self._velocity_button = None
+        self.set_matrix(None)
+        self.set_velocity_button(None)
         self._clip = None
+        super().disconnect()
 
     @property
     def is_multinote(self):

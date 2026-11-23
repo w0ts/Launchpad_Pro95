@@ -71,16 +71,18 @@ class MelodicNoteEditorComponent(MelodicPageButtonsMixin, GridBufferMixin, Contr
 
     def disconnect(self):
         self._step_sequencer = None
-        self._matrix = None
-        self._mode_notes_lengths_button = None
-        self._mode_notes_octaves_button = None
-        self._mode_notes_velocities_button = None
-        self._mode_notes_pitches_button = None
+        self.set_matrix(None)
+        self.set_random_button(None)
+        self.set_mode_notes_lengths_button(None)
+        self.set_mode_notes_octaves_button(None)
+        self.set_mode_notes_velocities_button(None)
+        self.set_mode_notes_pitches_button(None)
         self._notes_pitches = None
         self._notes_velocities = None
         self._notes_octaves = None
         self._notes_lengths = None
         self._clip = None
+        super().disconnect()
 
     def _init_data(self):
         self._notes_pitches = [0] * (LANES * MIN_STEPS)

@@ -145,12 +145,10 @@ class ScaleComponent(ControlSurfaceComponent):
                 )
 
     def set_matrix(self, matrix):
-        self._matrix = matrix
         if matrix:
             matrix.reset()
-        if matrix != self._matrix:
-            if self._matrix != None:
-                self._matrix.remove_value_listener(self._matrix_pressed)
+        if matrix != self._matrix and self._matrix != None:
+            self._matrix.remove_value_listener(self._matrix_pressed)
         self._matrix = matrix
         if self._matrix != None:
             self._matrix.add_value_listener(self._matrix_pressed)

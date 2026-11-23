@@ -107,7 +107,6 @@ class DeviceComponent(LiveDeviceComponent):
 
     def disconnect(self):
         self.song().remove_appointed_device_listener(self._on_device_changed)
-        # LiveDeviceComponent.disconnect(self)
         self._prev_track_button = None
         self._next_track_button = None
         self._prev_device_button = None
@@ -118,6 +117,7 @@ class DeviceComponent(LiveDeviceComponent):
         self._precision_mode = None
         self._remaining_buttons = None
         self._device = None
+        super().disconnect()
 
     @property
     def _locked_to_device2(self):
