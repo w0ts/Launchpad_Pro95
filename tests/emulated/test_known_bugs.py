@@ -52,8 +52,6 @@ def test_mute_shift_edit_does_not_duplicate_the_note(make_rig):
 	assert len(notes) == 1 and notes[0][4] is True
 
 
-@pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent.on_clip_slot_changed removes the has_clip "
-	"listener from the new clip slot instead of the old one, so every visited slot keeps calling the sequencer")
 def test_switching_slots_releases_the_old_slot_listener(make_rig):
 	rig = _drum_seq(make_rig)
 	old_slot = rig.song.tracks[0].clip_slots[0]
@@ -63,9 +61,6 @@ def test_switching_slots_releases_the_old_slot_listener(make_rig):
 	assert not old_slot.has_clip_has_listener(seq.on_clip_slot_has_clip_changed)
 
 
-@pytest.mark.xfail(strict=True, reason="bug: LoopSelectorComponent.set_clip_loop sets loop_end first when the new "
-	"start is past the old end; the loop listener re-reads the old loop_start into self._loop_start, which is then "
-	"written back, so the loop keeps its old start")
 def test_loop_selector_sets_a_loop_after_the_current_one(make_rig):
 	rig = _drum_seq(make_rig)
 	q = rig.surface._step_sequencer._quantization
@@ -219,3 +214,21 @@ def test_note_selector_selects_low_notes(make_rig, note):
 	selector.set_key(5)
 	selector.set_selected_note(note)
 	assert selector._root_note + selector._offset == note
+
+
+def test_extending_the_loop_copies_the_loop_not_the_clip_start(make_rig):
+	rig = _drum_seq(make_rig)
+	c = _clip(rig)
+	c.loop_start = 2.0
+	c.add_new_notes((Live.Clip.MidiNoteSpecification(pitch=36, start_time=2.0, duration=0.25, velocity=100, mute=False),
+		Live.Clip.MidiNoteSpecification(pitch=40, start_time=0.5, duration=0.25, velocity=100, mute=False)))
+	rig.tick()
+	rig.press_side(VELOCITY)  # held: the new blocks get a copy of the loop
+	rig.press(5, 4)  # block 1 (beats 2-4): the loop
+	rig.press(6, 4)  # block 2 (beats 4-6)
+	rig.release(6, 4)
+	rig.release(5, 4)
+	rig.release_side(VELOCITY)
+	assert (c.loop_start, c.loop_end) == (2.0, 6.0)
+	assert (36, 4.0) in [(n[0], n[1]) for n in c.note_tuples()]
+	assert all(n[1] < 4.0 for n in c.note_tuples() if n[0] == 40)

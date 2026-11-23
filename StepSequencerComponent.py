@@ -511,18 +511,21 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 
 	def set_clip_loop(self, start, end):
 		if self._clip != None:
-			self._loop_end = end
-			self._loop_start = start
-			if self._loop_start >= self._clip.loop_end:
-				self._clip.loop_end = self._loop_end
-				self._clip.loop_start = self._loop_start
-				self._clip.end_marker = self._loop_end
-				self._clip.start_marker = self._loop_start
+			# start and end are locals: the clip's loop listeners may call update(),
+			# which reads the clip loop back into self._loop_start / self._loop_end.
+			# The order keeps start < end at every step.
+			if start >= self._clip.loop_end:
+				self._clip.loop_end = end
+				self._clip.loop_start = start
+				self._clip.end_marker = end
+				self._clip.start_marker = start
 			else:
-				self._clip.loop_start = self._loop_start
-				self._clip.loop_end = self._loop_end
-				self._clip.start_marker = self._loop_start
-				self._clip.end_marker = self._loop_end
+				self._clip.loop_start = start
+				self._clip.loop_end = end
+				self._clip.start_marker = start
+				self._clip.end_marker = end
+			self._loop_start = start
+			self._loop_end = end
 			self.update()
 
 	def _loop_button_value(self, value, sender):
@@ -560,7 +563,7 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 								self._delete_notes_in_range(start * self._blocksize * self._quantization, end * self._blocksize * self._quantization)
 						else:
 							if self._is_velocity_shifted:
-								self._extend_clip_content(start * self._blocksize * self._quantization, self._loop_end, end * self._blocksize * self._quantization)
+								self._extend_clip_content(self._loop_start, self._loop_end, end * self._blocksize * self._quantization)
 							self.set_clip_loop(start * self._blocksize * self._quantization, end * self._blocksize * self._quantization)
 
 					self._stepsequencer.set_page(self._block)
@@ -630,18 +633,20 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 			self._force = False
 
 	def _extend_clip_content(self, loop_start, old_loop_end, new_loop_end):
-		if(self._no_notes_in_range(old_loop_end, new_loop_end, True)):
+		# positions inside the loop are relative to loop_start
+		loop_length = old_loop_end - loop_start
+		if loop_length > 0 and self._no_notes_in_range(old_loop_end, new_loop_end, True):
 			clip_looping_length = 0
-			if(old_loop_end > 1):
+			if(loop_length > 1):
 				power = 1
-				while(power * 2 < old_loop_end):
+				while(power * 2 < loop_length):
 					power *= 2
 				clip_looping_length = (power)
 			clone_length = new_loop_end - old_loop_end
 			if(clip_looping_length > 0):
-				clone_start_point = (old_loop_end % clip_looping_length)
+				clone_start_point = loop_start + (loop_length % clip_looping_length)
 			else:
-				clone_start_point = 0
+				clone_start_point = loop_start
 			self._copy_notes_in_range(clone_start_point, clone_start_point + clone_length, old_loop_end)
 
 	def _no_notes_in_range(self, start, end, or_after):
@@ -668,8 +673,7 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 
 	def _copy_notes_in_range(self, start, end, new_start):
 		new_notes = list(self._note_cache)
-		# for i in range()
-		for note in new_notes:
+		for note in self._note_cache:
 			if note[1] >= start and note[1] < end:
 				new_notes.append([note[0], note[1] + new_start - start, note[2], note[3], note[4]])
 		write_all_notes(self._clip, new_notes)
@@ -1181,8 +1185,8 @@ class StepSequencerComponent(CompoundComponent):
 		# update clip slot
 		if clip_slot != self._clip_slot or self._clip_slot == None:
 			# self._control_surface.log_message("update clip_slot")
-			if clip_slot != None and clip_slot.has_clip_has_listener(self.on_clip_slot_has_clip_changed):
-				clip_slot.remove_has_clip_listener(self.on_clip_slot_has_clip_changed)
+			if self._clip_slot != None and self._clip_slot.has_clip_has_listener(self.on_clip_slot_has_clip_changed):
+				self._clip_slot.remove_has_clip_listener(self.on_clip_slot_has_clip_changed)
 			self._clip_slot = clip_slot
 			if self._clip_slot != None:
 				if self._clip_slot.has_clip_has_listener(self.on_clip_slot_has_clip_changed):
