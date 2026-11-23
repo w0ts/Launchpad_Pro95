@@ -1,5 +1,4 @@
-"""Known bugs of the script, not fixed yet (strict xfail: a fix makes the test pass, which
-fails the run until the mark is removed). Each reason says where the bug is."""
+"""Regression tests for bugs fixed in the script (most were strict xfails first: see git log)."""
 import Live
 import pytest
 
@@ -237,3 +236,32 @@ def test_disabling_a_disabled_track_controller_keeps_the_implicit_arm(make_rig):
 	track.implicit_arm = True  # e.g. set by note mode
 	controller.set_enabled(False)
 	assert track.implicit_arm
+
+
+@pytest.mark.parametrize("held", [None, "delete", "duplicate", "quantize", "double", "shift", "click", "undo", "record"])
+def test_session_pads_past_the_last_track_and_scene(make_rig, held):
+	from harness.rig import LEFT
+
+	rig = make_rig(song=make_song(clips=[(0, 0)], num_tracks=3, num_scenes=3))
+	if held:
+		rig.press_left(LEFT[held])
+	for x, y in ((7, 0), (0, 7), (7, 7)):
+		rig.tap(x, y)
+	if held:
+		rig.release_left(LEFT[held])
+	rig.tick()
+
+
+@pytest.mark.parametrize("mode", ["record_arm", "track_select", "mute", "solo", "volume", "pan", "sends", "stop_clip"])
+def test_mixer_pads_past_the_last_track(make_rig, mode):
+	from harness.rig import BOTTOM
+
+	rig = make_rig(song=make_song(num_tracks=3, num_scenes=3))
+	rig.tap_bottom(BOTTOM[mode])
+	rig.tick()
+	for x in (3, 7):
+		for y in (0, 7):
+			rig.tap(x, y)
+	rig.tap_side(0)
+	rig.tap_side(7)
+	rig.tick()

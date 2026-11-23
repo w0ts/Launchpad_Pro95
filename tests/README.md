@@ -57,13 +57,14 @@ The `Live` module is always the fake one in `tests/fake_live/Live`.
   provides the fixtures `rig` (a booted surface), `make_rig`, `model` and `clock`.
 - `unit/`: no Live needed (ClipNotes, source checks).
 - `emulated/`: boot and handshake, modes, session, mixer, device, instrument and drums,
-  both step sequencers, ClipNotes on the fake clip, disconnect, known bugs.
+  both step sequencers, ClipNotes on the fake clip, disconnect, skins, regressions of fixed bugs.
 
 ## Known bugs
 
 Tests marked `xfail(strict=True, reason="bug: ...")` describe bugs in the script that are
-not fixed yet (most are in `emulated/test_known_bugs.py`). When a fix lands, the test
-passes, strict xfail turns that into a failure, and the mark must be removed.
+not fixed yet. When a fix lands, the test passes, strict xfail turns that into a failure,
+and the mark must be removed; the test then moves to `emulated/test_regressions.py` or its
+feature's test file. There are none at the moment.
 
 ## Writing tests
 
