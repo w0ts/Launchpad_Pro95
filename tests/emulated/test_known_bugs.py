@@ -32,26 +32,24 @@ def _add(clip, pitch, start, duration=0.25, velocity=100):
 		velocity=velocity, mute=False),))
 
 
-@pytest.mark.xfail(strict=True, reason="bug: NoteEditorComponent._matrix_value_message (velocity shift) appends "
-	"the note with its new velocity without removing the old one, so the clip gets a duplicate note")
 def test_velocity_shift_edit_does_not_duplicate_the_note(make_rig):
 	rig = _drum_seq(make_rig)
 	rig.tap(0, 0)
 	rig.press_side(VELOCITY)
 	rig.tap(0, 0)
 	rig.release_side(VELOCITY)
-	assert len(_clip(rig).note_tuples()) == 1
+	notes = _clip(rig).note_tuples()
+	assert len(notes) == 1 and notes[0][3] != 80  # the velocity changed (80: the default)
 
 
-@pytest.mark.xfail(strict=True, reason="bug: NoteEditorComponent._matrix_value_message (mute shift) appends the "
-	"muted copy without removing the note, so the clip gets a duplicate note")
 def test_mute_shift_edit_does_not_duplicate_the_note(make_rig):
 	rig = _drum_seq(make_rig)
 	rig.tap(0, 0)
 	rig.press_side(MUTE_SHIFT)
 	rig.tap(0, 0)
 	rig.release_side(MUTE_SHIFT)
-	assert len(_clip(rig).note_tuples()) == 1
+	notes = _clip(rig).note_tuples()
+	assert len(notes) == 1 and notes[0][4] is True
 
 
 @pytest.mark.xfail(strict=True, reason="bug: StepSequencerComponent.on_clip_slot_changed removes the has_clip "

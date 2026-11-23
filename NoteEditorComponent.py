@@ -374,11 +374,13 @@ class NoteEditorComponent(ControlSurfaceComponent):
 							for index in range(len(self.velocity_map)):
 								if note[3] >= self.velocity_map[index]:
 									new_velocity_index = (index + 1) % len(self.velocity_map)
+							note_cache.remove(note)
 							note_cache.append([note[0], note[1], note[2], self.velocity_map[new_velocity_index], note[4]])  # (pitch, time, duration, velocity, mute state)
 						elif not self._is_mute_shifted:
 							note_cache.remove(note)
 						else:
 							# mute / un mute note.
+							note_cache.remove(note)
 							note_cache.append([note[0], note[1], note[2], note[3], not note[4]])  # (pitch, time, duration, velocity, mute state)
 						break
 				else:
