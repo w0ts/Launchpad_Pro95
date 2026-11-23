@@ -649,7 +649,6 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 class StepSequencerComponent(CompoundComponent):
 
 	def __init__(self, control_surface = None, matrix = None, side_buttons = None, top_buttons = None):
-		self._osd = None
 		self._control_surface = control_surface
 		super(StepSequencerComponent, self).__init__()
 		
@@ -858,71 +857,6 @@ class StepSequencerComponent(CompoundComponent):
 
 
 	
-	def set_osd(self, osd):
-		self._osd = osd
-		self._scale_selector.set_osd(osd)
-
-	def _update_OSD(self):
-		if self._osd != None:
-			if self._mode == STEPSEQ_MODE_MULTINOTE:
-				self._osd.set_mode('Drum Step Sequencer (multinote)')
-			else:
-				self._osd.set_mode('Drum Step Sequencer')
-
-			if self._clip != None:
-				self._osd.attributes[0] = MUSICAL_MODES[self._scale_selector._modus * 2]
-				self._osd.attribute_names[0] = "Scale"
-				self._osd.attributes[1] = KEY_NAMES[self._scale_selector._key % 12]
-				self._osd.attribute_names[1] = "Root Note"
-				self._osd.attributes[2] = self._scale_selector._octave
-				self._osd.attribute_names[2] = "Octave"
-				self._osd.attributes[3] = QUANTIZATION_NAMES[self._quantization_index]
-				self._osd.attribute_names[3] = "Quantisation"
-				self._osd.attributes[4] = " "
-				self._osd.attribute_names[4] = " "
-				self._osd.attributes[5] = " "
-				self._osd.attribute_names[5] = " "
-				self._osd.attributes[6] = " "
-				self._osd.attribute_names[6] = " "
-				self._osd.attributes[7] = " "
-				self._osd.attribute_names[7] = " "
-			else:
-				self._osd.attributes[0] = " "
-				self._osd.attribute_names[0] = " "
-				self._osd.attributes[1] = " "
-				self._osd.attribute_names[1] = " "
-				self._osd.attributes[2] = " "
-				self._osd.attribute_names[2] = " "
-				self._osd.attributes[3] = " "
-				self._osd.attribute_names[3] = " "
-				self._osd.attributes[4] = " "
-				self._osd.attribute_names[4] = " "
-				self._osd.attributes[5] = " "
-				self._osd.attribute_names[5] = " "
-				self._osd.attributes[6] = " "
-				self._osd.attribute_names[6] = " "
-				self._osd.attributes[7] = " "
-				self._osd.attribute_names[7] = " "
-
-			if self._selected_track != None:
-				if self._lock_to_track and self._is_locked:
-					self._osd.info[0] = "track : " + self._selected_track.name + " (locked)"
-				else:
-					self._osd.info[0] = "track : " + self._selected_track.name
-			else:
-				self._osd.info[0] = " "
-			if self._clip != None:
-				name = self._clip.name
-				if name == "":
-					name = "(unamed clip)"
-				if not self._lock_to_track and self._is_locked:
-					self._osd.info[1] = "clip : " + name + " (locked)"
-				else:
-					self._osd.info[1] = "clip : " + name
-			else:
-				self._osd.info[1] = "no clip selected"
-			self._osd.update()
-			
 # enabled
 	def set_enabled(self, enabled):
 		#self._control_surface.log_message("stepseq.set_enabled:"+str(enabled))
@@ -958,7 +892,6 @@ class StepSequencerComponent(CompoundComponent):
 			if self._clip != None and self._is_locked:
 				self._control_surface.show_message("stepseq : clip '"+str(self._clip.name)+"'")
 			self._on_notes_changed()
-			self._update_OSD()
 
 		else:
 			CompoundComponent.set_enabled(self, enabled)
@@ -1043,7 +976,6 @@ class StepSequencerComponent(CompoundComponent):
 			self._update_note_selector()
 			self._update_buttons()
 			self._update_note_editor()
-			self._update_OSD()
 			# show clip !
 			if not self._is_locked and self._clip != None:
 				if ((not self.application().view.is_view_visible('Detail')) or (not self.application().view.is_view_visible('Detail/Clip'))):
@@ -1385,12 +1317,8 @@ class StepSequencerComponent(CompoundComponent):
 					self._mode_button.set_on_off_values("StepSequencer.Mode.On", "StepSequencer.Mode.On")
 					if self._mode == STEPSEQ_MODE_MULTINOTE:
 						self._mode_button.turn_on()
-						if self._osd != None:
-							self._osd.update()
 					else:
 						self._mode_button.turn_off()
-						if self._osd != None:
-							self._osd.update()
 				else:
 					self._mode_button.set_on_off_values("DefaultButton.Disabled", "DefaultButton.Disabled")
 					self._mode_button.turn_off()
@@ -1468,7 +1396,6 @@ class StepSequencerComponent(CompoundComponent):
 			self._note_selector.update()
 		if self._note_editor != None:
 			self._update_note_editor()
-		self._update_OSD()
 		
 # LOCK Button
 
@@ -1519,7 +1446,6 @@ class StepSequencerComponent(CompoundComponent):
 					if self._is_locked:
 						self._control_surface.show_message("stepseq : locked to clip '"+str(self._clip.name)+"'")
 					self._update_lock_button()
-					self._update_OSD()
 
 
 # UTILS

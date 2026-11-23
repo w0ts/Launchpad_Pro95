@@ -594,12 +594,10 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 				if time.time() - self._last_notes_pitches_button_press < 0.500:
 					self._is_monophonic = not self._is_monophonic
 					self._update_clip_notes()
-					self._step_sequencer._update_OSD()
 				else:
 					self.set_mode(STEPSEQ_MODE_NOTES)
 					self._control_surface.show_message("pitch")
 					self.update()
-					self._step_sequencer._update_OSD()
 				self._last_notes_pitches_button_press = time.time()
 			else:
 				self._is_notes_pitches_shifted = True
@@ -639,7 +637,6 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 				self.set_mode(STEPSEQ_MODE_NOTES_OCTAVES)
 				self._control_surface.show_message("octave")
 				self.update()
-				self._step_sequencer._update_OSD()
 			else:
 				self._is_notes_octaves_shifted = True
 
@@ -676,7 +673,6 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 				self.set_mode(STEPSEQ_MODE_NOTES_VELOCITIES)
 				self._control_surface.show_message("velocity")
 				self.update()
-				self._step_sequencer._update_OSD()
 			else:
 				self._is_mute_shifted = True
 				self._is_notes_velocities_shifted = True
@@ -715,7 +711,6 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 				self.set_mode(STEPSEQ_MODE_NOTES_LENGTHS)
 				self.update()
 				self._control_surface.show_message("length")
-				self._step_sequencer._update_OSD()
 			else:
 				self._is_notes_lengths_shifted = True
 
@@ -770,75 +765,6 @@ class StepSequencerComponent2(StepSequencerComponent):
 		self._update_quantization_button()
 		self._update_lock_button()
 		self._update_scale_button()
-
-	def _update_OSD(self):
-		if self._osd != None:
-			self._osd.set_mode('Melodic Step Sequencer')
-			if self._clip != None:
-				self._osd.attributes[0] = MUSICAL_MODES[self._scale_selector._modus * 2]
-				self._osd.attribute_names[0] = "Scale"
-				self._osd.attributes[1] = KEY_NAMES[self._scale_selector._key % 12]
-				self._osd.attribute_names[1] = "Root Note"
-				self._osd.attributes[2] = self._scale_selector._octave
-				self._osd.attribute_names[2] = "Octave"
-				self._osd.attributes[3] = QUANTIZATION_NAMES[self._quantization_index]
-				self._osd.attribute_names[3] = "Quantisation"
-				if self._note_editor._is_monophonic:
-					self._osd.attributes[4] = "Mono"
-				else:
-					self._osd.attributes[4] = "Poly"
-				self._osd.attribute_names[4] = "Polyphony"
-
-				self._osd.attribute_names[5] = "Page"
-				if self._note_editor._mode == STEPSEQ_MODE_NOTES:
-					self._osd.attributes[5] = "Notes"
-				elif self._note_editor._mode == STEPSEQ_MODE_NOTES_OCTAVES:
-					self._osd.attributes[5] = "Octave"
-				elif self._note_editor._mode == STEPSEQ_MODE_NOTES_VELOCITIES:
-					self._osd.attributes[5] = "Velocity"
-				elif self._note_editor._mode == STEPSEQ_MODE_NOTES_LENGTHS:
-					self._osd.attributes[5] = "Length"
-
-				self._osd.attributes[6] = " "
-				self._osd.attribute_names[6] = " "
-				self._osd.attributes[7] = " "
-				self._osd.attribute_names[7] = " "
-			else:
-				self._osd.attributes[0] = " "
-				self._osd.attribute_names[0] = " "
-				self._osd.attributes[1] = " "
-				self._osd.attribute_names[1] = " "
-				self._osd.attributes[2] = " "
-				self._osd.attribute_names[2] = " "
-				self._osd.attributes[3] = " "
-				self._osd.attribute_names[3] = " "
-				self._osd.attributes[4] = " "
-				self._osd.attribute_names[4] = " "
-				self._osd.attributes[5] = " "
-				self._osd.attribute_names[5] = " "
-				self._osd.attributes[6] = " "
-				self._osd.attribute_names[6] = " "
-				self._osd.attributes[7] = " "
-				self._osd.attribute_names[7] = " "
-
-			if self._selected_track != None:
-				if self._lock_to_track and self._is_locked:
-					self._osd.info[0] = "track : " + self._selected_track.name + " (locked)"
-				else:
-					self._osd.info[0] = "track : " + self._selected_track.name
-			else:
-				self._osd.info[0] = " "
-			if self._clip != None:
-				name = self._clip.name
-				if name == "":
-					name = "(unamed clip)"
-				if not self._lock_to_track and self._is_locked:
-					self._osd.info[1] = "clip : " + name + " (locked)"
-				else:
-					self._osd.info[1] = "clip : " + name
-			else:
-				self._osd.info[1] = "no clip selected"
-			self._osd.update()
 
 	def _update_mode_button(self):
 		if self.is_enabled():

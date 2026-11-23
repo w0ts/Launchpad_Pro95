@@ -48,7 +48,6 @@ class ScaleComponent(ControlSurfaceComponent):
 		self._modus_list = [Modus(MUSICAL_MODES[v], MUSICAL_MODES[v + 1]) for v in range(0, len(MUSICAL_MODES), 2)]
 		self._modus_names = [MUSICAL_MODES[v] for v in range(0, len(MUSICAL_MODES), 2)]
 		self._control_surface = control_surface
-		self._osd = None
 		self._modus = 0
 		self._key = 0
 		self._octave = 3 
@@ -125,34 +124,10 @@ class ScaleComponent(ControlSurfaceComponent):
 
 
 	
-	def set_osd(self, osd):
-		self._osd = osd
-
-	def _update_OSD(self):
-		if self._osd != None:
-			self._osd.attributes[0] = ""
-			self._osd.attribute_names[0] = ""
-			self._osd.attributes[1] = MUSICAL_MODES[self._modus * 2]
-			self._osd.attribute_names[1] = "Scale"
-			self._osd.attributes[2] = KEY_NAMES[self._key % 12]
-			self._osd.attribute_names[2] = "Root Note"
-			self._osd.attributes[3] = self._octave
-			self._osd.attribute_names[3] = "Octave"
-			self._osd.attributes[4] = " "
-			self._osd.attribute_names[4] = " "
-			self._osd.attributes[5] = " "
-			self._osd.attribute_names[5] = " "
-			self._osd.attributes[6] = " "
-			self._osd.attribute_names[6] = " "
-			self._osd.attributes[7] = " "
-			self._osd.attribute_names[7] = " "
-			self._osd.update()
-			
 	def update(self):
 		if self.is_enabled() and self._matrix!=None:
 			#self._control_surface.log_message("update scale: "+str(self._matrix))
 			super(ScaleComponent, self).update()
-			self._update_OSD()
 			#for index, button in enumerate(self._matrix):
 			for button, (col, row) in self._matrix.iterbuttons():
 				#row, col = button.coordinate
