@@ -10,6 +10,7 @@ except ImportError:
     # Python 3...
     imap=map
 from .NoteEditorComponent import NoteEditorComponent
+from .ClipNotes import read_all_notes, write_all_notes
 from .ScaleComponent import * 
 from .TrackControllerComponent import TrackControllerComponent
 import time
@@ -654,8 +655,7 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 		for note in list(self._note_cache):
 			if note[1] < start or note[1] >= end:
 				new_notes.append(note)
-		self._clip.select_all_notes()
-		self._clip.replace_selected_notes(tuple(new_notes))
+		write_all_notes(self._clip, new_notes)
 
 	def _mute_notes_in_range(self, start, end):
 		new_notes = list()
@@ -664,8 +664,7 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 				new_notes.append(note)
 			else:
 				new_notes.append([note[0], note[1], note[2], note[3], not note[4]])
-		self._clip.select_all_notes()
-		self._clip.replace_selected_notes(tuple(new_notes))
+		write_all_notes(self._clip, new_notes)
 
 	def _copy_notes_in_range(self, start, end, new_start):
 		new_notes = list(self._note_cache)
@@ -673,8 +672,7 @@ class LoopSelectorComponent(ControlSurfaceComponent):
 		for note in new_notes:
 			if note[1] >= start and note[1] < end:
 				new_notes.append([note[0], note[1] + new_start - start, note[2], note[3], note[4]])
-		self._clip.select_all_notes()
-		self._clip.replace_selected_notes(tuple(new_notes))
+		write_all_notes(self._clip, new_notes)
 
 
 class StepSequencerComponent(CompoundComponent):
@@ -1270,9 +1268,7 @@ class StepSequencerComponent(CompoundComponent):
 			if self._clip == None:
 				note_cache = []
 			else:
-				self._clip.select_all_notes()
-				note_cache = self._clip.get_selected_notes()
-				self._clip.deselect_all_notes()
+				note_cache = read_all_notes(self._clip)
 
 			# update if needed
 			if note_cache != self._note_cache:

@@ -5,6 +5,7 @@ from _Framework.ButtonMatrixElement import ButtonMatrixElement
 from .StepSequencerComponent import *  # noqa
 from .ScaleComponent import *  # noqa
 from .TrackControllerComponent import TrackControllerComponent
+from .ClipNotes import write_all_notes
 from random import randrange
 import time
 
@@ -225,18 +226,13 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 						pitch = self._key_indexes[note_index] + 12 * (self._notes_octaves[x] - 2)
 						if(pitch >= 0 and pitch < 128 and velocity >= 0 and velocity < 128 and length >= 0):
 							note_cache.append([pitch, time, length, velocity, False])
-			self._clip.select_all_notes()
-			self._clip.replace_selected_notes(tuple(note_cache))	
+			write_all_notes(self._clip, note_cache)
 			#self._control_surface.schedule_message(1, self._sch_update, ([self._clip,tuple(note_cache)]))
 
 	def _sch_update(self, data):
 			clip = data[0]
 			note_cache = data[1]
-			clip.select_all_notes()
-			if(note_cache == None):
-				clip.replace_selected_notes(tuple())
-			else:
-				clip.replace_selected_notes(note_cache)
+			write_all_notes(clip, note_cache or ())
 				
 	def update(self, force=False):
 		if force:
