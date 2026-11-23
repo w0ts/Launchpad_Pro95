@@ -92,8 +92,6 @@ def test_reentering_the_melodic_sequencer_keeps_its_quantization(make_rig):
 	assert (rig.surface._step_sequencer2._quantization, _clip(rig).loop_end) == before
 
 
-@pytest.mark.xfail(strict=True, reason="bug: MelodicNoteEditorComponent._update_clip_notes multiplies the length by "
-	"int(self._quantization / 4.0), which is 0 for every quantization the sequencer offers, so notes have no length")
 def test_melodic_notes_have_a_length(make_rig):
 	rig = _melodic_seq(make_rig)
 	rig.tap(0, 6)
@@ -114,8 +112,6 @@ def test_melodic_degrees_follow_the_major_scale(make_rig):
 	assert [k - root for k in keys] == [0, 2, 4, 5, 7, 9, 11]
 
 
-@pytest.mark.xfail(strict=True, raises=IndexError, reason="bug: MelodicNoteEditorComponent keeps fixed 128-step "
-	"lists (_init_data pages = 128, _parse_notes first_note = [True] * 128): a note past step 128 raises IndexError")
 def test_melodic_sequencer_reads_long_clips(make_rig):
 	rig = _melodic_seq(make_rig)
 	clip = _clip(rig)
@@ -154,8 +150,6 @@ def test_entering_and_leaving_the_sequencers_never_changes_the_clip(make_rig):
 	rig.tick()
 	assert (clip.note_tuples(), clip.loop_start, clip.loop_end) == before
 
-@pytest.mark.xfail(strict=True, reason="bug: the melodic step sequencer drops notes before time 0: its step lists cannot hold them "
-	"(_parse_notes indexes them from the end) and _update_clip_notes rewrites the whole clip from the steps")
 def test_melodic_edit_keeps_notes_before_zero(make_rig):
 	song = make_song(clips=[(0, 0)])
 	clip = song.tracks[0].clip_slots[0].clip

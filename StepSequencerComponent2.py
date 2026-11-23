@@ -16,6 +16,10 @@ STEPSEQ_MODE_NOTES_LENGTHS = 4
 
 LONG_BUTTON_PRESS = 1.0
 
+LANES = 7  # scale degrees shown, one per row
+OCTAVES = 7  # octave index 0..6 = octave offset -2..+4
+MIN_STEPS = 128  # the step lists grow past this when the clip needs more
+
 # TODO :
 # extend / clear region (possible via drum step seq for now)
 # not even clip lengths (using shift notes ?)
@@ -99,11 +103,26 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 		self._clip = None
 
 	def _init_data(self):
-		pages = 128
-		self._notes_pitches = [0] * (7 * pages)
-		self._notes_velocities = [4] * pages
-		self._notes_octaves = [2] * pages
-		self._notes_lengths = [3] * pages
+		self._notes_pitches = [0] * (LANES * MIN_STEPS)
+		self._notes_velocities = [4] * MIN_STEPS
+		self._notes_octaves = [2] * MIN_STEPS
+		self._notes_lengths = [3] * MIN_STEPS
+		# Notes of the clip that light a pad, by step; notes the grid cannot show (muted,
+		# extra notes in mono mode, before time 0, off the scale lanes or octaves) are kept untouched.
+		self._shown_notes = {}
+		self._kept_notes = []
+		# What the grid gave, by step, when the clip was last read or written: a step whose
+		# grid notes did not change keeps the clip's own notes.
+		self._grid_steps = {}
+
+	def _ensure_steps(self, count):
+		"""Grow the per-step lists so that steps 0..count-1 exist."""
+		missing = count - len(self._notes_velocities)
+		if missing > 0:
+			self._notes_pitches.extend([0] * (LANES * missing))
+			self._notes_velocities.extend([4] * missing)
+			self._notes_octaves.extend([2] * missing)
+			self._notes_lengths.extend([3] * missing)
 
 	def set_mode(self, mode):
 		self._mode = mode
@@ -114,6 +133,8 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 		if self._clip != clip:
 			self._init_data()
 			self._clip = clip
+			# a new clip with the same notes (a duplicate) must still be parsed
+			self._note_cache = None
 
 	def set_note_cache(self, note_cache):
 		if self._note_cache != note_cache:
@@ -167,65 +188,105 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 
 	def set_page(self, page):
 		self._page = page
+		self._ensure_steps((page + 1) * 8)
+
+	def _step_of(self, time):
+		"""The step a note time falls in, or None before time 0."""
+		if time < 0:
+			return None
+		return int(time // self._quantization)
+
+	def _lane_of(self, pitch, octave):
+		"""The lane (scale degree row) showing pitch in the given octave index, or None."""
+		for lane in range(min(LANES, len(self._key_indexes))):
+			if pitch == self._key_indexes[lane] + 12 * (octave - 2):
+				return lane
+		return None
+
+	def _lane_and_octave_of(self, pitch):
+		for lane in range(min(LANES, len(self._key_indexes))):
+			for octave in range(OCTAVES):
+				if pitch == self._key_indexes[lane] + 12 * (octave - 2):
+					return lane, octave
+		return None
+
+	def _set_step_from_note(self, step, note):
+		"""The first note of a step sets the step's velocity and length."""
+		velocity, length = note[3], note[2]
+		for x in range(7):
+			if velocity >= self._velocity_map[x]:
+				self._notes_velocities[step] = x
+		for x in range(7):
+			if length * 4 >= self._length_map[x] * self._quantization:
+				self._notes_lengths[step] = x
 
 	def _parse_notes(self):
-		# clear notes
-		for i in range(len(self._notes_pitches)):
-			self._notes_pitches[i] = 0
+		notes = list(self._note_cache or ())
+		steps = [self._step_of(note[1]) for note in notes]
+		self._ensure_steps(max([s + 1 for s in steps if s is not None] + [0]))
+		self._notes_pitches = [0] * len(self._notes_pitches)
 
-		first_note = [True] * 128
+		# the first unmuted note of a step that fits a lane sets the step's octave
+		first = {}
+		for index, note in enumerate(notes):
+			step = steps[index]
+			if step is None or note[4] or step in first:
+				continue
+			found = self._lane_and_octave_of(note[0])
+			if found is not None:
+				first[step] = index
+				self._notes_octaves[step] = found[1]
+				self._set_step_from_note(step, note)
 
-		for note in self._note_cache:
-			note_position = note[1]
-			note_key = note[0]
-			note_length = note[2]
-			note_velocity = note[3]
-			note_muted = note[4]
-			i = int(note_position / self._quantization)
-
-			if not note_muted:
-				if first_note[i]:
-					first_note[i] = False
-
-					# velocity
-					for x in range(7):
-						if note_velocity >= self._velocity_map[x]:
-							self._notes_velocities[i] = x
-
-					# length
-					for x in range(7):
-						if note_length * 4 >= self._length_map[x] * self._quantization:
-							self._notes_lengths[i] = x
-
-					# note and octave
-					found = False
-					for j in range(max(7, len(self._key_indexes))):
-						for octave in range(7):
-							if note_key == self._key_indexes[j] + 12 * (octave - 2) and not found:
-								found = True
-								self._notes_octaves[i] = octave
-								self._notes_pitches[i * 7 + j] = 1
-				elif not self._is_monophonic:
-					# note
-					found = False
-					for j in range(max(7, len(self._key_indexes))):
-						if note_key == self._key_indexes[j] + 12 * (self._notes_octaves[i] - 2) and not found:
-							found = True
-							self._notes_pitches[i * 7 + j] = 1
+		# a note is shown when it is on a lane in its step's octave; the others are kept
+		shown = {}
+		kept = []
+		for index, note in enumerate(notes):
+			step = steps[index]
+			lane = None if step is None else self._lane_of(note[0], self._notes_octaves[step])
+			if lane is None or note[4] or (self._is_monophonic and first.get(step) != index):
+				kept.append(note)
+				continue
+			self._notes_pitches[step * LANES + lane] = 1
+			shown.setdefault(step, []).append(note)
+		self._shown_notes = shown
+		self._kept_notes = kept
+		self._grid_steps = self._notes_from_grid()
 		self._update_matrix()
 
+	def _notes_from_grid(self):
+		"""step -> the (pitch, time, length, velocity) notes the grid gives for that step."""
+		steps = {}
+		for x in range(len(self._notes_velocities)):
+			for note_index in range(LANES):
+				if self._notes_pitches[x * LANES + note_index] == 1:
+					time = x * self._quantization
+					velocity = self._velocity_map[self._notes_velocities[x]]
+					length = self._length_map[self._notes_lengths[x]] * self._quantization / 4.0
+					pitch = self._key_indexes[note_index] + 12 * (self._notes_octaves[x] - 2)
+					if(pitch >= 0 and pitch < 128 and velocity >= 0 and velocity < 128 and length >= 0):
+						steps.setdefault(x, []).append((pitch, time, length, velocity))
+		return steps
+
 	def _update_clip_notes(self):
+		"""Write the grid to the clip. Only the steps the grid changed are rewritten: other
+		steps keep the clip's notes as they are, and notes the grid cannot show are kept."""
 		if self._clip != None and self._step_sequencer.is_enabled():
-			note_cache = list()
-			for x in range(len(self._notes_velocities)):
-				for note_index in range(7):
-					if self._notes_pitches[x * 7 + note_index] == 1:
-						time = x * self._quantization
-						velocity = self._velocity_map[self._notes_velocities[x]]
-						length = self._length_map[self._notes_lengths[x]] * int(self._quantization / 4.0)
-						pitch = self._key_indexes[note_index] + 12 * (self._notes_octaves[x] - 2)
-						if(pitch >= 0 and pitch < 128 and velocity >= 0 and velocity < 128 and length >= 0):
-							note_cache.append([pitch, time, length, velocity, False])
+			grid = self._notes_from_grid()
+			note_cache = list(self._kept_notes)
+			shown = {}
+			for step in sorted(set(grid) | set(self._shown_notes)):
+				if grid.get(step) == self._grid_steps.get(step):
+					step_notes = self._shown_notes.get(step, [])
+				else:
+					step_notes = [(pitch, time, length, velocity, False)
+						for (pitch, time, length, velocity) in grid.get(step, ())]
+				if step_notes:
+					shown[step] = step_notes
+				note_cache.extend(step_notes)
+			# before writing: Live may call the notes listener (and parse) during the write
+			self._shown_notes = shown
+			self._grid_steps = grid
 			write_all_notes(self._clip, note_cache)
 			#self._control_surface.schedule_message(1, self._sch_update, ([self._clip,tuple(note_cache)]))
 
@@ -291,7 +352,10 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 
 			# update back buffer
 			if self._clip != None:
-				
+				self._ensure_steps((self._page + 1) * 8)
+				if self._playhead != None:
+					self._ensure_steps(int(self._playhead / self.quantization) + 1)
+
 				for x in range(8):
 					has_note = False
 					for y in range(7):
@@ -392,6 +456,8 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 					# only update this page.
 					start = self._page * 8
 					end = (self._page + 1) * 8
+				start = max(start, 0)
+				self._ensure_steps(max(end, (self._page + 1) * 8))
 
 				if ((value != 0) or (not is_momentary)) and y < 7:
 					if self._mode == STEPSEQ_MODE_NOTES:
@@ -494,6 +560,8 @@ class MelodicNoteEditorComponent(ControlSurfaceComponent):
 			# only update this page.
 			start = self._page * 8
 			end = (self._page + 1) * 8
+		start = max(start, 0)
+		self._ensure_steps(end)
 
 		for x in range(start, end):
 			if self._mode == STEPSEQ_MODE_NOTES:

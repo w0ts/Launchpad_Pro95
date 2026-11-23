@@ -1261,7 +1261,8 @@ class StepSequencerComponent(CompoundComponent):
 		self._note_editor.set_playhead(None)
 		self._note_selector.set_playhead(None)
 		self._loop_selector.set_playhead(None)
-		# reload notes
+		# reload notes (also when the new clip has the same notes, e.g. a duplicate)
+		self._note_cache = None
 		self._on_notes_changed()
 
 	def _on_notes_changed(self):  # trigger by callback on clip or via _clip_changed.
