@@ -6,13 +6,11 @@ from _Framework.ButtonMatrixElement import ButtonMatrixElement
 from _Framework.ControlSurfaceComponent import ControlSurfaceComponent
 
 from .ClipNotes import write_all_notes
+from .LoopSelectorComponent import LoopSelectorComponent
+from .NoteSelectorComponent import NoteSelectorComponent
 from .ScaleComponent import ScaleComponent
-from .StepSequencerComponent import (
-    STEPSEQ_MODE_SCALE_EDIT,
-    LoopSelectorComponent,
-    NoteSelectorComponent,
-    StepSequencerComponent,
-)
+from .StepSequencerComponent import StepSequencerComponent
+from .StepSequencerConsts import STEPSEQ_MODE_SCALE_EDIT
 from .TrackControllerComponent import TrackControllerComponent
 
 STEPSEQ_MODE_NOTES = 1
