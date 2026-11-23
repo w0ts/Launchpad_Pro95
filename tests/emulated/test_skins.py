@@ -30,6 +30,8 @@ SKIN_FILES = ("SkinMK2.py", "Colors.py")
 KEY_LISTS = ("QUANTIZATION_COLOR_MAP", "velocity_color_map")
 # Strings assigned to the grid buffers and drawn later with set_light.
 BUFFER_NAMES = ("_grid_back_buffer", "_cache")
+# Local variables holding a skin key that is drawn later (e.g. the session's stop buttons).
+KEY_VARIABLES = ("value_to_send",)
 
 
 def _string_args(node):
@@ -75,7 +77,7 @@ def requested_keys():
                 if any(name in KEY_LISTS for name in names):
                     for element in getattr(node.value, "elts", ()):
                         found.append((where, element.value, False))
-                elif any(name in BUFFER_NAMES for name in names):
+                elif any(name in BUFFER_NAMES + KEY_VARIABLES for name in names):
                     value = node.value
                     if isinstance(value, ast.Constant) and isinstance(value.value, str) and "." in value.value:
                         found.append((where, value.value, False))

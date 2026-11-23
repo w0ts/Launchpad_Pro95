@@ -148,6 +148,17 @@ def test_stop_clip_mode_row_stops_a_track(make_rig):
     assert rig.song.tracks[4].fired_slot_index == -2
 
 
+def test_stop_clip_mode_row_shows_stopped_and_playing_tracks(make_rig):
+    rig = make_rig(song=make_song(clips=[(4, 0)]))
+    rig.tap(4, 0)
+    rig.song.advance(1.0)
+    rig.tap_bottom(BOTTOM["stop_clip"])
+    rig.tick()
+    skin = rig.surface._skin
+    assert rig.device.grid_led(4, 7).static == int(skin["Session.StopClip"])
+    assert rig.device.grid_led(3, 7).static == int(skin["Session.StoppedClip"])
+
+
 def test_stop_clip_mode_scene_button_stops_the_scene(make_rig):
     rig = make_rig(song=make_song(clips=[(1, 0), (2, 0)]))
     rig.tap_side(0)

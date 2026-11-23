@@ -99,6 +99,7 @@ class Colors:
         # stop button
         StopClip = Rgb.RED
         StopClipTriggered = Rgb.RED_BLINK
+        StoppedClip = Rgb.RED_HALF  # nothing playing: dimmed StopClip, like ClipStopped
         Enabled = Rgb.GREEN
         Off = Rgb.GREEN_HALF
 
