@@ -212,3 +212,62 @@ def test_finer_quantization_never_makes_an_empty_loop(make_rig):
     ratio = editor(rig).quantization / before
     assert clip(rig).loop_end == pytest.approx(1.0 * ratio)
     assert clip(rig).loop_end > clip(rig).loop_start
+
+
+@pytest.mark.parametrize(
+    "button, values",
+    [(OCTAVE, "_notes_octaves"), (VELOCITY, "_notes_velocities"), (LENGTH, "_notes_lengths")],
+    ids=["octave", "velocity", "length"],
+)
+def test_held_page_button_edits_every_step_of_the_loop(melodic_rig, button, values):
+    rig = melodic_rig
+    ed = editor(rig)
+    steps = int(clip(rig).loop_end / ed.quantization)
+    rig.tap_side(button)
+    rig.press_side(button)
+    rig.tap(1, 3)  # left half: every step takes this row
+    assert getattr(ed, values)[:steps] == [3] * steps
+    rig.tap(5, 0)  # right half, upper rows: one up
+    assert getattr(ed, values)[:steps] == [4] * steps
+    rig.tap(5, 6)  # right half, lower rows: one down
+    rig.tap(5, 6)
+    assert getattr(ed, values)[:steps] == [2] * steps
+    rig.release_side(button)
+    rig.tap(0, 0)  # not held: one step
+    assert getattr(ed, values)[:2] == [6, 2]
+
+
+def test_held_pitch_button_sets_every_step_of_the_loop(melodic_rig):
+    rig = melodic_rig
+    ed = editor(rig)
+    rig.press_side(PITCH)
+    rig.tap(0, 4)
+    rig.release_side(PITCH)
+    steps = int(clip(rig).loop_end / ed.quantization)
+    assert len(clip(rig).note_tuples()) == steps
+    assert len({n[0] for n in clip(rig).note_tuples()}) == 1
+
+
+def test_double_tap_on_pitch_toggles_monophonic(melodic_rig):
+    rig = melodic_rig
+    rig.tap_side(PITCH)
+    rig.tap_side(PITCH)
+    assert editor(rig)._is_monophonic
+    rig.tap(0, 2)
+    rig.tap(0, 4)
+    assert len(clip(rig).note_tuples()) == 1
+
+
+PAGES = {PITCH: "Pitch", OCTAVE: "Octave", VELOCITY: "Velocity", LENGTH: "Length"}
+
+
+@pytest.mark.parametrize("button", sorted(PAGES))
+def test_page_button_is_on_and_the_others_dim(melodic_rig, button):
+    rig = melodic_rig
+    skin = rig.surface._skin
+    rig.wait(0.6)  # not a double tap on pitch
+    rig.tap_side(button)
+    rig.tick()
+    for index, name in PAGES.items():
+        wanted = skin[f"StepSequencer2.{name}." + ("On" if index == button else "Dim")]
+        assert rig.device.side_led(index).static == int(wanted), name

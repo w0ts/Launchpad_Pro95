@@ -236,3 +236,87 @@ def test_playhead_moves_with_the_clip(seq_rig):
     rig.song.advance(1.0)
     rig.tick()
     assert editor(rig)._playhead is not None
+
+
+OCTAVE_UP, OCTAVE_DOWN, LOCK = 1, 2, 7
+
+
+def selected_note(rig):
+    return stepseq(rig)._note_selector.selected_note
+
+
+def test_octave_buttons_move_the_note_by_an_octave(seq_rig):
+    rig = seq_rig
+    start = selected_note(rig)
+    rig.tap_side(OCTAVE_UP)
+    assert selected_note(rig) == start + 12
+    rig.tap_side(OCTAVE_DOWN)
+    rig.tap_side(OCTAVE_DOWN)
+    assert selected_note(rig) == start - 12
+
+
+def test_octave_buttons_with_mute_shift_move_the_note_by_a_semitone(seq_rig):
+    rig = seq_rig
+    start = selected_note(rig)
+    rig.press_side(MUTE_SHIFT)
+    rig.tap_side(OCTAVE_UP)
+    rig.tap_side(OCTAVE_UP)
+    rig.tap_side(OCTAVE_DOWN)
+    rig.release_side(MUTE_SHIFT)
+    assert selected_note(rig) == start + 1
+
+
+def test_octave_down_button_is_dim_at_the_bottom(seq_rig):
+    rig = seq_rig
+    skin = rig.surface._skin
+    for _ in range(12):
+        rig.tap_side(OCTAVE_DOWN)
+    rig.tick()
+    assert selected_note(rig) < 12
+    assert rig.device.side_led(OCTAVE_DOWN).static == int(skin["StepSequencer.Octave.Off"])
+    assert rig.device.side_led(OCTAVE_UP).static == int(skin["StepSequencer.Octave.On"])
+
+
+def test_mute_shift_and_note_pad_mutes_the_whole_lane(seq_rig):
+    rig = seq_rig
+    pitch = editor(rig)._key_indexes[0]
+    add_note(rig, 0.0)
+    add_note(rig, 1.0)
+    add_note(rig, 2.0, pitch=pitch + 1)
+    rig.press_side(MUTE_SHIFT)
+    rig.tap(0, 7)  # note selector pad of the edited note
+    rig.release_side(MUTE_SHIFT)
+    muted = {(n[0], n[1]): n[4] for n in clip(rig).note_tuples()}
+    assert muted == {(pitch, 0.0): True, (pitch, 1.0): True, (pitch + 1, 2.0): False}
+
+
+def test_mute_and_velocity_shift_and_loop_block_mutes_its_notes(seq_rig):
+    rig = seq_rig
+    q = stepseq(rig)._quantization
+    add_note(rig, 0.0)
+    add_note(rig, 8 * q)
+    rig.press_side(MUTE_SHIFT)
+    rig.press_side(VELOCITY)
+    rig.press(4, 4)
+    rig.press(4, 4)
+    rig.release(4, 4)
+    rig.release_side(VELOCITY)
+    rig.release_side(MUTE_SHIFT)
+    assert sorted((n[1], n[4]) for n in clip(rig).note_tuples()) == [(0.0, True), (8 * q, False)]
+
+
+def test_long_press_on_lock_follows_the_clip_launched_on_the_track(make_rig):
+    rig = make_rig(song=make_song(clips=[(0, 0), (0, 1)]))
+    rig.tap_top(TOP["user"])
+    rig.tick()
+    rig.press_side(LOCK)
+    rig.wait(0.8)
+    rig.release_side(LOCK)
+    assert stepseq(rig)._is_locked and stepseq(rig)._lock_to_track
+    rig.song.start_playing()
+    rig.song.tracks[0].clip_slots[1].fire()
+    rig.song.advance(1.0)
+    rig.song.view.selected_scene = rig.song.scenes[1]
+    rig.song.view.selected_scene = rig.song.scenes[0]  # another scene: the playing clip stays
+    rig.tick(2)
+    assert stepseq(rig)._clip is clip(rig, 0, 1)
