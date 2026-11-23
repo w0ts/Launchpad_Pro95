@@ -279,3 +279,15 @@ def test_mixer_pads_past_the_last_track(make_rig, mode):
     rig.tap_side(0)
     rig.tap_side(7)
     rig.tick()
+
+
+@pytest.mark.parametrize("enter", [_drum_seq, _melodic_seq], ids=["drum seq", "melodic seq"])
+def test_loop_selector_disconnect_releases_its_buttons(make_rig, enter):
+    rig = enter(make_rig)
+    seq = rig.surface._step_sequencer2 if enter is _melodic_seq else rig.surface._step_sequencer
+    loop = seq._loop_selector
+    buttons = list(loop._buttons)
+    assert any(button.value_has_listener(loop._loop_button_value) for button in buttons)
+    rig.disconnect()
+    assert not any(button.value_has_listener(loop._loop_button_value) for button in buttons)
+    assert not hasattr(loop, "_top_buttons")

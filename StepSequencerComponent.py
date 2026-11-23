@@ -462,7 +462,8 @@ class LoopSelectorComponent(ControlSurfaceComponent):
                 button.add_value_listener(self._loop_button_value, identify_sender=True)
 
     def disconnect(self):
-        self._top_buttons = None
+        self.set_buttons(None)
+        super().disconnect()
 
     @property
     def _number_of_lines_per_note(self):
