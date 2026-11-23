@@ -49,46 +49,46 @@ What changed in Launchpad Pro95, newest first. The format follows
 - The manual moves to `site/`, published by GitHub Pages; the README is `README.md`; this change log replaces the
   manual's history list.
 
-## 2025-01-28
+## [2025-01-28]
 
 - Step sequencer fixes (thanks John).
 
-## 2023-02-01
+## [2023-02-01]
 
 - Python 3 fixes (thanks jefffm).
 
-## 2021-02-05
+## [2021-02-05]
 
 - Live 11 support.
 
-## 2018-06-08
+## [2018-06-08]
 
 - Duplicate clip in session view (thanks marctdt).
 
-## 2018-01-29
+## [2018-01-29]
 
 - Fixes for Ableton Live 10.
 
-## 2017-01-04
+## [2017-01-04]
 
 - Custom scale mode, a contribution from boblemarin.
 
-## 2016-04-09
+## [2016-04-09]
 
 - Bug fixes, minor skin updates.
 
-## 2016-03-28
+## [2016-03-28]
 
 - Bug fixes; part of the code merged with Launchpad95.
 
-## 2016-01-10
+## [2016-01-10]
 
 - Bug fixes.
 
-## 2015-12-28
+## [2015-12-28]
 
 - First public version.
 
-## 2015-10
+## [2015-10]
 
 - Work on an initial version.

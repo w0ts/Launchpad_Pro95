@@ -60,7 +60,21 @@ Python of Live 11+). They also run on GitHub Actions, with ruff and black. How t
 | `Settings.py` | Experimental options |
 | `tests/` | The test suite, the fake Live API and the emulated Launchpad Pro |
 | `scripts/fetch_framework.sh` | Fetches the decompiled `_Framework` the tests import |
+| `scripts/build_release.sh` | Builds the release zip (`scripts/build_release.sh 1.2.3 dist`) |
+| `scripts/release_notes.sh` | Prints a version's section of `CHANGELOG.md` (the release notes) |
 | `site/` | The user site, deployed by `.github/workflows/pages.yml` |
+
+### Releasing
+
+1. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [x.y.z] - YYYY-MM-DD` (and start a new empty
+   `## [Unreleased]` above it if you like). Commit and push to `master`.
+2. Tag that commit and push the tag: `git tag vx.y.z && git push origin vx.y.z`.
+
+`.github/workflows/release.yml` does the rest: it runs the tests and lint, builds `Launchpad_Pro95.zip` (one
+`Launchpad_Pro95/` folder with the script, `LICENSE`, `README.md` and `CHANGELOG.md`), and creates the GitHub release
+"Launchpad Pro95 x.y.z" with that CHANGELOG section as its notes. The release fails if the section is missing.
+The [legacy-live9-10](https://github.com/w0ts/Launchpad_Pro95/releases/tag/legacy-live9-10) release stays as the
+version for Live 9.5 and Live 10.
 
 ## Contributing
 
