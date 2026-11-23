@@ -143,3 +143,34 @@ def test_strip_without_parameter_is_not_quantized(framework):
 		_parameter_to_map_to = None
 
 	assert DeviceControllerStrip._is_quantized.fget(NoParameter()) is False
+
+
+def test_device_inside_a_rack_does_not_break_the_device_buttons(make_rig):
+	"""A device in a rack chain is not in track.devices: selected_device_idx is None."""
+	song = make_song()
+	inner = Live.Device.Device(name="Inner", class_name="TestSynth", num_parameters=8)
+	rack = Live.RackDevice.RackDevice(name="Rack", chains=(Live.Chain.Chain(devices=(inner,)),))
+	rack.canonical_parent = song.tracks[0]
+	song.tracks[0].devices = (rack,)
+	song.tracks[0].view.selected_device = inner
+	song.appointed_device = inner
+	rig = make_rig(song=song)
+	rig.tap_top(TOP["device"])
+	rig.tick(2)
+	assert component(rig)._device is inner
+	rig.tap_top(TOP["up"])
+	rig.tap_top(TOP["down"])
+	rig.tick()
+
+
+@pytest.mark.parametrize("which", ["return", "master"])
+def test_device_mode_with_a_return_or_master_track_selected(make_rig, which):
+	rig = make_rig(song=device_song())
+	song = rig.song
+	song.view.selected_track = song.return_tracks[0] if which == "return" else song.master_track
+	rig.tick()
+	rig.tap_top(TOP["device"])
+	rig.tick(2)
+	rig.tap_top(TOP["left"])
+	rig.tap_top(TOP["right"])
+	rig.tick()

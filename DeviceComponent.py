@@ -412,14 +412,14 @@ class DeviceComponent(LiveDeviceComponent):
 		if self.is_enabled():
 			if(self._prev_track_button != None):
 				self._prev_track_button.set_on_off_values("Mode.Device.On", "Mode.Device.Off")
-				if(self.selected_track_idx > 0 and not self._locked_to_device2):
+				if(self.selected_track_idx is not None and self.selected_track_idx > 0 and not self._locked_to_device2):
 					self._prev_track_button.turn_on()
 				else:
 					self._prev_track_button.turn_off()
 
 			if(self._next_track_button != None):
 				self._next_track_button.set_on_off_values("Mode.Device.On", "Mode.Device.Off")
-				if(self.selected_track_idx < len(self.song().tracks) - 1 and not self._locked_to_device2):
+				if(self.selected_track_idx is not None and self.selected_track_idx < len(self.song().tracks) - 1 and not self._locked_to_device2):
 					self._next_track_button.turn_on()
 				else:
 					self._next_track_button.turn_off()
@@ -439,7 +439,7 @@ class DeviceComponent(LiveDeviceComponent):
 		assert (value in range(128))
 		if self.is_enabled():
 			if ((not sender.is_momentary()) or (value != 0)):
-				if(self.selected_track_idx < len(self.song().tracks) - 1 and not self._locked_to_device2):
+				if(self.selected_track_idx is not None and self.selected_track_idx < len(self.song().tracks) - 1 and not self._locked_to_device2):
 					self.song().view.selected_track = self.song().tracks[self.selected_track_idx + 1]
 
 	def set_prev_track_button(self, button):
@@ -458,7 +458,7 @@ class DeviceComponent(LiveDeviceComponent):
 		assert (value in range(128))
 		if ((not sender.is_momentary()) or (value != 0)):
 			if self.is_enabled():
-				if(self.selected_track_idx > 0 and not self._locked_to_device2):
+				if(self.selected_track_idx is not None and self.selected_track_idx > 0 and not self._locked_to_device2):
 					self.song().view.selected_track = self.song().tracks[self.selected_track_idx - 1]
 					self.update()
 
@@ -472,13 +472,13 @@ class DeviceComponent(LiveDeviceComponent):
 		if self.is_enabled():
 			if(self._prev_device_button != None):
 				self._prev_device_button.set_on_off_values("Mode.Device.On", "Mode.Device.Off")
-				if(len(self.selected_track().devices) > 0 and self.selected_device_idx > 0 and not self._locked_to_device2):
+				if(len(self.selected_track().devices) > 0 and self.selected_device_idx is not None and self.selected_device_idx > 0 and not self._locked_to_device2):
 					self._prev_device_button.turn_on()
 				else:
 					self._prev_device_button.turn_off()
 			if(self._next_device_button != None):
 				self._next_device_button.set_on_off_values("Mode.Device.On", "Mode.Device.Off")
-				if(len(self.selected_track().devices) > 0 and self.selected_device_idx < len(self.selected_track().devices) - 1 and not self._locked_to_device2 ):
+				if(len(self.selected_track().devices) > 0 and self.selected_device_idx is not None and self.selected_device_idx < len(self.selected_track().devices) - 1 and not self._locked_to_device2 ):
 					self._next_device_button.turn_on()
 				else:
 					self._next_device_button.turn_off()
@@ -499,7 +499,7 @@ class DeviceComponent(LiveDeviceComponent):
 		if self.is_enabled():
 			if ((not sender.is_momentary()) or (value != 0)):
 				if self.selected_track() != None and len(self.selected_track().devices) > 0:
-					if(self.selected_device_idx < len(self.selected_track().devices) - 1 and not self._locked_to_device2):
+					if(self.selected_device_idx is not None and self.selected_device_idx < len(self.selected_track().devices) - 1 and not self._locked_to_device2):
 						self.song().view.select_device(self.selected_track().devices[self.selected_device_idx + 1])
 
 	def set_prev_device_button(self, button):
@@ -518,11 +518,12 @@ class DeviceComponent(LiveDeviceComponent):
 		if self.is_enabled():
 			if ((not sender.is_momentary()) or (value != 0)):
 				if self.selected_track() != None and len(self.selected_track().devices) > 0:
-					if(self.selected_device_idx > 0 and not self._locked_to_device2):
+					if(self.selected_device_idx is not None and self.selected_device_idx > 0 and not self._locked_to_device2):
 						self.song().view.select_device(self.selected_track().devices[self.selected_device_idx - 1])
 
 	@property
 	def selected_device_idx(self):
+		# None: the device is not on the selected track's chain (inside a rack, or locked elsewhere)
 		devices = list(self.song().view.selected_track.devices)
 		return devices.index(self._device) if self._device in devices else None
 		#return self.tuple_idx(self.song().view.selected_track.devices, self._device)
