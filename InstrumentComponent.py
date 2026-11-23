@@ -13,13 +13,7 @@ from .consts import (
     USER_LAYOUT_SYSEX_BYTE,
 )
 from .NoteComponent import NoteComponent
-
-# from .consts import ACTION_BUTTON_COLORS
-# from .DrumGroupComponent import DrumGroupComponent
-# from .DrumGroupFinderComponent import DrumGroupFinderComponent
 from .ScaleComponent import ScaleComponent
-
-# from .DrumGroupFinderComponent import DrumGroupFinderComponent
 
 
 class InstrumentComponent(ControlSurfaceComponent):
@@ -54,7 +48,16 @@ class InstrumentComponent(ControlSurfaceComponent):
 
         super().__init__(*a, **k)
 
+    def _layout(self, layout_byte):
+        """The layout sysex sent on entering an instrument sub mode."""
+        setup = self._control_surface._layout_setup
+        return [
+            partial(setup, SESSION_LAYOUT_SYSEX_BYTE),
+            partial(setup, layout_byte, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT),
+        ]
+
     def set_layers(self, midimap):
+        scene_buttons = midimap["Scene_Launch_Button_Matrix_Raw"][0]
         common_layer_mode = LayerMode(
             self._common_component,
             layer=Layer(
@@ -62,96 +65,51 @@ class InstrumentComponent(ControlSurfaceComponent):
                 arrow_right_button=midimap["Arrow_Right_Button"],
                 arrow_up_button=midimap["Arrow_Up_Button"],
                 arrow_down_button=midimap["Arrow_Down_Button"],
-                scale_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][0],
-                scale_up_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][1],
-                scale_down_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][2],
-                dummy_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][3],
-                play_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][6],
-                stop_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][7],
+                scale_button=scene_buttons[0],
+                scale_up_button=scene_buttons[1],
+                scale_down_button=scene_buttons[2],
+                dummy_button=scene_buttons[3],
+                play_button=scene_buttons[6],
+                stop_button=scene_buttons[7],
             ),
         )
+        self._add_drum_mode(midimap, common_layer_mode)
+        self._add_matrix_mode("scale_mode", self._scale_component, midimap, common_layer_mode)
+        self._add_matrix_mode("note_mode", self._note_component, midimap, common_layer_mode)
+        self._add_audio_mode(midimap, common_layer_mode)
 
+    def _add_drum_mode(self, midimap, common_layer_mode):
+        scene_buttons = midimap["Scene_Launch_Button_Matrix_Raw"][0]
         drum_group_layer_mode = LayerMode(
             self._control_surface._drum_group,
             layer=Layer(
-                # scroll_up_button = midimap['Scene_Launch_Button_Matrix_Raw'][0][1],
-                # scroll_down_button = midimap['Scene_Launch_Button_Matrix_Raw'][0][2],
-                mute_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][4],
-                solo_button=midimap["Scene_Launch_Button_Matrix_Raw"][0][5],
-                # scroll_up_button=midimap['Arrow_Left_Button'],
-                # scroll_down_button=midimap['Arrow_Right_Button'],
-                # scroll_page_up_button=midimap['Arrow_Up_Button'],
-                # scroll_page_down_button=midimap['Arrow_Down_Button'],
-                # drum_matrix = midimap['Drum_Button_Matrix']#,
+                mute_button=scene_buttons[4],
+                solo_button=scene_buttons[5],
                 drum_matrix=midimap["Main_Button_Matrix"],
-                # select_button = midimap['Shift_Button'],
-                # delete_button = midimap['Delete_Button']
             ),
         )
-
         self._modes.add_mode(
             "drum_mode",
-            [
-                partial(self._control_surface._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
-                partial(
-                    self._control_surface._layout_setup, USER_LAYOUT_SYSEX_BYTE, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT
-                ),
-                # partial(self._control_surface._layout_setup, DRUM_LAYOUT_SYSEX_BYTE),
+            self._layout(USER_LAYOUT_SYSEX_BYTE)
+            + [
+                # called here, once: the mode gets its result (None)
                 self._control_surface._setup_drum_group(),
                 drum_group_layer_mode,
-                common_layer_mode,  # ,
-                # drum_mode_note_matrix_translation
+                common_layer_mode,
             ],
         )
 
-        scale_layer_mode = LayerMode(self._scale_component, layer=Layer(matrix=midimap["Main_Button_Matrix"]))
-        self._modes.add_mode(
-            "scale_mode",
-            [
-                partial(self._control_surface._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
-                partial(
-                    self._control_surface._layout_setup, USER_LAYOUT_SYSEX_BYTE, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT
-                ),
-                scale_layer_mode,
-                common_layer_mode,  # ,
-                # drum_mode_note_matrix_translation
-            ],
-        )
-        note_layer_mode = LayerMode(
-            self._note_component,
-            layer=Layer(
-                matrix=midimap["Main_Button_Matrix"]
-                # select_button = midimap['Shift_Button'],
-                # delete_button = midimap['Delete_Button']
-            ),
-        )
-        self._modes.add_mode(
-            "note_mode",
-            [
-                partial(self._control_surface._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
-                partial(
-                    self._control_surface._layout_setup, USER_LAYOUT_SYSEX_BYTE, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT
-                ),
-                note_layer_mode,
-                common_layer_mode,  # ,
-                # drum_mode_note_matrix_translation
-            ],
-        )
+    def _add_matrix_mode(self, name, component, midimap, common_layer_mode):
+        """The scale editor or the note pads on the grid."""
+        layer_mode = LayerMode(component, layer=Layer(matrix=midimap["Main_Button_Matrix"]))
+        self._modes.add_mode(name, self._layout(USER_LAYOUT_SYSEX_BYTE) + [layer_mode, common_layer_mode])
 
-        # Audio mode
+    def _add_audio_mode(self, midimap, common_layer_mode):
         audio_layer_mode = LayerMode(AudioModeComponent(), layer=Layer(matrix=midimap["Main_Button_Matrix"]))
         self._modes.add_mode(
             "audio_mode",
-            [
-                partial(self._control_surface._layout_setup, SESSION_LAYOUT_SYSEX_BYTE),
-                partial(
-                    self._control_surface._layout_setup, DRUM_LAYOUT_SYSEX_BYTE, SYSEX_PARAM_BYTE_STANDALONE_LAYOUT
-                ),
-                # partial(self._control_surface._layout_setup, DRUM_LAYOUT_SYSEX_BYTE),#AUDIO_LAYOUT_SYSEX_BYTE),
-                self._control_surface._clip_delete_layer_mode,
-                common_layer_mode,
-                audio_layer_mode,
-            ],
+            self._layout(DRUM_LAYOUT_SYSEX_BYTE)
+            + [self._control_surface._clip_delete_layer_mode, common_layer_mode, audio_layer_mode],
         )
 
     def set_enabled(self, enabled):
