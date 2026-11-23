@@ -1,5 +1,25 @@
-# Test configuration only: Launchpad_Pro95 is an Ableton Live MIDI Remote Script, not a
+# Test and lint configuration only: Launchpad_Pro95 is an Ableton Live MIDI Remote Script, not a
 # Python distribution. See tests/README.md.
+
+# Live 11+ runs Python 3.11. CI pins the tool versions (.github/workflows/tests.yml).
+# Same settings as Launchpad95.
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "I"]
+ignore = [
+	# "x != None" must stay: a Live object whose C++ object was deleted compares equal to
+	# None, which "x is not None" does not see.
+	"E711",
+	# black owns the line length; what it leaves long is comments (mostly commented-out code).
+	"E501",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
