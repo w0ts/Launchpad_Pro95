@@ -273,35 +273,6 @@ class Colors:
         Off = Rgb.RED_HALF
         Transition = Rgb.RED_BLINK
 
-    class TrackController:
-        class Recording:
-            On = Rgb.RED
-            Off = Rgb.RED_HALF
-
-        class ImplicitRecording:
-            On = Rgb.RED
-            Off = Rgb.RED_HALF
-
-        class Play:
-            On = Rgb.RED
-            Off = Rgb.RED_HALF
-
-        class Stop:
-            On = Rgb.RED
-            Off = Rgb.RED_HALF
-
-        class Mute:
-            On = Rgb.RED
-            Off = Rgb.RED_HALF
-
-        class Undo:
-            On = Rgb.RED
-            Off = Rgb.RED_HALF
-
-        class Solo:
-            On = Rgb.AMBER
-            Off = Rgb.AMBER_HALF
-
     class DrumGroup:
         PadEmpty = Rgb.BLACK
         PadFilled = Rgb.YELLOW

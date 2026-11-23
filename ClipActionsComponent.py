@@ -56,7 +56,6 @@ class ClipActionsComponent(ControlSurfaceComponent, Subject):
     __subject_events__ = ("selected_clip",)
 
     def __init__(self, target_track_component, *a, **k):
-        self._locked_clip = None
         super().__init__(*a, **k)
         self._target_track_component = target_track_component
         self._on_track_changed.subject = self._target_track_component
@@ -66,10 +65,7 @@ class ClipActionsComponent(ControlSurfaceComponent, Subject):
         self._on_selection_changed()
 
     def get_clip(self):
-        if self._locked_clip == None:
-            return self._selected_clip
-        else:
-            return self._locked_clip
+        return self._selected_clip
 
     def use_selected_track(self, use_selected_track):
         self._use_selected_track = use_selected_track
@@ -122,16 +118,15 @@ class ClipActionsComponent(ControlSurfaceComponent, Subject):
 
     @subject_slot("playing_slot_index")
     def _on_selection_changed(self):
-        if self._locked_clip == None:
-            self._selected_clip = None
-            if self._track in self.song().tracks:
-                slot_index = self._track.playing_slot_index
-                if slot_index >= 0 and self._track.clip_slots[slot_index].has_clip:
-                    self._selected_clip = self._track.clip_slots[slot_index].clip
-                self._on_selection_changed.subject = self._track
-            else:
-                self._on_selection_changed.subject = None
-            self._update_control_states()
+        self._selected_clip = None
+        if self._track in self.song().tracks:
+            slot_index = self._track.playing_slot_index
+            if slot_index >= 0 and self._track.clip_slots[slot_index].has_clip:
+                self._selected_clip = self._track.clip_slots[slot_index].clip
+            self._on_selection_changed.subject = self._track
+        else:
+            self._on_selection_changed.subject = None
+        self._update_control_states()
 
     def _update_control_states(self):
         can_perform_clip_action = self.can_perform_clip_action()

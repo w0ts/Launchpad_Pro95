@@ -16,8 +16,6 @@ from .ActionsComponent import ActionsComponent
 from .BackgroundComponent import BackgroundComponent, ModifierBackgroundComponent
 from .ClipActionsComponent import ClipActionsComponent
 from .Colors import CLIP_COLOR_TABLE, RGB_COLOR_TABLE
-
-# NEW from .UserMatrixComponent import UserMatrixComponent
 from .consts import (
     CHALLENGE_PREFIX,
     CHROM_MAP_CHANNEL,
@@ -59,8 +57,6 @@ from .SpecialSessionRecordingComponent import SpecialSessionRecordingComponent
 from .StepSequencerComponent import StepSequencerComponent
 from .StepSequencerComponent2 import StepSequencerComponent2
 from .TargetTrackComponent import TargetTrackComponent
-
-# NEW from .LedLightingComponent import LedLightingComponent
 from .TranslationComponent import TranslationComponent
 
 NUM_TRACKS = 8

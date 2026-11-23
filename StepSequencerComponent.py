@@ -874,10 +874,7 @@ class StepSequencerComponent(CompoundComponent):
         self._remove_clip_listeners(self._clip)
         self._clip = None
         self._lock_button = None
-        self._shift_button = None
         self._quantization_button = None
-        self._top_buttons = None
-        self._side_buttons = None
         self._matrix = None
 
         # self._loop_selector = None
